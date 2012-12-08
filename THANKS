@@ -1,0 +1,13 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Thanks --
+
+The Flect developers would like to extend a "thank you" to the following
+projects and their developers for inspiration, great ideas, and advice:
+
+    * D
+      - http://dlang.org
+    * Nimrod
+      - http://nimrod-code.org
+    * Rust
+      - http://www.rust-lang.org

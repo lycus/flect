@@ -1,0 +1,94 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Compatibility --
+
+Flect requires Erlang R15B and (currently) Elixir from Git master. You will
+also need GNU Make and basic POSIX utilities to build.
+
+Flect must be configured at compile time. It needs information about the C99
+compiler to use, operating system (if any), target architecture, application
+binary interface, and so on. Below is a list of the various supported values
+(the values in parentheses are the ones to pass to the makefile).
+
+Compiler (FLECT_CC) supported:
+
+* Clang (clang)
+* GCC (gcc)
+* ICC (icc)
+* ICL (icl)
+
+Note that FLECT_CC is the path to the compiler or the name of its executable
+so a full path can be specified too.
+
+Compiler types (FLECT_CC_TYPE) supported:
+
+* GCC interface (gcc)
+* MSVC interface (msvc)
+
+Operating systems (FLECT_OS) supported:
+
+* None (none)
+* AIX (aix)
+* Android (android)
+* DragonFlyBSD (dragonflybsd)
+* FreeBSD (freebsd)
+* GNU Hurd (hurd)
+* Haiku (haiku)
+* iOS (ios)
+* Linux (linux)
+* Mac OS X (darwin)
+* OpenBSD (openbsd)
+* Solaris (solaris)
+* Windows (windows)
+
+Environment types (FLECT_ENV) supported:
+
+* None (none)
+* Cygwin (cygwin)
+* MinGW (mingw)
+
+Architectures (FLECT_ARCH) supported:
+
+* ARM (arm)
+* Itanium (ia64)
+* MIPS (mips)
+* PA-RISC (hppa)
+* PowerPC (ppc)
+* x86 (x86)
+
+Bitnesses (FLECT_BITS) supported:
+
+* 32-bit memory model (32)
+* 64-bit memory model (64)
+
+Note that certain architecture, ABI, and bitness combinations don't make sense,
+so you can may get compilation errors if you configure these values wrongly.
+
+ABIs (FLECT_ABI) supported:
+
+* ARM
+ - 32-bit ARM w/ Thumb (arm-thumb)
+ - 32-bit ARM Soft (arm-soft)
+ - 32-bit ARM SoftFP (arm-softfp)
+ - 32-bit ARM HardFP (arm-hardfp)
+ - 64-bit ARM (arm-aarch64)
+* Itanium
+ - 64-bit Itanium (ia64-psabi)
+* MIPS
+ - 32-bit MIPS O32 (mips-o32)
+ - 32-bit MIPS N32 (mips-n32)
+ - 64-bit MIPS O64 (mips-o64)
+ - 64-bit MIPS N64 (mips-n64)
+* PA-RISC
+ - 32-bit PA-RISC (hppa-pa32)
+ - 64-bit PA-RISC (hppa-pa64)
+* PowerPC
+ - 32-bit PowerPC SoftFP (ppc-softfp)
+ - 32-bit PowerPC HardFP (ppc-hardfp)
+ - 64-bit PowerPC (ppc-ppc64)
+* x86
+ - 32-bit x86 Microsoft (x86-ms32)
+ - 32-bit x86 System V (x86-sysv32)
+ - 64-bit x86 Microsoft (x86-ms64)
+ - 64-bit x86 System V (x86-sysv64)
+ - 64-bit x86 w/ x32 (x86-x32)

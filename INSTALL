@@ -1,0 +1,46 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Installation --
+
+Installation works through the Mix build tool shipped with Elixir and the
+GNU Make program.
+
+The makefile has a number of targets for building and testing Flect:
+
+* all: Runs deps, ebin, and escript. This is the default target.
+* deps: Fetches and builds all dependencies.
+* ebin: Builds all Flect modules. Runs deps if needed.
+* escript: Builds the escriptized Flect binary. Runs ebin if needed.
+* test: Runs the compiler test suite. Runs ebin if needed.
+  Runs ebin if needed.
+* update: Updates all dependencies to their latest versions from Git. Runs deps
+  if needed.
+* dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
+* clean: Cleans up the tree (removes compiled modules, dependencies, dump
+  files, etc).
+
+When running the ebin target (whether directly or implicitly) you should make
+sure that your environment is configured correctly. A number of variables need
+to be set so that Flect knows what kind of target to compile for:
+
+* FLECT_CC
+* FLECT_CC_TYPE
+* FLECT_OS
+* FLECT_ENV
+* FLECT_ARCH
+* FLECT_BITS
+* FLECT_ABI
+
+See the COMPATIBILITY file for possible values.
+
+To get an escript:
+
+    $ make escript
+
+This places the escript named flect in the root of the source tree. It is
+completely self-contained so it can be moved anywhere and will run fine
+provided the host system it is run on has Erlang and Elixir installed.
+
+It's a good idea to run the test suite before using the compiler:
+
+    $ make test
