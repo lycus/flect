@@ -6,11 +6,12 @@ Flect requires Erlang R15B and (currently) Elixir from Git master. You will
 also need GNU Make and basic POSIX utilities to build.
 
 Flect must be configured at compile time. It needs information about the C99
-compiler to use, operating system (if any), target architecture, application
-binary interface, and so on. Below is a list of the various supported values
-(the values in parentheses are the ones to pass to the makefile).
+compiler to use, the linker to use, operating system (if any), target
+architecture, application binary interface, and so on. Below is a list of the
+various supported values (the values in parentheses are the ones to pass to the
+makefile).
 
-Compiler (FLECT_CC) supported:
+Compilers (FLECT_CC) supported:
 
 * Clang (clang)
 * GCC (gcc)
@@ -24,6 +25,19 @@ Compiler types (FLECT_CC_TYPE) supported:
 
 * GCC interface (gcc)
 * MSVC interface (msvc)
+
+Linkers (FLECT_LD) supported:
+
+* LD (ld)
+* MSVC Link (msvc)
+
+Note that FLECT_LD is the path to the linker or the name of its executable so
+a full path can be specified too.
+
+Linker types (FLECT_LD_TYPE) supported:
+
+* LD interface (ld)
+* MSVC Link interface (msvc)
 
 Operating systems (FLECT_OS) supported:
 

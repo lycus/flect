@@ -7,6 +7,14 @@ defmodule Flect.Target do
         System.get_env("FLECT_CC_TYPE")
     end
 
+    def :get_ld, [], [] do
+        System.get_env("FLECT_LD")
+    end
+
+    def :get_ld_type, [], [] do
+        System.get_env("FLECT_LD_TYPE")
+    end
+
     def :get_os, [], [] do
         System.get_env("FLECT_OS")
     end
@@ -23,6 +31,11 @@ end
 unless (cc_type = Flect.Target.get_cc_type()) in ["gcc",
                                                   "msvc"] do
     raise(Flect.TargetError, [message: "Invalid C compiler type #{cc_type} (FLECT_CC_TYPE)"])
+end
+
+unless (ld_type = Flect.Target.get_ld_type()) in ["ld",
+                                                  "msvc"] do
+    raise(Flect.TargetError, [message: "Invalid linker type #{ld_type} (FLECT_LD_TYPE)"])
 end
 
 unless (os = Flect.Target.get_os()) in ["none",

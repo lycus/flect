@@ -12,7 +12,6 @@ The makefile has a number of targets for building and testing Flect:
 * ebin: Builds all Flect modules. Runs deps if needed.
 * escript: Builds the escriptized Flect binary. Runs ebin if needed.
 * test: Runs the compiler test suite. Runs ebin if needed.
-  Runs ebin if needed.
 * update: Updates all dependencies to their latest versions from Git. Runs deps
   if needed.
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
@@ -25,6 +24,8 @@ to be set so that Flect knows what kind of target to compile for:
 
 * FLECT_CC
 * FLECT_CC_TYPE
+* FLECT_LD
+* FLECT_LD_TYPE
 * FLECT_OS
 * FLECT_ENV
 * FLECT_ARCH
