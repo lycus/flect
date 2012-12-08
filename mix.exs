@@ -11,7 +11,7 @@ defmodule Flect.Mixfile do
     end
 
     def application() do
-        [applications: [:sasl],
+        [applications: [],
          mod: {Flect.Application, []}]
     end
 
