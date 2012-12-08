@@ -1,0 +1,37 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Introduction --
+
+Flect is a functional systems programming language. It pragmatically combines
+features such as algebraic data types, pattern matching, first-class function
+values, traits, generics, macros, and high type safety with (optional)
+low-level control over memory, direct interfacing to C and C++, bare metal
+compilation support, and so on.
+
+Flect targets any operating system (or none), architecture, and ABI that the
+C99 compiler it uses supports. It is compiled to C99 in order to benefit from
+existing compiler technology and to avoid having a separately maintained code
+generator for every supported target. This strategy makes the language highly
+portable compared to other systems languages.
+
+For further information, see:
+
+    * LICENSE
+      - Licensing and copyright information.
+    * COMPATIBILITY
+      - Supported compilers, architectures, operating systems, etc.
+    * INSTALL
+      - Instructions on building and installing Flect.
+    * AUTHORS
+      - Names and contact information for Flect developers.
+    * THANKS
+      - Credits and appreciation where due.
+
+You can reach the Flect community in several ways:
+
+    * IRC channels
+      - #lycus @ irc.oftc.net
+    * Mailing lists
+      - lycus-announce: http://groups.google.com/group/lycus-announce
+      - lycus-discuss: http://groups.google.com/group/lycus-discuss
+      - lycus-develop: http://groups.google.com/group/lycus-develop
