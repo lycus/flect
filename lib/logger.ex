@@ -1,4 +1,9 @@
 defmodule Flect.Logger do
+    @spec colorize(String.t(), String.t()) :: String.t()
+    defp colorize(str, color) do
+        ANSI.bright() <> color <> str <> ":" <> ANSI.reset() <> " "
+    end
+
     @spec info(String.t()) :: :ok
     def info(str) do
         IO.puts(str)
@@ -6,16 +11,16 @@ defmodule Flect.Logger do
 
     @spec note(String.t()) :: :ok
     def note(str) do
-        IO.puts("Note: #{str}")
+        IO.puts(colorize("Note", ANSI.white()) <> "#{str}")
     end
 
-    @spec warning(String.t()) :: :ok
-    def warning(str) do
-        IO.puts("Warning: #{str}")
+    @spec warn(String.t()) :: :ok
+    def warn(str) do
+        IO.puts(colorize("Warning", ANSI.yellow()) <> "#{str}")
     end
 
     @spec error(String.t()) :: :ok
     def error(str) do
-        IO.puts("Error: #{str}")
+        IO.puts(colorize("Error", ANSI.red()) <> "#{str}")
     end
 end
