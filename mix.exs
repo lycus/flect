@@ -16,6 +16,6 @@ defmodule Flect.Mixfile do
     end
 
     defp deps() do
-        []
+        [{:ansiex, github: "yrashk/ansiex"}]
     end
 end
