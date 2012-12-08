@@ -6,7 +6,7 @@ defmodule Flect.Supervisor do
         {:ok, _} = :supervisor.start_link(__MODULE__, [cfg])
     end
 
-    @spec init(Flect.Config.t()) :: term()
+    @spec init(Flect.Config.t()) :: {:ok, {{:one_for_one, non_neg_integer(), non_neg_integer()}, [:supervisor.child_spec()]}}
     def init(cfg) do
         supervise([worker(Flect.Worker, cfg, [restart: :temporary,
                                               shutdown: :infinity])], [strategy: :one_for_one])
