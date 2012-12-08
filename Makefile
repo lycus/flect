@@ -7,8 +7,7 @@ export FLECT_CC_TYPE ?= gcc
 export FLECT_OS ?= linux
 export FLECT_ENV ?= none
 export FLECT_ARCH ?= x86
-export FLECT_BITS ?= 64
-export FLECT_ABI ?= amd64
+export FLECT_ABI ?= x86-sysv64
 
 .PHONY: all escript ebin deps update clean test dialyze
 

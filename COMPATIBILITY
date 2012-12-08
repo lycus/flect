@@ -56,13 +56,8 @@ Architectures (FLECT_ARCH) supported:
 * PowerPC (ppc)
 * x86 (x86)
 
-Bitnesses (FLECT_BITS) supported:
-
-* 32-bit memory model (32)
-* 64-bit memory model (64)
-
-Note that certain architecture, ABI, and bitness combinations don't make sense,
-so you can may get compilation errors if you configure these values wrongly.
+Note that certain architecture and ABI combinations don't make sense, so you
+may get compilation errors if you configure these values incorrectly.
 
 ABIs (FLECT_ABI) supported:
 
