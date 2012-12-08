@@ -37,7 +37,7 @@ defmodule Flect.Application do
             System.halt(2)
         end
 
-        :application.set_env(:flect, :flect_tool, Enum.at!(rest, 0))
+        :application.set_env(:flect, :flect_tool, binary_to_atom(Enum.at!(rest, 0)))
         :application.set_env(:flect, :flect_options, opts)
         :application.set_env(:flect, :flect_arguments, Enum.drop(rest, 1))
 
