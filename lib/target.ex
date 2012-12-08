@@ -11,10 +11,6 @@ defmodule Flect.Target do
         System.get_env("FLECT_OS")
     end
 
-    def :get_env, [], [] do
-        System.get_env("FLECT_ENV")
-    end
-
     def :get_arch, [], [] do
         System.get_env("FLECT_ARCH")
     end
@@ -43,12 +39,6 @@ unless (os = Flect.Target.get_os()) in ["none",
                                         "solaris",
                                         "windows"] do
     raise(Flect.TargetError, [message: "Invalid operating system #{os} (FLECT_OS)"])
-end
-
-unless (env = Flect.Target.get_env()) in ["none",
-                                          "cygwin",
-                                          "mingw"] do
-    raise(Flect.TargetError, [message: "Invalid environment #{env} (FLECT_ENV)"])
 end
 
 unless (arch = Flect.Target.get_arch()) in ["arm",

@@ -41,12 +41,6 @@ Operating systems (FLECT_OS) supported:
 * Solaris (solaris)
 * Windows (windows)
 
-Environment types (FLECT_ENV) supported:
-
-* None (none)
-* Cygwin (cygwin)
-* MinGW (mingw)
-
 Architectures (FLECT_ARCH) supported:
 
 * ARM (arm)
