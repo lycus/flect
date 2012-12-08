@@ -1,0 +1,27 @@
+language: erlang
+otp_release:
+    - R15B02
+before_install:
+    - git clone http://github.com/elixir-lang/elixir
+    - cd elixir
+    - make
+    - cd ..
+    - git submodule update --init --recursive
+before_script:
+    - export PATH=`pwd`/elixir/bin:$PATH
+script:
+    - make deps
+    - make ebin
+    - make escript
+    - make clean
+notifications:
+    irc:
+        channels:
+            - "irc.oftc.net#flect"
+        template:
+            - "[%{build_number}] %{repository} (%{commit} by %{author}): %{message} - %{build_url}"
+        on_success: change
+        on_failure: always
+        use_notice: false
+        skip_join: true
+    email: false
