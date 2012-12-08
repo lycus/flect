@@ -10,10 +10,12 @@ defmodule Flect.Application do
     def main(args) do
         args = lc arg inlist args, do: list_to_binary(arg)
 
-        {opts, _} = OptionParser.parse(args, [flags: [:help,
-                                                      :version],
-                                              aliases: [h: :help,
-                                                        v: :version]])
+        {opts, rest} = OptionParser.parse(args, [flags: [:help,
+                                                         :version],
+                                                 aliases: [h: :help,
+                                                           v: :version]])
+
+        have_tool = !Enum.empty?(rest)
 
         if opts[:version] do
             IO.puts("Flect Programming Language - 0.1")
@@ -22,17 +24,22 @@ defmodule Flect.Application do
             IO.puts("")
         end
 
-        if opts[:help] do
-            IO.puts("General:")
-            IO.puts("")
-            IO.puts("    -v|--version: Show program version.")
-            IO.puts("    -h|--help: Show command line help.")
+        if (!have_tool && !opts[:version]) || opts[:help] do
+            IO.puts("Usage: flect [-v] [-h] <tool> <args>")
             IO.puts("")
         end
 
-        if opts[:help] || opts[:version] do
+        if opts[:help] do
+            :ok
+        end
+
+        if !have_tool || opts[:help] || opts[:version] do
             System.halt(2)
         end
+
+        :application.set_env(:flect, :flect_tool, Enum.at!(rest, 0))
+        :application.set_env(:flect, :flect_options, opts)
+        :application.set_env(:flect, :flect_arguments, Enum.drop(rest, 1))
 
         start()
         System.halt(0)
@@ -40,7 +47,15 @@ defmodule Flect.Application do
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
     def start(_, []) do
-        {:ok, pid} = Flect.Supervisor.start_link(nil)
+        {:ok, tool} = :application.get_env(:flect_tool)
+        {:ok, opts} = :application.get_env(:flect_options)
+        {:ok, args} = :application.get_env(:flect_arguments)
+
+        cfg = Flect.Config.new(tool: tool,
+                               options: opts,
+                               arguments: args)
+
+        {:ok, pid} = Flect.Supervisor.start_link(cfg)
         {:ok, pid, nil}
     end
 
