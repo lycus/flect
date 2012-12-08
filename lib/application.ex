@@ -40,7 +40,7 @@ defmodule Flect.Application do
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
     def start(_, []) do
-        {:ok, pid} = Flect.Supervisor.start_link()
+        {:ok, pid} = Flect.Supervisor.start_link(nil)
         {:ok, pid, nil}
     end
 
