@@ -41,13 +41,26 @@ unless (os = Flect.Target.get_os()) in ["none",
     raise(Flect.TargetError, [message: "Invalid operating system #{os} (FLECT_OS)"])
 end
 
-unless (arch = Flect.Target.get_arch()) in ["arm",
-                                            "ia64",
-                                            "mips",
-                                            "hppa",
-                                            "ppc",
-                                            "x86"] do
-    raise(Flect.TargetError, [message: "Invalid architecture #{arch} (FLECT_ARCH)"])
+arch = Flect.Target.get_arch()
+
+arch_valid = case os do
+    "none" -> arch in ["arm", "ia64", "mips", "hppa", "ppc", "x86"]
+    "aix" -> arch in ["ppc"]
+    "android" -> arch in ["arm", "mips", "x86"]
+    "dragonflybsd" -> arch in ["x86"]
+    "freebsd" -> arch in ["arm", "ia64", "mips", "ppc", "x86"]
+    "hurd" -> arch in ["x86"]
+    "haiku" -> arch in ["x86"]
+    "ios" -> arch in ["arm"]
+    "linux" -> arch in ["arm", "ia64", "mips", "hppa", "ppc", "x86"]
+    "darwin" -> arch in ["ppc", "x86"]
+    "openbsd" -> arch in ["arm", "mips", "hppa", "ppc", "x86"]
+    "solaris" -> arch in ["ppc", "x86"]
+    "windows" -> arch in ["ia64", "x86"]
+end
+
+unless arch_valid do
+    raise(Flect.TargetError, [message: "Invalid architecture #{arch} for operating system #{os} (FLECT_ARCH)"])
 end
 
 abi = Flect.Target.get_abi()
