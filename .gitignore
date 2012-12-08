@@ -1,0 +1,6 @@
+ebin/*
+deps/*
+
+flect
+
+*.dump
