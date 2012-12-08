@@ -35,6 +35,7 @@ defmodule Flect.Application do
         end
 
         start()
+        System.halt(0)
     end
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
