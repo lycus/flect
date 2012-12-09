@@ -18,15 +18,15 @@ defmodule Flect.Application do
         have_tool = !Enum.empty?(rest)
 
         if opts[:version] do
-            IO.puts("Flect Programming Language - 0.1")
-            IO.puts("Copyright (C) 2012 The Lycus Foundation")
-            IO.puts("Available under the terms of the MIT License")
-            IO.puts("")
+            Flect.Logger.info("Flect Programming Language - 0.1")
+            Flect.Logger.info("Copyright (C) 2012 The Lycus Foundation")
+            Flect.Logger.info("Available under the terms of the MIT License")
+            Flect.Logger.info("")
         end
 
         if (!have_tool && !opts[:version]) || opts[:help] do
-            IO.puts("Usage: flect [-v] [-h] <tool> <args>")
-            IO.puts("")
+            Flect.Logger.info("Usage: flect [-v] [-h] <tool> <args>")
+            Flect.Logger.info("")
         end
 
         if opts[:help] do
