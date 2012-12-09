@@ -10,6 +10,7 @@ defmodule Flect.Worker do
     def init(cfg) do
         case cfg.tool() do
             :analyze -> Flect.Analyzer.Tool.run(cfg)
+            :bind -> Flect.Binder.Tool.run(cfg)
             :compile -> Flect.Compiler.Tool.run(cfg)
             :document -> Flect.Documentor.Tool.run(cfg)
             :format -> Flect.Formatter.Tool.run(cfg)
