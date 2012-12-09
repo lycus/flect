@@ -110,9 +110,9 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                         if cp == "0" do
                                             case next_code_point(rest, loc) do
                                                 :eof -> {:integer, cp, rest, loc}
-                                                {"b", rest, loc} -> lex_number("", rest, loc, 2, false)
-                                                {"o", rest, loc} -> lex_number("", rest, loc, 8, false)
-                                                {"x", rest, loc} -> lex_number("", rest, loc, 16, false)
+                                                {"b", rest, loc} -> lex_number("0b", rest, loc, 2, false)
+                                                {"o", rest, loc} -> lex_number("0o", rest, loc, 8, false)
+                                                {"x", rest, loc} -> lex_number("0x", rest, loc, 16, false)
                                                 _ -> lex_number(cp, rest, loc, 10, true)
                                             end
                                         else
@@ -156,13 +156,14 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp strip_comment(text, loc) do
         case next_code_point(text, loc) do
             {"\n", rest, loc} -> {text, loc}
-            {cp, rest, loc} -> strip_comment(text, loc)
+            {cp, rest, loc} -> strip_comment(rest, loc)
             :eof -> {"", loc}
         end
     end
 
     @spec keywords() :: [String.t()]
     defp :keywords, [], [] do
+        # TODO: Who needs keywords anyway?
         []
     end
 
@@ -244,14 +245,22 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
         case next_code_point(text, loc) do
             {".", rest, loc} when float -> lex_float(acc <> ".", rest, loc)
-            {cp, rest, loc} ->
+            {cp, irest, iloc} ->
                 if Enum.find_index(chars, fn(x) -> x == cp end) != nil do
-                    lex_number(acc <> cp, rest, loc, base, float)
+                    lex_number(acc <> cp, irest, iloc, base, float)
                 else
-                    {:number, acc, rest, loc}
+                    if base != 10 && String.length(acc) == 2 do
+                        raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected base-#{base} integer literal"])
+                    end
+
+                    {:number, acc, text, loc}
                 end
-            :eof when acc == "" -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected base-#{base} integer literal"])
-            :eof -> {:number, acc, text, loc}
+            :eof ->
+                if base != 10 && String.length(acc) == 2 do
+                    raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected base-#{base} integer literal"])
+                end
+
+                {:number, acc, text, loc}
         end
     end
 
@@ -265,28 +274,25 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     acc = acc <> dec
 
                     case next_code_point(rest, loc) do
-                        :eof -> {:number, acc, rest, loc}
-                        {cp, irest, iloc} ->
-                            f = fn(acc, rest, loc) ->
-                                case next_code_point(rest, loc) do
-                                    {cp, rest, loc} ->
-                                        {:number, dec, rest, loc} = lex_number(cp, rest, loc, 10, true)
-                                        {:number, acc <> dec, rest, loc}
-                                    :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected exponent part of floating point literal"])
-                                end
+                        {cp, irest, iloc} when cp in ["e", "E"] ->
+                            acc = acc <> cp
+
+                            {acc, irest, iloc} = case next_code_point(irest, iloc) do
+                                {cp, irest, iloc} when cp in ["+", "-"] -> {acc <> cp, irest, iloc}
+                                _ -> {acc, irest, iloc}
                             end
 
-                            cond do
-                                cp in ["+", "-"] -> :ok
-                                    acc = acc <> cp
-
-                                    case next_code_point(rest, loc) do
-                                        {cp, rest, loc} when cp in ["e", "E"] -> f.(acc <> cp, rest, loc)
-                                        _ -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected 'e' or 'E' in floating point literal"])
+                            case next_code_point(irest, iloc) do
+                                {cp, irest, iloc} ->
+                                    if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
+                                        raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected exponent part of floating point literal"])
                                     end
-                                cp in ["e", "E"] -> f.(acc <> cp, irest, iloc)
-                                true -> {:number, acc, rest, loc}
+
+                                    {:number, dec, irest, iloc} = lex_number(cp, irest, iloc, 10, true)
+                                    {:number, acc <> dec, irest, iloc}
+                                :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected exponent part of floating point literal"])
                             end
+                        _ -> {:number, acc, rest, loc}
                     end
                 else
                     raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected decimal part of floating point literal"])
