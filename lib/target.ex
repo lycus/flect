@@ -30,12 +30,12 @@ end
 
 unless (cc_type = Flect.Target.get_cc_type()) in ["gcc",
                                                   "msvc"] do
-    raise(Flect.TargetError, [message: "Invalid C compiler type #{cc_type} (FLECT_CC_TYPE)"])
+    raise(Flect.TargetError, [error: "Invalid C compiler type #{cc_type} (FLECT_CC_TYPE)"])
 end
 
 unless (ld_type = Flect.Target.get_ld_type()) in ["ld",
                                                   "msvc"] do
-    raise(Flect.TargetError, [message: "Invalid linker type #{ld_type} (FLECT_LD_TYPE)"])
+    raise(Flect.TargetError, [error: "Invalid linker type #{ld_type} (FLECT_LD_TYPE)"])
 end
 
 unless (os = Flect.Target.get_os()) in ["none",
@@ -51,7 +51,7 @@ unless (os = Flect.Target.get_os()) in ["none",
                                         "openbsd",
                                         "solaris",
                                         "windows"] do
-    raise(Flect.TargetError, [message: "Invalid operating system #{os} (FLECT_OS)"])
+    raise(Flect.TargetError, [error: "Invalid operating system #{os} (FLECT_OS)"])
 end
 
 arch = Flect.Target.get_arch()
@@ -73,7 +73,7 @@ arch_valid = case os do
 end
 
 unless arch_valid do
-    raise(Flect.TargetError, [message: "Invalid architecture #{arch} for operating system #{os} (FLECT_ARCH)"])
+    raise(Flect.TargetError, [error: "Invalid architecture #{arch} for operating system #{os} (FLECT_ARCH)"])
 end
 
 abi = Flect.Target.get_abi()
@@ -88,6 +88,6 @@ abi_valid = case arch do
 end
 
 unless abi_valid do
-    raise(Flect.TargetError, [message: "Invalid ABI #{abi} for architecture #{arch} (FLECT_ABI)"])
+    raise(Flect.TargetError, [error: "Invalid ABI #{abi} for architecture #{arch} (FLECT_ABI)"])
 end
 
