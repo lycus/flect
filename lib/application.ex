@@ -30,7 +30,44 @@ defmodule Flect.Application do
         end
 
         if opts[:help] do
-            :ok
+            Flect.Logger.info("Tools:")
+            Flect.Logger.info("")
+
+            tools = [{"analyze",
+                      "Statically analyze a set of Flect source files.",
+                      []},
+                     {"compile",
+                      "Compile a set of Flect source files.",
+                      []},
+                     {"document",
+                      "Generate documentation for a set of Flect source files.",
+                      []},
+                     {"format",
+                      "Run the source code formatter on a set of Flect source files.",
+                      []}]
+
+            Enum.each(tools, fn({name, desc, opts}) ->
+                Flect.Logger.info("    #{name}: #{desc}")
+
+                Enum.each(opts, fn({opt, desc}) ->
+                    Flect.Logger.info("        #{opt}: #{desc}")
+                end)
+
+                Flect.Logger.info("")
+            end)
+        end
+
+        if opts[:version] do
+            Flect.Logger.info("Configuration:")
+            Flect.Logger.info("")
+            Flect.Logger.info("    FLECT_CC      = #{Flect.Target.get_cc()}")
+            Flect.Logger.info("    FLECT_CC_TYPE = #{Flect.Target.get_cc_type()}")
+            Flect.Logger.info("    FLECT_LD      = #{Flect.Target.get_ld()}")
+            Flect.Logger.info("    FLECT_LD_TYPE = #{Flect.Target.get_ld_type()}")
+            Flect.Logger.info("    FLECT_OS      = #{Flect.Target.get_os()}")
+            Flect.Logger.info("    FLECT_ARCH    = #{Flect.Target.get_arch()}")
+            Flect.Logger.info("    FLECT_ABI     = #{Flect.Target.get_abi()}")
+            Flect.Logger.info("")
         end
 
         if !have_tool || opts[:help] || opts[:version] do
