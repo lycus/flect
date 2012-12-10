@@ -15,7 +15,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     # Strip comments. TODO: We'll want to parse these into the token stream and attach
                     # them to AST nodes for use in the formatter at some point.
                     cp == "#" ->
-                        {rest, loc} = strip_comment(rest, loc)
+                        {rest, loc} = strip_comment(rest, loc, "\n", true)
+                        do_lex(rest, tokens, loc)
+                    cp == "$" ->
+                        {rest, loc} = strip_block_comment(rest, loc, "$", false)
                         do_lex(rest, tokens, loc)
                     true ->
                         token = case cp do
@@ -66,7 +69,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     _ -> :colon
                                 end
                             ";" -> :semicolon
-                            "$" -> :dollar
                             "=" ->
                                 case next_code_point(rest, loc) do
                                     {"=", rest, loc} ->
@@ -119,7 +121,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                             lex_number(cp, rest, loc, 10, true)
                                         end
                                     # Otherwise, we don't know what we're dealing with, so bail.
-                                    true -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Encountered unknown code point: #{cp}"])
+                                    true -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered unknown code point: #{cp}"])
                                 end
                         end
 
@@ -152,12 +154,14 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec strip_comment(String.t(), Flect.Compiler.Syntax.Location.t()) :: {String.t(), Flect.Compiler.Syntax.Location.t()}
-    defp strip_comment(text, loc) do
+    @spec strip_comment(String.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(), boolean()) :: {String.t(),
+                                                                                                           Flect.Compiler.Syntax.Location.t()}
+    defp strip_comment(text, loc, ecp, eol) do
         case next_code_point(text, loc) do
-            {"\n", rest, loc} -> {text, loc}
+            {^ecp, rest, loc} -> {rest, loc}
             {cp, rest, loc} -> strip_comment(rest, loc)
-            :eof -> {"", loc}
+            :eof when eol -> {"", loc}
+            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of input in comment"])
         end
     end
 
@@ -217,9 +221,9 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {cp, rest, loc} ->
                 case next_code_point(rest, loc) do
                     {qcp, rest, loc} when qcp == "'" -> {:character, cp, rest, loc}
-                    _ -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected terminating single quote for character literal"])
+                    _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected terminating single quote for character literal"])
                 end
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected UTF-8 code point for character literal"])
+            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point for character literal"])
         end
     end
 
@@ -229,7 +233,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case next_code_point(text, loc) do
             {"\"", rest, loc} -> {:string, acc, rest, loc}
             {cp, rest, loc} -> lex_string(acc <> cp, rest, loc)
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected UTF-8 code point(s) for string literal"])
+            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point(s) for string literal"])
         end
     end
 
@@ -250,14 +254,14 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     lex_number(acc <> cp, irest, iloc, base, float)
                 else
                     if base != 10 && String.length(acc) == 2 do
-                        raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected base-#{base} integer literal"])
+                        raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal"])
                     end
 
                     {:number, acc, text, loc}
                 end
             :eof ->
                 if base != 10 && String.length(acc) == 2 do
-                    raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected base-#{base} integer literal"])
+                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal"])
                 end
 
                 {:number, acc, text, loc}
@@ -285,19 +289,19 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             case next_code_point(irest, iloc) do
                                 {cp, irest, iloc} ->
                                     if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
-                                        raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected exponent part of floating point literal"])
+                                        raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal"])
                                     end
 
                                     {:number, dec, irest, iloc} = lex_number(cp, irest, iloc, 10, true)
                                     {:number, acc <> dec, irest, iloc}
-                                :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected exponent part of floating point literal"])
+                                :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal"])
                             end
                         _ -> {:number, acc, rest, loc}
                     end
                 else
-                    raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected decimal part of floating point literal"])
+                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal"])
                 end
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [message: "Expected decimal part of floating point literal"])
+            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal"])
         end
     end
 end
