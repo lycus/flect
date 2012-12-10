@@ -1,5 +1,3 @@
-s
-
 RM ?= rm
 MIX ?= mix
 DIALYZER ?= dialyzer
