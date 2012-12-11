@@ -228,7 +228,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "null",
          "assert",
          # These keywords aren't used today but may be used for something in the future.
-         "atom"
+         "atom",
          "do",
          "monad",
          "lazy",
