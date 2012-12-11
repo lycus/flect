@@ -194,6 +194,8 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "imm",
          "unit",
          "bool",
+         "int",
+         "uint",
          "i8",
          "u8",
          "i16",
