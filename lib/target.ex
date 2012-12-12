@@ -1,4 +1,28 @@
 defmodule Flect.Target do
+    def :get_prefix, [], [] do
+        System.get_env("FLECT_PREFIX")
+    end
+
+    def :get_bin_dir, [], [] do
+        System.get_env("FLECT_BIN_DIR")
+    end
+
+    def :get_inc_dir, [], [] do
+        System.get_env("FLECT_INC_DIR")
+    end
+
+    def :get_lib_dir, [], [] do
+        System.get_env("FLECT_LIB_DIR")
+    end
+
+    def :get_st_lib_dir, [], [] do
+        System.get_env("FLECT_ST_LIB_DIR")
+    end
+
+    def :get_sh_lib_dir, [], [] do
+        System.get_env("FLECT_SH_LIB_DIR")
+    end
+
     def :get_cc, [], [] do
         System.get_env("FLECT_CC")
     end
