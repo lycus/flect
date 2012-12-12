@@ -7,10 +7,6 @@ defmodule Flect.Target do
         System.get_env("FLECT_BIN_DIR")
     end
 
-    def :get_inc_dir, [], [] do
-        System.get_env("FLECT_INC_DIR")
-    end
-
     def :get_lib_dir, [], [] do
         System.get_env("FLECT_LIB_DIR")
     end

@@ -4,7 +4,6 @@ DIALYZER ?= dialyzer
 
 export FLECT_PREFIX ?= /usr/local
 export FLECT_BIN_DIR ?= $(FLECT_PREFIX)/bin
-export FLECT_INC_DIR ?= $(FLECT_PREFIX)/include/flect
 export FLECT_LIB_DIR ?= $(FLECT_PREFIX)/lib/flect
 export FLECT_ST_LIB_DIR ?= $(FLECT_LIB_DIR)/static
 export FLECT_SH_LIB_DIR ?= $(FLECT_LIB_DIR)/shared

@@ -39,7 +39,6 @@ and where it should look for static/shared libraries and headers:
 
 * FLECT_PREFIX
 * FLECT_BIN_DIR
-* FLECT_INC_DIR
 * FLECT_LIB_DIR
 * FLECT_ST_LIB_DIR
 * FLECT_SH_LIB_DIR
@@ -48,12 +47,10 @@ In general, a directory hierarchy like this should be set up:
 
 prefix (FLECT_PREFIX)
 ├───── bin (FLECT_BIN_DIR)
-├───── lib
-│      └── flect (FLECT_LIB_DIR)
-│          ├──── static (FLECT_ST_LIB_DIR)
-│          └──── shared (FLECT_SH_LIB_DIR)
-└────── include
-        └────── flect (FLECT_INC_DIR)
+└───── lib
+       └── flect (FLECT_LIB_DIR)
+           ├──── static (FLECT_ST_LIB_DIR)
+           └──── shared (FLECT_SH_LIB_DIR)
 
 To get an escript:
 
