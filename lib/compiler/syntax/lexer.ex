@@ -246,14 +246,15 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "fixed",
          "par",
          "object",
-         "vec",
          "var",
          "void",
          "pragma",
          "scope",
          "shared",
          "tls",
-         "ref"]
+         "ref",
+         "move",
+         "copy"]
     end
 
     @spec binary_number_chars() :: [String.t()]
