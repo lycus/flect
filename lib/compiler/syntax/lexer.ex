@@ -187,8 +187,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "ext",
          "glob",
          "const",
-         "pure",
-         "io",
          "mut",
          "imm",
          "unit",
