@@ -33,16 +33,16 @@ defmodule Flect.Application do
             Flect.Logger.info("Tools:")
             Flect.Logger.info("")
 
-            tools = [{"analyze",
+            tools = [{"a",
                       "Statically analyze a set of Flect source files.",
                       []},
-                     {"compile",
+                     {"c",
                       "Compile a set of Flect source files.",
                       []},
-                     {"document",
+                     {"d",
                       "Generate documentation for a set of Flect source files.",
                       []},
-                     {"format",
+                     {"f",
                       "Run the source code formatter on a set of Flect source files.",
                       []}]
 

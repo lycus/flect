@@ -9,10 +9,10 @@ defmodule Flect.Worker do
     @spec init(Flect.Config.t()) :: {:ok, nil}
     def init(cfg) do
         case cfg.tool() do
-            :analyze -> Flect.Analyzer.Tool.run(cfg)
-            :compile -> Flect.Compiler.Tool.run(cfg)
-            :document -> Flect.Documentor.Tool.run(cfg)
-            :format -> Flect.Formatter.Tool.run(cfg)
+            :a -> Flect.Analyzer.Tool.run(cfg)
+            :c -> Flect.Compiler.Tool.run(cfg)
+            :d -> Flect.Documentor.Tool.run(cfg)
+            :f -> Flect.Formatter.Tool.run(cfg)
             tool -> Flect.Logger.error("Unknown tool: #{inspect(tool)}")
         end
 
