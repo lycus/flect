@@ -10,7 +10,7 @@ defmodule Flect.Application do
     def main(args) do
         args = lc arg inlist args, do: list_to_binary(arg)
 
-        {opts, rest} = OptionParser.parse(args, [flags: [:help,
+        {opts, rest} = OptionParser.parse(args, [switches: [:help,
                                                          :version],
                                                  aliases: [h: :help,
                                                            v: :version]])
