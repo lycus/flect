@@ -8,12 +8,16 @@ defmodule Flect.Worker do
 
     @spec init(Flect.Config.t()) :: {:ok, nil}
     def init(cfg) do
-        case cfg.tool() do
-            :a -> Flect.Analyzer.Tool.run(cfg)
-            :c -> Flect.Compiler.Tool.run(cfg)
-            :d -> Flect.Documentor.Tool.run(cfg)
-            :f -> Flect.Formatter.Tool.run(cfg)
-            tool -> Flect.Logger.error("Unknown tool: #{inspect(tool)}")
+        try do
+            case cfg.tool() do
+                :a -> Flect.Analyzer.Tool.run(cfg)
+                :c -> Flect.Compiler.Tool.run(cfg)
+                :d -> Flect.Documentor.Tool.run(cfg)
+                :f -> Flect.Formatter.Tool.run(cfg)
+                tool -> Flect.Logger.error("Unknown tool: #{inspect(tool)}")
+            end
+        catch
+            code when is_integer(code) -> :application.set_env(:flect, :flect_exit_code, code)
         end
 
         {:ok, nil}

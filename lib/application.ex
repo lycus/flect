@@ -83,9 +83,12 @@ defmodule Flect.Application do
         :application.set_env(:flect, :flect_tool, binary_to_atom(Enum.at!(rest, 0)))
         :application.set_env(:flect, :flect_options, opts)
         :application.set_env(:flect, :flect_arguments, Enum.drop(rest, 1))
+        :application.set_env(:flect, :flect_exit_code, 0)
 
         start()
-        System.halt(0)
+
+        {:ok, code} = :application.get_env(:flect_exit_code)
+        System.halt(code)
     end
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
