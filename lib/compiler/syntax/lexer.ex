@@ -394,42 +394,42 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_float(acc, text, file, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
-                if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) != nil do
-                    {nil, dec, rest, loc} = lex_number(cp, rest, file, loc, 10, true, false)
-                    acc = acc <> dec
-
-                    case next_code_point(rest, loc) do
-                        {cp, irest, iloc} when cp in ["e", "E"] ->
-                            acc = acc <> cp
-
-                            {acc, irest, iloc} = case next_code_point(irest, iloc) do
-                                {cp, irest, iloc} when cp in ["+", "-"] -> {acc <> cp, irest, iloc}
-                                _ -> {acc, irest, iloc}
-                            end
-
-                            case next_code_point(irest, iloc) do
-                                {cp, irest, iloc} ->
-                                    if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
-                                        raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                                  file: file,
-                                                                                  location: iloc])
-                                    end
-
-                                    {nil, dec, irest, iloc} = lex_number(cp, irest, file, iloc, 10, true, false)
-                                    {type, irest, iloc} = lex_literal_type(irest, file, iloc, true)
-                                    {binary_to_atom(type), acc <> dec, irest, iloc}
-                                :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                                  file: file,
-                                                                                  location: iloc])
-                            end
-                        _ ->
-                            {type, rest, loc} = lex_literal_type(rest, file, loc, true)
-                            {binary_to_atom(type), acc, rest, loc}
-                    end
-                else
+                if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
                                                               file: file,
                                                               location: loc])
+                end
+
+                {nil, dec, rest, loc} = lex_number(cp, rest, file, loc, 10, true, false)
+                acc = acc <> dec
+
+                case next_code_point(rest, loc) do
+                    {cp, irest, iloc} when cp in ["e", "E"] ->
+                        acc = acc <> cp
+
+                        {acc, irest, iloc} = case next_code_point(irest, iloc) do
+                            {cp, irest, iloc} when cp in ["+", "-"] -> {acc <> cp, irest, iloc}
+                            _ -> {acc, irest, iloc}
+                        end
+
+                        case next_code_point(irest, iloc) do
+                            {cp, irest, iloc} ->
+                                if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
+                                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
+                                                                              file: file,
+                                                                              location: iloc])
+                                end
+
+                                {nil, dec, irest, iloc} = lex_number(cp, irest, file, iloc, 10, true, false)
+                                {type, irest, iloc} = lex_literal_type(irest, file, iloc, true)
+                                {binary_to_atom(type), acc <> dec, irest, iloc}
+                            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
+                                                                              file: file,
+                                                                              location: iloc])
+                        end
+                    _ ->
+                        {type, rest, loc} = lex_literal_type(rest, file, loc, true)
+                        {binary_to_atom(type), acc, rest, loc}
                 end
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
                                                               file: file,
