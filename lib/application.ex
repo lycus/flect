@@ -87,7 +87,7 @@ defmodule Flect.Application do
 
         start()
 
-        {:ok, code} = :application.get_env(:flect_exit_code)
+        {:ok, code} = :application.get_env(:flect, :flect_exit_code)
         System.halt(code)
     end
 
