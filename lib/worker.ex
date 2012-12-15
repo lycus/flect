@@ -17,7 +17,7 @@ defmodule Flect.Worker do
                 tool -> Flect.Logger.error("Unknown tool: #{inspect(tool)}")
             end
         catch
-            code when is_integer(code) -> :application.set_env(:flect, :flect_exit_code, code)
+            code -> :application.set_env(:flect, :flect_exit_code, code)
         end
 
         {:ok, nil}
