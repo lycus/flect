@@ -2,18 +2,29 @@ defmodule Flect.Compiler.Tool do
     @spec run(Flect.Config.t()) :: :ok
     def run(cfg) do
         mode = case cfg.options()[:mode] do
-            m when m in [:obj, :stlib, :shlib, :exe] -> m
-            nil ->
-                Flect.Logger.error("No compilation mode given (--mode flag)")
-                throw 2
+            m when m in ["obj", "stlib", "shlib", "exe"] -> binary_to_atom(m)
+            nil -> :obj
             _ ->
                 Flect.Logger.error("Unknown compilation mode given (--mode flag)")
                 throw 2
         end
 
+        stage = case cfg.options()[:stage] do
+            s when s in ["lex", "parse", "sema", "gen"] -> binary_to_atom(s)
+            nil -> :gen
+            _ ->
+                Flect.Logger.error("Unknown compilation stage given (--stage flag)")
+                throw 2
+        end
+
+        if mode != :obj && stage != :gen do
+            Flect.Logger.error("Compilation stage #{stage} is irrelevant for compilation mode #{mode}")
+            throw 2
+        end
+
         ext = cond do
             mode == :obj -> ".fl"
-            mode in [:stlib, :shlib, :exe] -> if Flect.Target.get_cc_type() == "msvc", do: ".obj", else: ".o"
+            mode in [:stlib, :shlib, :exe] -> Flect.Target.get_obj_ext()
         end
 
         Enum.each(cfg.arguments(), fn(file) ->
@@ -33,9 +44,13 @@ defmodule Flect.Compiler.Tool do
                             throw 2
                     end
                 end
-            :stlib -> :todo
-            :shlib -> :todo
-            :exe -> :todo
+
+                :ok
+            :stlib -> exit(:todo)
+            :shlib -> exit(:todo)
+            :exe -> exit(:todo)
         end
+
+        :ok
     end
 end

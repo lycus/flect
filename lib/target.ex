@@ -46,6 +46,10 @@ defmodule Flect.Target do
     def :get_abi, [], [] do
         System.get_env("FLECT_ABI")
     end
+
+    def :get_obj_ext, [], [] do
+        if System.get_env("FLECT_CC_TYPE") == "msvc", do: ".obj", else: ".o"
+    end
 end
 
 unless (cc_type = Flect.Target.get_cc_type()) in ["gcc",
