@@ -231,7 +231,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "for",
          "break",
          "goto",
-         "tail",
          "return",
          "unsafe",
          "asm",
@@ -245,10 +244,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "in",
          "is",
          "test",
-         # These keywords aren't used today but may be used for something in the future.
          "macro",
          "quote",
          "unquote",
+         # These keywords aren't used today but may be used for something in the future.
+         "tail",
          "atom",
          "monad",
          "do",
