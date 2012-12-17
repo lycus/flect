@@ -12,11 +12,16 @@ before_install:
 before_script:
     - export PATH=`pwd`/elixir/bin:$PATH
 script:
-    - cp .travis.config.mak config.mak
+    - cp .travis.config.mak.clang config.mak
     - make deps
     - make ebin
     - make escript
-    - make clean
+    - make distclean
+    - cp .travis.config.mak.gcc config.mak
+    - make deps
+    - make ebin
+    - make escript
+    - make distclean
 notifications:
     irc:
         channels:
