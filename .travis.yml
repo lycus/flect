@@ -3,7 +3,7 @@ otp_release:
     - R15B02
 before_install:
     - sudo apt-get update -qq
-    - sudo apt-get install -qq clang gcc
+    - sudo apt-get install -qq clang
     - git clone http://github.com/elixir-lang/elixir
     - cd elixir
     - make
