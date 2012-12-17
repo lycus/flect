@@ -1,24 +1,16 @@
+include config.mak
+
 RM ?= rm
+ELIXIR ?= elixir
 MIX ?= mix
 DIALYZER ?= dialyzer
 
-export FLECT_PREFIX ?= /usr/local
-export FLECT_BIN_DIR ?= $(FLECT_PREFIX)/bin
-export FLECT_LIB_DIR ?= $(FLECT_PREFIX)/lib/flect
-export FLECT_ST_LIB_DIR ?= $(FLECT_LIB_DIR)/static
-export FLECT_SH_LIB_DIR ?= $(FLECT_LIB_DIR)/shared
-
-export FLECT_CC ?= clang
-export FLECT_CC_TYPE ?= gcc
-export FLECT_LD ?= ld
-export FLECT_LD_TYPE ?= ld
-export FLECT_OS ?= linux
-export FLECT_ARCH ?= x86
-export FLECT_ABI ?= x86-sysv64
-
-.PHONY: all escript ebin deps update clean test dialyze
+.PHONY: all escript ebin deps update clean distclean test dialyze
 
 all: escript
+
+config.mak:
+	$(ELIXIR) config.exs
 
 escript: ebin
 	$(MIX) escriptize
@@ -36,6 +28,9 @@ clean:
 	$(MIX) clean --all
 	$(RM) -f flect
 	$(RM) -f *.dump
+
+distclean: clean
+	$(RM) -f config.mak
 
 test: ebin
 	$(MIX) test

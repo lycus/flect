@@ -2,7 +2,7 @@
 
                 -- Compatibility --
 
-Flect requires Erlang R15B and (currently) Elixir from Git master. You will
+Flect requires Erlang R15B+ and (currently) Elixir from Git master. You will
 also need GNU Make and basic POSIX utilities to build.
 
 Flect must be configured at compile time. It needs information about the C99

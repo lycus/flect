@@ -2,40 +2,29 @@
 
                 -- Installation --
 
-Installation works through the Mix build tool shipped with Elixir and the
-GNU Make program.
+Flect has to be configured using the included configuration script before it is
+built. Note that GNU Make is required for this process. To do this, run:
 
-The makefile has a number of targets for building and testing Flect:
+    $ make config.mak
 
-* all: Runs deps, ebin, and escript. This is the default target.
-* deps: Fetches and builds all dependencies.
-* ebin: Builds all Flect modules. Runs deps if needed.
-* escript: Builds the escriptized Flect binary. Runs ebin if needed.
-* test: Runs the compiler test suite. Runs ebin if needed.
-* update: Updates all dependencies to their latest versions from Git. Runs deps
-  if needed.
-* dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
-* clean: Cleans up the tree (removes compiled modules, dependencies, dump
-  files, etc).
+(Simply running make will invoke the configuration script too, if there is no
+configuration file in the project directory.)
 
-When running the ebin target (whether directly or implicitly) you should make
-sure that your environment is configured correctly. A number of variables need
-to be set so that Flect knows what kind of target to compile for:
+You will be asked to configure the following variables:
 
+* FLECT_OS
+* FLECT_ARCH
+* FLECT_ABI
 * FLECT_CC
 * FLECT_CC_TYPE
 * FLECT_LD
 * FLECT_LD_TYPE
-* FLECT_OS
-* FLECT_ENV
-* FLECT_ARCH
-* FLECT_BITS
-* FLECT_ABI
 
-See the COMPATIBILITY file for possible values.
+See the COMPATIBILITY file for possible values. Some of these variables will
+have defaults based on guesstimates about the system you're building on.
 
 In addition, the following variables configure where Flect should be installed
-and where it should look for static/shared libraries and headers:
+and where it should look for static/shared libraries:
 
 * FLECT_PREFIX
 * FLECT_BIN_DIR
@@ -52,14 +41,39 @@ prefix (FLECT_PREFIX)
            ├──── static (FLECT_ST_LIB_DIR)
            └──── shared (FLECT_SH_LIB_DIR)
 
+The configuration will be written to config.mak. When you invoke Make from
+now on, it will use the values written to this file. You can still override
+the values by setting environment variables, should you need to.
+
+Flect can be built, tested, and installed after the configuration is complete.
+The build process requires the Mix build tool shipped with Elixir.
+
+The makefile has a number of targets for building and testing Flect:
+
+* all: Runs deps, ebin, and escript. This is the default target.
+* deps: Fetches and builds all dependencies.
+* ebin: Builds all Flect modules. Runs deps if needed.
+* escript: Builds the escriptized Flect binary. Runs ebin if needed.
+* test: Runs the compiler test suite. Runs ebin if needed.
+* update: Updates all dependencies to their latest versions from Git. Runs deps
+  if needed.
+* dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
+* clean: Cleans up the tree (removes compiled modules, dependencies, dump
+  files, etc).
+* distclean: Removes any configuration files. Also invokes clean.
+
 To get an escript:
 
     $ make escript
 
 This places the escript named flect in the root of the source tree. It is
 completely self-contained so it can be moved anywhere and will run fine
-provided the host system it is run on has Erlang and Elixir installed.
+provided the host system it is run on has Erlang and Elixir installed. It
+will make assumptions about the location of binaries and libraries based
+on the relevant configuration variables, however.
 
 It's a good idea to run the test suite before using the compiler:
 
     $ make test
+
+If this passes, you should be good to go.
