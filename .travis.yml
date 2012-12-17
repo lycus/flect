@@ -10,6 +10,7 @@ before_install:
 before_script:
     - export PATH=`pwd`/elixir/bin:$PATH
 script:
+    - cp .travis.config.mak config.mak
     - make deps
     - make ebin
     - make escript
