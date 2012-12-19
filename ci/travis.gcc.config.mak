@@ -6,8 +6,10 @@ export FLECT_ABI        ?= x86-sysv32
 
 export FLECT_CC         ?= gcc
 export FLECT_CC_TYPE    ?= gcc
+export FLECT_CC_ARGS    ?=
 export FLECT_LD         ?= ld
 export FLECT_LD_TYPE    ?= ld
+export FLECT_LD_ARGS    ?=
 
 export FLECT_PREFIX     ?= /usr/local
 export FLECT_BIN_DIR    ?= /usr/local/bin
