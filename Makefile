@@ -1,6 +1,7 @@
 include config.mak
 
 RM ?= rm
+TIME ?= time
 ELIXIR ?= elixir
 MIX ?= mix
 DIALYZER ?= dialyzer
@@ -13,8 +14,8 @@ config.mak:
 	@$(ELIXIR) config.exs
 
 test: escript
-	@$(ELIXIR) test.exs tests/lex-pass
-	@$(ELIXIR) test.exs tests/lex-fail
+	@$(TIME) -p $(ELIXIR) test.exs tests/lex-pass
+	@$(TIME) -p $(ELIXIR) test.exs tests/lex-fail
 
 escript: ebin
 	@$(MIX) escriptize

@@ -16,6 +16,7 @@ files = :file.list_dir(path) />
 File.cd!(path)
 
 results = Enum.map(passes, fn(pass) ->
+    IO.puts("")
     IO.puts("Testing #{path} (#{pass[:description]})...")
     IO.puts("")
 
