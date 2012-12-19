@@ -10,26 +10,26 @@ DIALYZER ?= dialyzer
 all: escript
 
 config.mak:
-	$(ELIXIR) config.exs
+	@$(ELIXIR) config.exs
 
 test: escript
-	$(ELIXIR) test.exs tests/lex-pass
-	$(ELIXIR) test.exs tests/lex-fail
+	@$(ELIXIR) test.exs tests/lex-pass
+	@$(ELIXIR) test.exs tests/lex-fail
 
 escript: ebin
-	$(MIX) escriptize
+	@$(MIX) escriptize
 
 ebin: deps
-	$(MIX) do deps.compile, compile
+	@$(MIX) do deps.compile, compile
 
 deps:
-	$(MIX) deps.get
+	@$(MIX) deps.get
 
 update: deps
-	$(MIX) deps.update
+	@$(MIX) deps.update
 
 clean:
-	$(MIX) clean --all
+	@$(MIX) clean --all
 	$(RM) -f flect
 	$(RM) -f *.dump
 
@@ -37,7 +37,7 @@ distclean: clean
 	$(RM) -f config.mak
 
 dialyze: ebin
-	$(DIALYZER) --no_check_plt -r ebin \
+	@$(DIALYZER) --no_check_plt -r ebin \
 		-Wunmatched_returns \
 		-Werror_handling \
 		-Wrace_conditions
