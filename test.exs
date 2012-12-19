@@ -48,12 +48,16 @@ results = Enum.map(passes, fn(pass) ->
             {:error, :enoent} -> true
         end
 
-        if code == pass[:code] && exp do
-            IO.puts("pass (#{inspect(code)})")
-            true
-        else
-            IO.puts("fail (#{inspect(code)})")
-            false
+        cond do
+            code != pass[:code] ->
+                IO.puts("fail (#{inspect(code)})")
+                false
+            !exp ->
+                IO.puts("fail (output)")
+                false
+            true ->
+                IO.puts("pass (#{inspect(code)})")
+                true
         end
     end)
 end)
