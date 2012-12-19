@@ -2,6 +2,7 @@ IO.puts("This is the Flect configuration script.")
 IO.puts("Some variables will have default values that are based on guesstimations about the current system.")
 IO.puts("Simply leave a variable blank to use the default value or specify a different value if needed.")
 IO.puts("Note that if the guesstimation leaves a variable blank, it must be filled out manually.")
+IO.puts("Some variables (such as FLECT_CC_ARGS and FLECT_LD_ARGS) can be left empty.")
 IO.puts("")
 
 IO.puts("Press Enter to start configuring Flect.")
@@ -30,38 +31,41 @@ IO.puts("")
 IO.puts("Guesstimation complete. Proceeding to compiler configuration.")
 IO.puts("")
 
-get = fn(var, def) ->
+get = fn(var, def, empty) ->
     cond do
         (s = list_to_binary(IO.gets("Please enter a value for #{var} [#{def}]: "))) != "\n" -> s
         def != "" -> def
+        empty -> ""
         true ->
             IO.puts("Error: No value for #{var} given.")
             System.halt(1)
     end
 end
 
-arch = get.("FLECT_ARCH", arch)
-os = get.("FLECT_OS", os)
-abi = get.("FLECT_ABI", abi)
+arch = get.("FLECT_ARCH", arch, false)
+os = get.("FLECT_OS", os, false)
+abi = get.("FLECT_ABI", abi, false)
 
 IO.puts("")
 IO.puts("Compiler configuration complete. Proceeding to external tool configuration.")
 IO.puts("")
 
-cc = get.("FLECT_CC", "clang")
-cc_type = get.("FLECT_CC_TYPE", "gcc")
-ld = get.("FLECT_LD", "ld")
-ld_type = get.("FLECT_LD_TYPE", "ld")
+cc = get.("FLECT_CC", "clang", false)
+cc_type = get.("FLECT_CC_TYPE", "gcc", false)
+cc_args = get.("FLECT_CC_ARGS", "", true)
+ld = get.("FLECT_LD", "ld", false)
+ld_type = get.("FLECT_LD_TYPE", "ld", false)
+ld_args = get.("FLECT_LD_ARGS", "", true)
 
 IO.puts("")
 IO.puts("External tool configuration complete. Proceeding to directory hierarchy configuration.")
 IO.puts("")
 
-prefix = get.("FLECT_PREFIX", "/usr/local")
-bin_dir = get.("FLECT_BIN_DIR", File.join(prefix, "bin"))
-lib_dir = get.("FLECT_LIB_DIR", File.join(prefix, "lib"))
-st_lib_dir = get.("FLECT_ST_LIB_DIR", File.join(lib_dir, "static"))
-sh_lib_dir = get.("FLECT_SH_LIB_DIR", File.join(lib_dir, "shared"))
+prefix = get.("FLECT_PREFIX", "/usr/local", false)
+bin_dir = get.("FLECT_BIN_DIR", File.join(prefix, "bin"), false)
+lib_dir = get.("FLECT_LIB_DIR", File.join(prefix, "lib"), false)
+st_lib_dir = get.("FLECT_ST_LIB_DIR", File.join(lib_dir, "static"), false)
+sh_lib_dir = get.("FLECT_SH_LIB_DIR", File.join(lib_dir, "shared"), false)
 
 IO.puts("")
 IO.puts("Directory hierarchy configuration complete.")
@@ -75,8 +79,10 @@ IO.puts("    FLECT_ABI        = #{abi}")
 IO.puts("")
 IO.puts("    FLECT_CC         = #{cc}")
 IO.puts("    FLECT_CC_TYPE    = #{cc_type}")
+IO.puts("    FLECT_CC_ARGS    = #{cc_args}")
 IO.puts("    FLECT_LD         = #{ld}")
 IO.puts("    FLECT_LD_TYPE    = #{ld_type}")
+IO.puts("    FLECT_LD_ARGS    = #{ld_args}")
 IO.puts("")
 IO.puts("    FLECT_PREFIX     = #{prefix}")
 IO.puts("    FLECT_BIN_DIR    = #{bin_dir}")
@@ -96,8 +102,10 @@ export FLECT_ABI        ?= #{abi}
 
 export FLECT_CC         ?= #{cc}
 export FLECT_CC_TYPE    ?= #{cc_type}
+export FLECT_CC_ARGS    ?= #{cc_args}
 export FLECT_LD         ?= #{ld}
 export FLECT_LD_TYPE    ?= #{ld_type}
+export FLECT_LD_ARGS    ?= #{ld_args}
 
 export FLECT_PREFIX     ?= #{prefix}
 export FLECT_BIN_DIR    ?= #{bin_dir}

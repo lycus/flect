@@ -27,12 +27,20 @@ defmodule Flect.Target do
         System.get_env("FLECT_CC_TYPE")
     end
 
+    def :get_cc_args, [], [] do
+        System.get_env("FLECT_CC_ARGS")
+    end
+
     def :get_ld, [], [] do
         System.get_env("FLECT_LD")
     end
 
     def :get_ld_type, [], [] do
         System.get_env("FLECT_LD_TYPE")
+    end
+
+    def :get_ld_args, [], [] do
+        System.get_env("FLECT_LD_ARGS")
     end
 
     def :get_os, [], [] do
