@@ -152,7 +152,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case String.next_codepoint(text) do
             :no_codepoint -> :eof
             {cp, rest} ->
-                {line, column} = if cp == "\n", do: {loc.line() + 1, 1}, else: {loc.line(), loc.column() + 1}
+                {line, column} = if cp == "\n", do: {loc.line() + 1, 0}, else: {loc.line(), loc.column() + 1}
                 {cp, rest, loc.update(line: line,
                                       column: column)}
         end
