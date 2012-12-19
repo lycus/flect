@@ -40,7 +40,9 @@ defmodule Flect.Application do
                       []},
                      {"c",
                       "Compile a set of Flect source files.",
-                      []},
+                      [mode: "Select compilation mode. (obj, stlib, shlib, exe) [obj]",
+                       stage: "Stage to stop compilation at. (lex, parse, sema, gen) [gen]",
+                       dump: "Dump a compiler state to stdout. (tokens, ast, c99) []"]},
                      {"d",
                       "Generate documentation for a set of Flect source files.",
                       []},
@@ -50,23 +52,24 @@ defmodule Flect.Application do
 
             Enum.each(tools, fn({name, desc, opts}) ->
                 Flect.Logger.info("    #{name}: #{desc}")
+                Flect.Logger.info("")
 
                 Enum.each(opts, fn({opt, desc}) ->
-                    Flect.Logger.info("        #{opt}: #{desc}")
+                    Flect.Logger.info("        --#{opt} <#{opt}>: #{desc}")
                 end)
 
-                Flect.Logger.info("")
+                if !Enum.empty?(opts) do
+                    Flect.Logger.info("")
+                end
             end)
         end
 
         if opts[:version] do
             Flect.Logger.info("Configuration:")
             Flect.Logger.info("")
-            Flect.Logger.info("    FLECT_PREFIX     = #{Flect.Target.get_prefix()}")
-            Flect.Logger.info("    FLECT_BIN_DIR    = #{Flect.Target.get_bin_dir()}")
-            Flect.Logger.info("    FLECT_LIB_DIR    = #{Flect.Target.get_lib_dir()}")
-            Flect.Logger.info("    FLECT_ST_LIB_DIR = #{Flect.Target.get_st_lib_dir()}")
-            Flect.Logger.info("    FLECT_SH_LIB_DIR = #{Flect.Target.get_sh_lib_dir()}")
+            Flect.Logger.info("    FLECT_ARCH       = #{Flect.Target.get_arch()}")
+            Flect.Logger.info("    FLECT_OS         = #{Flect.Target.get_os()}")
+            Flect.Logger.info("    FLECT_ABI        = #{Flect.Target.get_abi()}")
             Flect.Logger.info("")
             Flect.Logger.info("    FLECT_CC         = #{Flect.Target.get_cc()}")
             Flect.Logger.info("    FLECT_CC_TYPE    = #{Flect.Target.get_cc_type()}")
@@ -74,9 +77,12 @@ defmodule Flect.Application do
             Flect.Logger.info("    FLECT_LD         = #{Flect.Target.get_ld()}")
             Flect.Logger.info("    FLECT_LD_TYPE    = #{Flect.Target.get_ld_type()}")
             Flect.Logger.info("    FLECT_LD_ARGS    = #{Flect.Target.get_ld_args()}")
-            Flect.Logger.info("    FLECT_OS         = #{Flect.Target.get_os()}")
-            Flect.Logger.info("    FLECT_ARCH       = #{Flect.Target.get_arch()}")
-            Flect.Logger.info("    FLECT_ABI        = #{Flect.Target.get_abi()}")
+            Flect.Logger.info("")
+            Flect.Logger.info("    FLECT_PREFIX     = #{Flect.Target.get_prefix()}")
+            Flect.Logger.info("    FLECT_BIN_DIR    = #{Flect.Target.get_bin_dir()}")
+            Flect.Logger.info("    FLECT_LIB_DIR    = #{Flect.Target.get_lib_dir()}")
+            Flect.Logger.info("    FLECT_ST_LIB_DIR = #{Flect.Target.get_st_lib_dir()}")
+            Flect.Logger.info("    FLECT_SH_LIB_DIR = #{Flect.Target.get_sh_lib_dir()}")
             Flect.Logger.info("")
         end
 
