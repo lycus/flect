@@ -403,7 +403,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                               location: loc])
                 end
 
-                {nil, dec, rest, loc} = lex_number(cp, rest, file, oloc, loc, 10, true, false)
+                {nil, dec, rest, _, loc} = lex_number(cp, rest, file, oloc, loc, 10, true, false)
                 acc = acc <> dec
 
                 case next_code_point(rest, loc) do
@@ -423,7 +423,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                                               location: iloc])
                                 end
 
-                                {nil, dec, irest, iloc} = lex_number(cp, irest, file, oloc, iloc, 10, true, false)
+                                {nil, dec, irest, _, iloc} = lex_number(cp, irest, file, oloc, iloc, 10, true, false)
                                 {type, irest, iloc} = lex_literal_type(irest, file, iloc, true)
                                 {type, acc <> dec, irest, oloc, iloc}
                             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
