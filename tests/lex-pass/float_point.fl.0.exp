@@ -1,0 +1,6 @@
+Flect.Compiler.Syntax.Token[type: :f32, value: "10.0", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :f32, value: "10.0e10", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 2, column: 1]]
+Flect.Compiler.Syntax.Token[type: :f32, value: "10.10e10", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 3, column: 1]]
+Flect.Compiler.Syntax.Token[type: :f32, value: "10.0E5", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 4, column: 1]]
+Flect.Compiler.Syntax.Token[type: :f64, value: "10.5", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 5, column: 1]]
+Flect.Compiler.Syntax.Token[type: :f64, value: "10.10e10", location: Flect.Compiler.Syntax.Location[file: "float_point.fl", line: 6, column: 1]]

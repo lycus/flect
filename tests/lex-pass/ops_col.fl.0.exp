@@ -1,0 +1,2 @@
+Flect.Compiler.Syntax.Token[type: :assign_assign, value: "==", location: Flect.Compiler.Syntax.Location[file: "ops_col.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :exclamation_assign, value: "!=", location: Flect.Compiler.Syntax.Location[file: "ops_col.fl", line: 1, column: 4]]

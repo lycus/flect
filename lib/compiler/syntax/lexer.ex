@@ -26,7 +26,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             "+" -> :plus
                             "-" ->
                                 case next_code_point(rest, loc) do
-                                    {">", rest, loc} -> {:minus_angle_close, "->", rest, loc}
+                                    {">", rest, iloc} -> {:minus_angle_close, "->", rest, loc, iloc}
                                     _ -> :minus
                                 end
                             "*" -> :star
@@ -34,23 +34,23 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             "%" -> :percent
                             "&" ->
                                 case next_code_point(rest, loc) do
-                                    {"&", rest, loc} -> {:ampersand_ampersand, "&&", rest, loc}
+                                    {"&", rest, iloc} -> {:ampersand_ampersand, "&&", rest, loc, iloc}
                                     _ -> :ampersand
                                 end
                             "|" ->
                                 case next_code_point(rest, loc) do
-                                    {"|", rest, loc} -> {:pipe_pipe, "||", rest, loc}
-                                    {">", rest, loc} -> {:pipe_angle_close, "|>", rest, loc}
+                                    {"|", rest, iloc} -> {:pipe_pipe, "||", rest, loc, iloc}
+                                    {">", rest, iloc} -> {:pipe_angle_close, "|>", rest, loc, iloc}
                                     _ -> :pipe
                                 end
                             "^" -> :caret
                             "~" -> :tilde
                             "!" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, loc} ->
-                                        case next_code_point(rest, loc) do
-                                            {"=", rest, loc} -> {:exclamation_assign_assign, "!==", rest, loc}
-                                            _ -> {:exclamation_assign, "!=", rest, loc}
+                                    {"=", rest, iloc} ->
+                                        case next_code_point(rest, iloc) do
+                                            {"=", rest, jloc} -> {:exclamation_assign_assign, "!==", rest, loc, jloc}
+                                            _ -> {:exclamation_assign, "!=", rest, loc, iloc}
                                         end
                                     _ -> :exclamation
                                 end
@@ -65,29 +65,29 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             "@" -> :at
                             ":" ->
                                 case next_code_point(rest, loc) do
-                                    {":", rest, loc} -> {:colon_colon, "::", rest, loc}
+                                    {":", rest, iloc} -> {:colon_colon, "::", rest, loc, iloc}
                                     _ -> :colon
                                 end
                             ";" -> :semicolon
                             "=" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, loc} ->
+                                    {"=", rest, iloc} ->
                                         case next_code_point(rest, loc) do
-                                            {"=", rest, loc} -> {:assign_assign_assign, "===", rest, loc}
-                                            _ -> {:assign_assign, "==", rest, loc}
+                                            {"=", rest, jloc} -> {:assign_assign_assign, "===", rest, loc, jloc}
+                                            _ -> {:assign_assign, "==", rest, loc, iloc}
                                         end
                                     _ -> :assign
                                 end
                             "<" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, loc} -> {:angle_open_assign, "<=", rest, loc}
-                                    {"<", rest, loc} -> {:angle_open_angle_open, "<<", rest, loc}
+                                    {"=", rest, iloc} -> {:angle_open_assign, "<=", rest, loc, iloc}
+                                    {"<", rest, iloc} -> {:angle_open_angle_open, "<<", rest, loc, iloc}
                                     _ -> :angle_open
                                 end
                             ">" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, loc} -> {:angle_close_assign, ">=", rest, loc}
-                                    {">", rest, loc} -> {:angle_close_angle_close, ">>", rest, loc}
+                                    {"=", rest, iloc} -> {:angle_close_assign, ">=", rest, loc, iloc}
+                                    {">", rest, iloc} -> {:angle_close_angle_close, ">>", rest, loc, iloc}
                                     _ -> :angle_close
                                 end
                             # Handle string and character literals.
@@ -111,9 +111,9 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                         # binary, octal, or hexadecimal.
                                         if cp == "0" do
                                             case next_code_point(rest, loc) do
-                                                {"b", rest, loc} -> lex_number("0b", rest, file, loc, loc, 2, false, true)
-                                                {"o", rest, loc} -> lex_number("0o", rest, file, loc, loc, 8, false, true)
-                                                {"x", rest, loc} -> lex_number("0x", rest, file, loc, loc, 16, false, true)
+                                                {"b", rest, iloc} -> lex_number("0b", rest, file, loc, iloc, 2, false, true)
+                                                {"o", rest, iloc} -> lex_number("0o", rest, file, loc, iloc, 8, false, true)
+                                                {"x", rest, iloc} -> lex_number("0x", rest, file, loc, iloc, 16, false, true)
                                                 {_, _, _} -> lex_number(cp, rest, file, loc, loc, 10, true, true)
                                                 :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered incomplete number literal",
                                                                                                   file: file,

@@ -1,0 +1,6 @@
+Flect.Compiler.Syntax.Token[type: :i64, value: "0b101001101110", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :i64, value: "0o754526572347", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 2, column: 1]]
+Flect.Compiler.Syntax.Token[type: :i64, value: "0x543265459234", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 3, column: 1]]
+Flect.Compiler.Syntax.Token[type: :u64, value: "0xabcdefABCDEF", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 4, column: 1]]
+Flect.Compiler.Syntax.Token[type: :u64, value: "0x123456abcdef", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 5, column: 1]]
+Flect.Compiler.Syntax.Token[type: :u64, value: "0x123456ABCDEF", location: Flect.Compiler.Syntax.Location[file: "integer_base.fl", line: 6, column: 1]]
