@@ -12,12 +12,12 @@ before_install:
 before_script:
     - export PATH=`pwd`/elixir/bin:$PATH
 script:
-    - cp .travis.config.mak.clang config.mak
+    - cp ci/travis.clang.config.mak config.mak
     - make deps
     - make ebin
     - make escript
     - make distclean
-    - cp .travis.config.mak.gcc config.mak
+    - cp ci/travis.gcc.config.mak config.mak
     - make deps
     - make ebin
     - make escript
