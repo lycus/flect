@@ -13,7 +13,8 @@ config.mak:
 	$(ELIXIR) config.exs
 
 test: escript
-	$(ELIXIR) test.exs tests/lexable
+	$(ELIXIR) test.exs tests/lex-pass
+	$(ELIXIR) test.exs tests/lex-fail
 
 escript: ebin
 	$(MIX) escriptize
