@@ -13,10 +13,10 @@ before_script:
     - export PATH=`pwd`/elixir/bin:$PATH
 script:
     - cp ci/travis.clang.config.mak config.mak
-    - make escript
+    - make test
     - make distclean
     - cp ci/travis.gcc.config.mak config.mak
-    - make escript
+    - make test
     - make distclean
 notifications:
     irc:
