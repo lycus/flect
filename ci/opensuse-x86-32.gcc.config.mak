@@ -1,4 +1,4 @@
-# This is a configuration for Travis test runs.
+# This is a configuration for ci.lycus.org test runs.
 
 export FLECT_ARCH       ?= x86
 export FLECT_OS         ?= linux
