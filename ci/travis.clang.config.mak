@@ -2,7 +2,7 @@
 
 export FLECT_ARCH       ?= x86
 export FLECT_OS         ?= linux
-export FLECT_ABI        ?= x86-sysv64
+export FLECT_ABI        ?= x86-sysv32
 
 export FLECT_CC         ?= clang
 export FLECT_CC_TYPE    ?= gcc
