@@ -13,12 +13,12 @@ files = :file.list_dir(path) />
         Enum.map(fn(x) -> list_to_binary(x) end) />
         Enum.sort()
 
-IO.puts("Testing #{path}...")
-IO.puts("")
-
 File.cd!(path)
 
 results = Enum.map(passes, fn(pass) ->
+    IO.puts("Testing #{path} (#{pass[:description]})...")
+    IO.puts("")
+
     Enum.map(files, fn(file) ->
         cmd = pass[:command] />
               list_to_binary() />
@@ -44,11 +44,7 @@ results = Enum.map(passes, fn(pass) ->
         {text, code} = recv.(recv, port, "")
 
         exp = case File.read(file <> "." <> pass[:pass] <> ".exp") do
-            {:ok, data} ->
-                stripped_text = String.strip(text)
-                stripped_data = String.strip(data)
-
-                stripped_text == stripped_data
+            {:ok, data} -> String.strip(text) == String.strip(data)
             {:error, :enoent} -> true
         end
 
