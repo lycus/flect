@@ -320,17 +320,33 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         Flect.Compiler.Syntax.Location.t()) :: {:character, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                                                                 Flect.Compiler.Syntax.Location.t()}
     defp lex_character(text, file, oloc, loc) do
-        case next_code_point(text, loc) do
-            {cp, rest, loc} ->
-                case next_code_point(rest, loc) do
-                    {qcp, rest, loc} when qcp == "'" -> {:character, cp, rest, oloc, loc}
-                    _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected terminating single quote for character literal",
-                                                                   file: file,
-                                                                   location: loc])
+        {cp, rest, loc} = case next_code_point(text, loc) do
+            {"\\", rest, loc} ->
+                {cp, rest, loc} = case next_code_point(rest, loc) do
+                    {"0", rest, loc} -> {"\0", rest, loc}
+                    {"a", rest, loc} -> {"\a", rest, loc}
+                    {"b", rest, loc} -> {"\b", rest, loc}
+                    {"f", rest, loc} -> {"\f", rest, loc}
+                    {"n", rest, loc} -> {"\n", rest, loc}
+                    {"r", rest, loc} -> {"\r", rest, loc}
+                    {"t", rest, loc} -> {"\t", rest, loc}
+                    {"v", rest, loc} -> {"\v", rest, loc}
+                    {cp, rest, loc} when cp in ["\'", "\\"] -> {cp, rest, loc}
+                    {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
+                                                                            file: file,
+                                                                            location: loc])
                 end
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point for character literal",
-                                                              file: file,
-                                                              location: loc])
+            {cp, rest, loc} when cp != "'" -> {cp, rest, loc}
+            _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point for character literal",
+                                                           file: file,
+                                                           location: loc])
+        end
+
+        case next_code_point(rest, loc) do
+            {"'", rest, loc} -> {:character, cp, rest, oloc, loc}
+            _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected terminating single quote for character literal",
+                                                           file: file,
+                                                           location: loc])
         end
     end
 
@@ -339,6 +355,23 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_string(acc, text, file, oloc, loc) do
         case next_code_point(text, loc) do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
+            {"\\", rest, loc} ->
+                {cp, rest, loc} = case next_code_point(rest, loc) do
+                    {"0", rest, loc} -> {"\0", rest, loc}
+                    {"a", rest, loc} -> {"\a", rest, loc}
+                    {"b", rest, loc} -> {"\b", rest, loc}
+                    {"f", rest, loc} -> {"\f", rest, loc}
+                    {"n", rest, loc} -> {"\n", rest, loc}
+                    {"r", rest, loc} -> {"\r", rest, loc}
+                    {"t", rest, loc} -> {"\t", rest, loc}
+                    {"v", rest, loc} -> {"\v", rest, loc}
+                    {cp, rest, loc} when cp in ["\"", "\\"] -> {cp, rest, loc}
+                    {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
+                                                                            file: file,
+                                                                            location: loc])
+                end
+
+                lex_string(acc <> cp, rest, file, oloc, loc)
             {cp, rest, loc} -> lex_string(acc <> cp, rest, file, oloc, loc)
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point(s) for string literal",
                                                               file: file,
