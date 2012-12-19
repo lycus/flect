@@ -17,6 +17,14 @@ defmodule Flect.Compiler.Tool do
                 throw 2
         end
 
+        dump = case cfg.options()[:dump] do
+            d when d in ["tokens", "ast", "c99"] -> binary_to_atom(d)
+            nil -> nil
+            _ ->
+                Flect.Logger.error("Unknown dump parameter given (--dump flag)")
+                throw 2
+        end
+
         if mode != :obj && stage != :gen do
             Flect.Logger.error("Compilation stage #{stage} is irrelevant for compilation mode #{mode}")
             throw 2
@@ -34,21 +42,35 @@ defmodule Flect.Compiler.Tool do
             end
         end)
 
-        case mode do
-            :obj ->
-                tokenized_files = lc file inlist cfg.arguments() do
-                    case File.read(file) do
-                        {:ok, text} -> {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
-                        {:error, reason} ->
-                            Flect.Logger.error("Cannot read file #{file}: #{reason}")
-                            throw 2
+        try do
+            case mode do
+                :obj ->
+                    tokenized_files = lc file inlist cfg.arguments() do
+                        case File.read(file) do
+                            {:ok, text} -> {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
+                            {:error, reason} ->
+                                Flect.Logger.error("Cannot read file #{file}: #{reason}")
+                                throw 2
+                        end
                     end
-                end
 
-                :ok
-            :stlib -> exit(:todo)
-            :shlib -> exit(:todo)
-            :exe -> exit(:todo)
+                    if dump == :tokens do
+                        Enum.each(tokenized_files, fn({_, tokens}) ->
+                            Enum.each(tokens, fn(token) ->
+                                IO.puts("#{inspect(token)}")
+                            end)
+                        end)
+                    end
+
+                    :ok
+                :stlib -> exit(:todo)
+                :shlib -> exit(:todo)
+                :exe -> exit(:todo)
+            end
+        rescue
+            ex ->
+                Flect.Logger.error(ex.message())
+                throw 1
         end
 
         :ok

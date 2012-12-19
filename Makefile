@@ -12,6 +12,9 @@ all: escript
 config.mak:
 	$(ELIXIR) config.exs
 
+test: escript
+	$(ELIXIR) test.exs tests/lexable
+
 escript: ebin
 	$(MIX) escriptize
 
@@ -31,9 +34,6 @@ clean:
 
 distclean: clean
 	$(RM) -f config.mak
-
-test: ebin
-	$(MIX) test
 
 dialyze: ebin
 	$(DIALYZER) --no_check_plt -r ebin \

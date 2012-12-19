@@ -58,7 +58,7 @@ The makefile has a number of targets for building and testing Flect:
 * deps: Fetches and builds all dependencies.
 * ebin: Builds all Flect modules. Runs deps if needed.
 * escript: Builds the escriptized Flect binary. Runs ebin if needed.
-* test: Runs the compiler test suite. Runs ebin if needed.
+* test: Runs the compiler test suite. Runs escript if needed.
 * update: Updates all dependencies to their latest versions from Git. Runs deps
   if needed.
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
