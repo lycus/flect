@@ -80,14 +80,15 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 end
                             "<" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, iloc} -> {:angle_open_assign, "<=", rest, loc, iloc}
                                     {"<", rest, iloc} -> {:angle_open_angle_open, "<<", rest, loc, iloc}
+                                    {"=", rest, iloc} -> {:angle_open_assign, "<=", rest, loc, iloc}
+                                    {"|", rest, iloc} -> {:angle_open_pipe, "<|", rest, loc, iloc}
                                     _ -> :angle_open
                                 end
                             ">" ->
                                 case next_code_point(rest, loc) do
-                                    {"=", rest, iloc} -> {:angle_close_assign, ">=", rest, loc, iloc}
                                     {">", rest, iloc} -> {:angle_close_angle_close, ">>", rest, loc, iloc}
+                                    {"=", rest, iloc} -> {:angle_close_assign, ">=", rest, loc, iloc}
                                     _ -> :angle_close
                                 end
                             # Handle string and character literals.
