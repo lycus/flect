@@ -1,0 +1,2 @@
+Flect.Compiler.Syntax.Token[type: :i, value: "123", location: Flect.Compiler.Syntax.Location[file: "int_native.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :u, value: "123", location: Flect.Compiler.Syntax.Location[file: "int_native.fl", line: 2, column: 1]]

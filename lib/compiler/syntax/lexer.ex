@@ -485,19 +485,26 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                                location: loc])
             end
         else
-            case next_code_points(text, loc, 3, "", 0) do
+            spec = case next_code_points(text, loc, 3, "", 0) do
                 {val, rest, loc} when val in [":i8", ":u8"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                 {_, _, _} ->
                     case next_code_points(text, loc, 4, "", 0) do
                         {val, rest, loc} when val in [":i16", ":u16", ":i32", ":u32", ":i64", ":u64"] ->
                             {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
+                        _ -> nil
+                    end
+                _ -> nil
+            end
+
+            case spec do
+                {type, rest, loc} -> {type, rest, loc}
+                nil ->
+                    case next_code_points(text, loc, 2, "", 0) do
+                        {val, rest, loc} when val in [":i", ":u"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                         _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected integer literal type specifier",
                                                                        file: file,
                                                                        location: loc])
                     end
-                {:eof, _, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected integer literal type specifier",
-                                                                             file: file,
-                                                                             location: loc])
             end
         end
     end
