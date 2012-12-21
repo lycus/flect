@@ -15,6 +15,7 @@ You will be asked to configure the following variables:
 * FLECT_OS
 * FLECT_ARCH
 * FLECT_ABI
+* FLECT_CROSS
 * FLECT_CC
 * FLECT_CC_TYPE
 * FLECT_CC_ARGS
@@ -26,6 +27,8 @@ See the COMPATIBILITY file for possible values. Some of these variables will
 have defaults based on guesstimates about the system you're building on. The
 FLECT_CC_ARGS and FLECT_LD_ARGS variables specify extra parameters to pass to
 the C99 compiler and the linker, if any. You can generally leave these empty.
+The FLECT_CROSS value is a Boolean indicating whether a cross compiler is
+being built.
 
 In addition, the following variables configure where Flect should be installed
 and where it should look for static/shared libraries:

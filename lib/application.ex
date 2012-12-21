@@ -70,6 +70,7 @@ defmodule Flect.Application do
             Flect.Logger.info("    FLECT_ARCH       = #{Flect.Target.get_arch()}")
             Flect.Logger.info("    FLECT_OS         = #{Flect.Target.get_os()}")
             Flect.Logger.info("    FLECT_ABI        = #{Flect.Target.get_abi()}")
+            Flect.Logger.info("    FLECT_CROSS      = #{Flect.Target.get_cross()}")
             Flect.Logger.info("")
             Flect.Logger.info("    FLECT_CC         = #{Flect.Target.get_cc()}")
             Flect.Logger.info("    FLECT_CC_TYPE    = #{Flect.Target.get_cc_type()}")

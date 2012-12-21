@@ -3,6 +3,7 @@
 export FLECT_ARCH       ?= arm
 export FLECT_OS         ?= linux
 export FLECT_ABI        ?= arm-hardfp
+export FLECT_CROSS      ?= false
 
 export FLECT_CC         ?= gcc
 export FLECT_CC_TYPE    ?= gcc
