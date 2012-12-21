@@ -403,7 +403,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     end
 
                     if spec do
-                        {type, rest, loc} = lex_literal_type(text, file, loc, false)
+                        {type, rest, loc} = lex_literal_type(text, loc, false)
                         {type, acc, rest, oloc, loc}
                     else
                         {nil, acc, text, oloc, loc}
@@ -417,7 +417,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 end
 
                 if spec do
-                    {type, rest, loc} = lex_literal_type(text, file, loc, false)
+                    {type, rest, loc} = lex_literal_type(text, loc, false)
                     {type, acc, rest, oloc, loc}
                 else
                     {nil, acc, text, oloc, loc}
@@ -458,14 +458,14 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 end
 
                                 {nil, dec, irest, _, iloc} = lex_number(cp, irest, file, oloc, iloc, 10, true, false)
-                                {type, irest, iloc} = lex_literal_type(irest, file, iloc, true)
+                                {type, irest, iloc} = lex_literal_type(irest, iloc, true)
                                 {type, acc <> dec, irest, oloc, iloc}
                             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
                                                                               file: file,
                                                                               location: iloc])
                         end
                     _ ->
-                        {type, rest, loc} = lex_literal_type(rest, file, loc, true)
+                        {type, rest, loc} = lex_literal_type(rest, loc, true)
                         {type, acc, rest, oloc, loc}
                 end
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
@@ -474,15 +474,12 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_literal_type(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                           boolean()) :: {atom(), String.t(), Flect.Compiler.Syntax.Location.t()}
-    defp lex_literal_type(text, file, loc, float) do
+    @spec lex_literal_type(String.t(), Flect.Compiler.Syntax.Location.t(), boolean()) :: {atom(), String.t(), Flect.Compiler.Syntax.Location.t()}
+    defp lex_literal_type(text, loc, float) do
         if float do
             case next_code_points(text, loc, 4, "", 0) do
                 {val, rest, loc} when val in [":f32", ":f64"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
-                _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected floating point literal type specifier",
-                                                               file: file,
-                                                               location: loc])
+                _ -> {:float, text, loc}
             end
         else
             spec = case next_code_points(text, loc, 3, "", 0) do
@@ -501,9 +498,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 nil ->
                     case next_code_points(text, loc, 2, "", 0) do
                         {val, rest, loc} when val in [":i", ":u"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
-                        _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected integer literal type specifier",
-                                                                       file: file,
-                                                                       location: loc])
+                        _ -> {:integer, text, loc}
                     end
             end
         end
