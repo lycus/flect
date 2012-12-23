@@ -1,25 +1,25 @@
 defmodule Flect.Compiler.Syntax.Lexer do
     @spec lex(String.t(), String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def lex(text, file) do
-        Enum.reverse(do_lex(text, file, [], Flect.Compiler.Syntax.Location.new(file: file)))
+        Enum.reverse(do_lex(text, [], Flect.Compiler.Syntax.Location.new(file: file)))
     end
 
-    @spec do_lex(String.t(), String.t(), [Flect.Compiler.Syntax.Token.t()], Flect.Compiler.Syntax.Location.t()) :: [Flect.Compiler.Syntax.Token.t()]
-    defp do_lex(text, file, tokens, loc) do
+    @spec do_lex(String.t(), [Flect.Compiler.Syntax.Token.t()], Flect.Compiler.Syntax.Location.t()) :: [Flect.Compiler.Syntax.Token.t()]
+    defp do_lex(text, tokens, loc) do
         case next_code_point(text, loc) do
             :eof -> tokens
             {cp, rest, loc} ->
                 cond do
                     # If the stripped code point is empty, it's white space.
-                    String.strip(cp) == "" -> do_lex(rest, file, tokens, loc)
+                    String.strip(cp) == "" -> do_lex(rest, tokens, loc)
                     # Strip comments. TODO: We'll want to parse these into the token stream and attach
                     # them to AST nodes for use in the formatter at some point.
                     cp == "#" ->
-                        {rest, loc} = strip_comment(rest, file, loc, "\n", true)
-                        do_lex(rest, file, tokens, loc)
+                        {rest, loc} = strip_comment(rest, loc, "\n", true)
+                        do_lex(rest, tokens, loc)
                     cp == "$" ->
-                        {rest, loc} = strip_comment(rest, file, loc, "$", false)
-                        do_lex(rest, file, tokens, loc)
+                        {rest, loc} = strip_comment(rest, loc, "$", false)
+                        do_lex(rest, tokens, loc)
                     true ->
                         token = case cp do
                             # Handle operators and separators.
@@ -92,8 +92,8 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     _ -> :angle_close
                                 end
                             # Handle string and character literals.
-                            "\"" -> lex_string("", rest, file, loc, loc)
-                            "'" -> lex_character(rest, file, loc, loc)
+                            "\"" -> lex_string("", rest, loc, loc)
+                            "'" -> lex_character(rest, loc, loc)
                             cp ->
                                 cond do
                                     # Handle identifiers (starting with a letter or an underscore).
@@ -112,20 +112,18 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                         # binary, octal, or hexadecimal.
                                         if cp == "0" do
                                             case next_code_point(rest, loc) do
-                                                {"b", rest, iloc} -> lex_number("0b", rest, file, loc, iloc, 2, false, true)
-                                                {"o", rest, iloc} -> lex_number("0o", rest, file, loc, iloc, 8, false, true)
-                                                {"x", rest, iloc} -> lex_number("0x", rest, file, loc, iloc, 16, false, true)
-                                                {_, _, _} -> lex_number(cp, rest, file, loc, loc, 10, true, true)
+                                                {"b", rest, iloc} -> lex_number("0b", rest, loc, iloc, 2, false, true)
+                                                {"o", rest, iloc} -> lex_number("0o", rest, loc, iloc, 8, false, true)
+                                                {"x", rest, iloc} -> lex_number("0x", rest, loc, iloc, 16, false, true)
+                                                {_, _, _} -> lex_number(cp, rest, loc, loc, 10, true, true)
                                                 :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered incomplete number literal",
-                                                                                                  file: file,
                                                                                                   location: loc])
                                             end
                                         else
-                                            lex_number(cp, rest, file, loc, loc, 10, true, true)
+                                            lex_number(cp, rest, loc, loc, 10, true, true)
                                         end
                                     # Otherwise, we don't know what we're dealing with, so bail.
                                     true -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered unknown code point: #{cp}",
-                                                                                      file: file,
                                                                                       location: loc])
                                 end
                         end
@@ -142,7 +140,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         token = Flect.Compiler.Syntax.Token.new(type: type,
                                                                 value: value,
                                                                 location: oloc)
-                        do_lex(rest, file, [token | tokens], loc)
+                        do_lex(rest, [token | tokens], loc)
                 end
         end
     end
@@ -173,15 +171,14 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec strip_comment(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
-                        boolean()) :: {String.t(), Flect.Compiler.Syntax.Location.t()}
-    defp strip_comment(text, file, loc, ecp, eol) do
+    @spec strip_comment(String.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(), boolean()) :: {String.t(),
+                                                                                                           Flect.Compiler.Syntax.Location.t()}
+    defp strip_comment(text, loc, ecp, eol) do
         case next_code_point(text, loc) do
             {^ecp, rest, loc} -> {rest, loc}
-            {cp, rest, loc} -> strip_comment(rest, file, loc, ecp, eol)
+            {cp, rest, loc} -> strip_comment(rest, loc, ecp, eol)
             :eof when eol -> {"", loc}
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of input in comment",
-                                                              file: file,
                                                               location: loc])
         end
     end
@@ -317,10 +314,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_character(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+    @spec lex_character(String.t(), Flect.Compiler.Syntax.Location.t(),
                         Flect.Compiler.Syntax.Location.t()) :: {:character, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                                                                 Flect.Compiler.Syntax.Location.t()}
-    defp lex_character(text, file, oloc, loc) do
+    defp lex_character(text, oloc, loc) do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
@@ -334,26 +331,23 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     {"v", rest, loc} -> {"\v", rest, loc}
                     {cp, rest, loc} when cp in ["\'", "\\"] -> {cp, rest, loc}
                     {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
-                                                                            file: file,
                                                                             location: loc])
                 end
             {cp, rest, loc} when cp != "'" -> {cp, rest, loc}
             _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point for character literal",
-                                                           file: file,
                                                            location: loc])
         end
 
         case next_code_point(rest, loc) do
             {"'", rest, loc} -> {:character, cp, rest, oloc, loc}
             _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected terminating single quote for character literal",
-                                                           file: file,
                                                            location: loc])
         end
     end
 
-    @spec lex_string(String.t(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+    @spec lex_string(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                      Flect.Compiler.Syntax.Location.t()) :: {:string, String.t(), String.t(), Flect.Compiler.Syntax.Location.t()}
-    defp lex_string(acc, text, file, oloc, loc) do
+    defp lex_string(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
             {"\\", rest, loc} ->
@@ -368,21 +362,19 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     {"v", rest, loc} -> {"\v", rest, loc}
                     {cp, rest, loc} when cp in ["\"", "\\"] -> {cp, rest, loc}
                     {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
-                                                                            file: file,
                                                                             location: loc])
                 end
 
-                lex_string(acc <> cp, rest, file, oloc, loc)
-            {cp, rest, loc} -> lex_string(acc <> cp, rest, file, oloc, loc)
+                lex_string(acc <> cp, rest, oloc, loc)
+            {cp, rest, loc} -> lex_string(acc <> cp, rest, oloc, loc)
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point(s) for string literal",
-                                                              file: file,
                                                               location: loc])
         end
     end
 
-    @spec lex_number(String.t(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), 2 | 8 | 10 | 16,
-                     boolean(), boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
-    defp lex_number(acc, text, file, oloc, loc, base, float, spec) do
+    @spec lex_number(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), 2 | 8 | 10 | 16, boolean(),
+                     boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
+    defp lex_number(acc, text, oloc, loc, base, float, spec) do
         chars = case base do
             2 -> binary_number_chars()
             8 -> octal_number_chars()
@@ -391,14 +383,13 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
 
         case next_code_point(text, loc) do
-            {".", rest, loc} when float -> lex_float(acc <> ".", rest, file, oloc, loc)
+            {".", rest, loc} when float -> lex_float(acc <> ".", rest, oloc, loc)
             {cp, irest, iloc} ->
                 if Enum.find_index(chars, fn(x) -> x == cp end) != nil do
-                    lex_number(acc <> cp, irest, file, oloc, iloc, base, float, spec)
+                    lex_number(acc <> cp, irest, oloc, iloc, base, float, spec)
                 else
                     if base != 10 && String.length(acc) == 2 do
                         raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal",
-                                                                  file: file,
                                                                   location: iloc])
                     end
 
@@ -412,7 +403,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
             :eof ->
                 if base != 10 && String.length(acc) == 2 do
                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal",
-                                                              file: file,
                                                               location: loc])
                 end
 
@@ -425,19 +415,18 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_float(String.t(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+    @spec lex_float(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                     Flect.Compiler.Syntax.Location.t()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                                                             Flect.Compiler.Syntax.Location.t()}
-    defp lex_float(acc, text, file, oloc, loc) do
+    defp lex_float(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
                 if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
-                                                              file: file,
                                                               location: loc])
                 end
 
-                {nil, dec, rest, _, loc} = lex_number(cp, rest, file, oloc, loc, 10, true, false)
+                {nil, dec, rest, _, loc} = lex_number(cp, rest, oloc, loc, 10, true, false)
                 acc = acc <> dec
 
                 case next_code_point(rest, loc) do
@@ -453,15 +442,13 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             {cp, irest, iloc} ->
                                 if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
                                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                              file: file,
                                                                               location: iloc])
                                 end
 
-                                {nil, dec, irest, _, iloc} = lex_number(cp, irest, file, oloc, iloc, 10, true, false)
+                                {nil, dec, irest, _, iloc} = lex_number(cp, irest, oloc, iloc, 10, true, false)
                                 {type, irest, iloc} = lex_literal_type(irest, iloc, true)
                                 {type, acc <> dec, irest, oloc, iloc}
                             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                              file: file,
                                                                               location: iloc])
                         end
                     _ ->
@@ -469,7 +456,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         {type, acc, rest, oloc, loc}
                 end
             :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
-                                                              file: file,
                                                               location: loc])
         end
     end
