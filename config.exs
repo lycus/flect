@@ -50,7 +50,7 @@ end
 get_bool = fn(var, def) ->
     s = get.(var, def, false)
 
-    if !(s in ["true", "false"]) do
+    if s in ["true", "false"] do
         s
     else
         IO.puts("Error: Value must be true or false.")
