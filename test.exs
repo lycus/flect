@@ -51,13 +51,13 @@ results = Enum.map(passes, fn(pass) ->
 
         cond do
             code != pass[:code] ->
-                IO.puts("fail (#{inspect(code)})")
+                IO.puts("failure (#{inspect(code)})")
                 false
             !exp ->
-                IO.puts("fail (output)")
+                IO.puts("failure (output)")
                 false
             true ->
-                IO.puts("pass (#{inspect(code)})")
+                IO.puts("success (#{inspect(code)})")
                 true
         end
     end)
@@ -69,9 +69,10 @@ results = List.flatten(results)
 
 test_passes = Enum.count(results, fn(x) -> x end)
 test_failures = Enum.count(results, fn(x) -> !x end)
+tests = test_passes + test_failures
 
 IO.puts("")
-IO.puts("#{inspect(test_passes)} passes, #{inspect(test_failures)} failures")
+IO.puts("#{tests} test passes executed, #{inspect(test_passes)} successful, #{inspect(test_failures)} failed")
 IO.puts("")
 
 System.halt(if test_failures > 0, do: 1, else: 0)
