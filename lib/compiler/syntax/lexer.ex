@@ -12,16 +12,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 cond do
                     # If the stripped code point is empty, it's white space.
                     String.strip(cp) == "" -> do_lex(rest, tokens, loc)
-                    # Strip comments. TODO: We'll want to parse these into the token stream and attach
-                    # them to AST nodes for use in the formatter at some point.
-                    cp == "#" ->
-                        {rest, loc} = strip_comment(rest, loc, "\n", true)
-                        do_lex(rest, tokens, loc)
-                    cp == "$" ->
-                        {rest, loc} = strip_comment(rest, loc, "$", false)
-                        do_lex(rest, tokens, loc)
                     true ->
                         token = case cp do
+                            # Handle line comments and block comments.
+                            "#" -> lex_comment(:line_comment, cp, rest, loc, loc, "\n", true)
+                            "$" -> lex_comment(:block_comment, cp, rest, loc, loc, "$", false)
                             # Handle operators and separators.
                             "+" -> :plus
                             "-" ->
@@ -171,18 +166,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec strip_comment(String.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(), boolean()) :: {String.t(),
-                                                                                                           Flect.Compiler.Syntax.Location.t()}
-    defp strip_comment(text, loc, ecp, eol) do
-        case next_code_point(text, loc) do
-            {^ecp, rest, loc} -> {rest, loc}
-            {cp, rest, loc} -> strip_comment(rest, loc, ecp, eol)
-            :eof when eol -> {"", loc}
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of input in comment",
-                                                              location: loc])
-        end
-    end
-
     @spec keywords() :: [String.t()]
     defp :keywords, [], [] do
         ["mod",
@@ -297,6 +280,18 @@ defmodule Flect.Compiler.Syntax.Lexer do
     @spec identifier_chars() :: [String.t()]
     defp :identifier_chars, [], [] do
         List.flatten(lc xs inlist [?a .. ?z, ?A .. ?Z, ?0 .. ?9], do: Enum.map(xs, fn(x) -> <<x>> end)) ++ ["_"]
+    end
+
+    @spec lex_comment(atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
+                      boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
+    defp lex_comment(type, acc, text, oloc, loc, ecp, eol) do
+        case next_code_point(text, loc) do
+            {^ecp, rest, loc} -> {type, acc <> ecp, rest, oloc, loc}
+            {cp, rest, loc} -> lex_comment(type, acc <> cp, rest, oloc, loc, ecp, eol)
+            :eof when eol -> {type, acc, text, oloc, loc}
+            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of input in comment",
+                                                              location: loc])
+        end
     end
 
     @spec lex_identifier(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
