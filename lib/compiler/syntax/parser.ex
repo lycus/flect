@@ -38,4 +38,13 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         tup
     end
+
+    @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
+                   [Flect.Compiler.Syntax.Node.t()]) :: Flect.Compiler.Syntax.Node.t()
+    defp new_node(type, loc, tokens, children // []) do
+        Flect.Compiler.Syntax.Node.new(type: type,
+                                       location: loc,
+                                       tokens: tokens,
+                                       children: children)
+    end
 end
