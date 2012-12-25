@@ -42,7 +42,7 @@ defmodule Flect.Application do
                       "Compile a set of Flect source files.",
                       [mode: "Select compilation mode. (obj, stlib, shlib, exe) [obj]",
                        stage: "Stage to stop compilation at. (lex, parse, sema, gen) [gen]",
-                       dump: "Dump a compiler state to stdout. (tokens, ast, c99) []"]},
+                       dump: "Dump a compiler state to stdout. (tokens, ast, ir, c99) []"]},
                      {"d",
                       "Generate documentation for a set of Flect source files.",
                       []},

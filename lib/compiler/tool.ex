@@ -18,7 +18,7 @@ defmodule Flect.Compiler.Tool do
         end
 
         dump = case cfg.options()[:dump] do
-            d when d in ["tokens", "ast", "c99"] -> binary_to_atom(d)
+            d when d in ["tokens", "ast", "ir", "c99"] -> binary_to_atom(d)
             nil -> nil
             _ ->
                 Flect.Logger.error("Unknown dump parameter given (--dump flag)")
