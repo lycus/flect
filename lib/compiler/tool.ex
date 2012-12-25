@@ -72,7 +72,6 @@ defmodule Flect.Compiler.Tool do
 
                     if dump == :ast do
                         Enum.each(parsed_files, fn({_, ast}) ->
-                            ast = lc n inlist ast, do: n.named_children()[:name]
                             Flect.Logger.info("#{inspect(ast)}")
                         end)
                     end
