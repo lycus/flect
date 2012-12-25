@@ -299,11 +299,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                                  Flect.Compiler.Syntax.Location.t()}
     defp lex_identifier(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
-            {cp, rest, loc} ->
+            {cp, irest, iloc} ->
                 if Enum.find_index(identifier_chars(), fn(x) -> x == cp end) != nil do
-                    lex_identifier(acc <> cp, rest, oloc, loc)
+                    lex_identifier(acc <> cp, irest, oloc, iloc)
                 else
-                    {:identifier, acc, rest, oloc, loc}
+                    {:identifier, acc, text, oloc, loc}
                 end
             :eof -> {:identifier, acc, text, oloc, loc}
         end
