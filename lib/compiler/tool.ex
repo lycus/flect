@@ -57,9 +57,28 @@ defmodule Flect.Compiler.Tool do
                     if dump == :tokens do
                         Enum.each(tokenized_files, fn({_, tokens}) ->
                             Enum.each(tokens, fn(token) ->
-                                IO.puts("#{inspect(token)}")
+                                Flect.Logger.info("#{inspect(token)}")
                             end)
                         end)
+                    end
+
+                    if stage == :lex do
+                        throw :stop
+                    end
+
+                    parsed_files = lc {file, tokens} inlist tokenized_files do
+                        {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
+                    end
+
+                    if dump == :ast do
+                        Enum.each(parsed_files, fn({_, ast}) ->
+                            ast = lc n inlist ast, do: n.named_children()[:name]
+                            Flect.Logger.info("#{inspect(ast)}")
+                        end)
+                    end
+
+                    if stage == :parse do
+                        throw :stop
                     end
 
                     :ok
@@ -67,12 +86,12 @@ defmodule Flect.Compiler.Tool do
                 :shlib -> exit(:todo)
                 :exe -> exit(:todo)
             end
+        catch
+            :stop -> :ok
         rescue
             ex ->
                 Flect.Logger.error(ex.message())
                 throw 1
         end
-
-        :ok
     end
 end
