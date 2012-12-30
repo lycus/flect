@@ -1,0 +1,15 @@
+(module_declaration <"module_decl.fl", 1, 1>,
+ (mod_keyword: "mod" <"module_decl.fl", 1, 1>,
+  opening_brace: "{" <"module_decl.fl", 1, 9>,
+  closing_brace: "}" <"module_decl.fl", 2, 1>),
+ (),
+ (name: (qualified_name <"module_decl.fl", 1, 5>,
+  (),
+  ((simple_name <"module_decl.fl", 1, 5>,
+    (name: "foo" <"module_decl.fl", 1, 5>),
+    (),
+    ()
+   )),
+  ()
+ ))
+)

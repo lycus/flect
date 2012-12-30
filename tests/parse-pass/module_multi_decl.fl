@@ -1,0 +1,8 @@
+mod foo {
+}
+
+mod foo::bar {
+}
+
+mod foo::bar::baz {
+}

@@ -1,0 +1,26 @@
+(module_declaration <"module_qualified_decl.fl", 1, 1>,
+ (mod_keyword: "mod" <"module_qualified_decl.fl", 1, 1>,
+  opening_brace: "{" <"module_qualified_decl.fl", 1, 19>,
+  closing_brace: "}" <"module_qualified_decl.fl", 2, 1>),
+ (),
+ (name: (qualified_name <"module_qualified_decl.fl", 1, 5>,
+  (separator: "::" <"module_qualified_decl.fl", 1, 8>,
+   separator: "::" <"module_qualified_decl.fl", 1, 13>),
+  ((simple_name <"module_qualified_decl.fl", 1, 5>,
+    (name: "foo" <"module_qualified_decl.fl", 1, 5>),
+    (),
+    ()
+   ),
+   (simple_name <"module_qualified_decl.fl", 1, 10>,
+    (name: "bar" <"module_qualified_decl.fl", 1, 10>),
+    (),
+    ()
+   ),
+   (simple_name <"module_qualified_decl.fl", 1, 15>,
+    (name: "baz" <"module_qualified_decl.fl", 1, 15>),
+    (),
+    ()
+   )),
+  ()
+ ))
+)
