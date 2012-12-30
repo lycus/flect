@@ -72,7 +72,9 @@ defmodule Flect.Compiler.Tool do
 
                     if dump == :ast do
                         Enum.each(parsed_files, fn({_, ast}) ->
-                            Flect.Logger.info("#{inspect(ast)}")
+                            Enum.each(ast, fn(node) ->
+                                Flect.Logger.info(node.format())
+                            end)
                         end)
                     end
 
