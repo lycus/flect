@@ -57,7 +57,7 @@ defmodule Flect.Compiler.Tool do
                     if dump == :tokens do
                         Enum.each(tokenized_files, fn({_, tokens}) ->
                             Enum.each(tokens, fn(token) ->
-                                Flect.Logger.info("#{inspect(token)}")
+                                Flect.Logger.info(inspect(token))
                             end)
                         end)
                     end
