@@ -316,7 +316,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
-                    {"0", rest, loc} -> {"\0", rest, loc}
+                    {"0", rest, loc} -> {"\x00", rest, loc}
                     {"a", rest, loc} -> {"\a", rest, loc}
                     {"b", rest, loc} -> {"\b", rest, loc}
                     {"f", rest, loc} -> {"\f", rest, loc}
@@ -347,7 +347,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
-                    {"0", rest, loc} -> {"\0", rest, loc}
+                    {"0", rest, loc} -> {"\x00", rest, loc}
                     {"a", rest, loc} -> {"\a", rest, loc}
                     {"b", rest, loc} -> {"\b", rest, loc}
                     {"f", rest, loc} -> {"\f", rest, loc}
