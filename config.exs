@@ -79,7 +79,7 @@ arch_valid = case os do
     "linux" -> arch in ["arm", "ia64", "mips", "hppa", "ppc", "x86"]
     "darwin" -> arch in ["ppc", "x86"]
     "openbsd" -> arch in ["arm", "mips", "hppa", "ppc", "x86"]
-    "solaris" -> arch in ["ppc", "x86"]
+    "solaris" -> arch in ["x86"]
     "windows" -> arch in ["ia64", "x86"]
 end
 
