@@ -16,6 +16,8 @@ config.mak:
 test: escript
 	@$(TIME) -p $(ELIXIR) test.exs tests/lex-pass
 	@$(TIME) -p $(ELIXIR) test.exs tests/lex-fail
+	@$(TIME) -p $(ELIXIR) test.exs tests/parse-pass
+	@$(TIME) -p $(ELIXIR) test.exs tests/parse-fail
 
 escript: ebin
 	@$(MIX) escriptize
