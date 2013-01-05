@@ -40,7 +40,7 @@ defmodule Flect.Application do
                       []},
                      {"c",
                       "Compile a set of Flect source files.",
-                      [mode: "Select compilation mode. (obj, stlib, shlib, exe) [obj]",
+                      [mode: "Select compilation mode. (stlib, shlib, exe) [obj]",
                        stage: "Stage to stop compilation at. (lex, parse, sema, gen) [gen]",
                        dump: "Dump a compiler state to stdout. (tokens, ast, ir, c99) []"]},
                      {"d",
