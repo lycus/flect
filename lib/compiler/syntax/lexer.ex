@@ -178,10 +178,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "align",
          "struct",
          "union",
-         "drop",
          "type",
          "fn",
          "ext",
+         "ref",
          "glob",
          "const",
          "mut",
@@ -224,6 +224,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "assert",
          "in",
          "is",
+         "void",
          "test",
          "macro",
          "quote",
@@ -233,7 +234,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "atom",
          "monad",
          "do",
-         "inline",
          "lazy",
          "yield",
          "mixin",
@@ -242,14 +242,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "par",
          "object",
          "var",
-         "void",
          "pragma",
          "scope",
          "shared",
          "tls",
-         "ref",
-         "move",
-         "copy"]
+         "move"]
     end
 
     @spec binary_number_chars() :: [String.t()]
