@@ -1,16 +1,16 @@
 path = Enum.at!(System.argv(), 0)
 
-passes = :file.list_dir(path) />
-         elem(1) />
-         Enum.filter(fn(x) -> File.extname(x) == '.pass' end) />
-         Enum.sort() />
-         Enum.map(fn(x) -> File.join(path, x) end) />
-         Enum.map(fn(x) -> [pass: x /> File.basename() /> File.rootname()] ++ Enum.at!(elem(:file.consult(x), 1), 0) end)
+passes = :file.list_dir(path) |>
+         elem(1) |>
+         Enum.filter(fn(x) -> File.extname(x) == '.pass' end) |>
+         Enum.sort() |>
+         Enum.map(fn(x) -> File.join(path, x) end) |>
+         Enum.map(fn(x) -> [pass: x |> File.basename() |> File.rootname()] ++ Enum.at!(elem(:file.consult(x), 1), 0) end)
 
-files = :file.list_dir(path) />
-        elem(1) />
-        Enum.filter(fn(x) -> File.extname(x) == '.fl' end) />
-        Enum.map(fn(x) -> list_to_binary(x) end) />
+files = :file.list_dir(path) |>
+        elem(1) |>
+        Enum.filter(fn(x) -> File.extname(x) == '.fl' end) |>
+        Enum.map(fn(x) -> list_to_binary(x) end) |>
         Enum.sort()
 
 File.cd!(path)
@@ -21,11 +21,11 @@ results = Enum.map(passes, fn(pass) ->
     IO.puts("")
 
     Enum.map(files, fn(file) ->
-        cmd = pass[:command] />
-              list_to_binary() />
-              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) />
-              String.replace("<file>", file) />
-              String.replace("<name>", File.rootname(file)) />
+        cmd = pass[:command] |>
+              list_to_binary() |>
+              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) |>
+              String.replace("<file>", file) |>
+              String.replace("<name>", File.rootname(file)) |>
               binary_to_list()
 
         IO.write("#{file}... ")

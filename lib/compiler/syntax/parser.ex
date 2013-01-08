@@ -33,8 +33,8 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:colon_colon, tok, state} ->
                 parse_qualified_name(state, {[name | names], [tok | seps]})
             _ ->
-                names = [name | names] /> Enum.reverse()
-                seps = seps /> Enum.map(fn(x) -> {:separator, x} end) /> Enum.reverse()
+                names = [name | names] |> Enum.reverse()
+                seps = seps |> Enum.map(fn(x) -> {:separator, x} end) |> Enum.reverse()
                 {new_node(:qualified_name, Enum.at!(names, 0).location(), seps, names), state}
         end
     end
