@@ -313,15 +313,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
-                    {"0", rest, loc} -> {"\x00", rest, loc}
-                    {"a", rest, loc} -> {"\a", rest, loc}
-                    {"b", rest, loc} -> {"\b", rest, loc}
-                    {"f", rest, loc} -> {"\f", rest, loc}
-                    {"n", rest, loc} -> {"\n", rest, loc}
-                    {"r", rest, loc} -> {"\r", rest, loc}
-                    {"t", rest, loc} -> {"\t", rest, loc}
-                    {"v", rest, loc} -> {"\v", rest, loc}
-                    {cp, rest, loc} when cp in ["\'", "\\"] -> {cp, rest, loc}
+                    {cp, rest, loc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
                     {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
                                                                             location: loc])
                 end
@@ -344,15 +336,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
-                    {"0", rest, loc} -> {"\x00", rest, loc}
-                    {"a", rest, loc} -> {"\a", rest, loc}
-                    {"b", rest, loc} -> {"\b", rest, loc}
-                    {"f", rest, loc} -> {"\f", rest, loc}
-                    {"n", rest, loc} -> {"\n", rest, loc}
-                    {"r", rest, loc} -> {"\r", rest, loc}
-                    {"t", rest, loc} -> {"\t", rest, loc}
-                    {"v", rest, loc} -> {"\v", rest, loc}
-                    {cp, rest, loc} when cp in ["\"", "\\"] -> {cp, rest, loc}
+                    {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
                     {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
                                                                             location: loc])
                 end
