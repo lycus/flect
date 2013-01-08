@@ -2,6 +2,5 @@ ebin/*
 deps/*
 
 config.mak
-flect
 
 *.dump

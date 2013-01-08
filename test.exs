@@ -23,7 +23,7 @@ results = Enum.map(passes, fn(pass) ->
     Enum.map(files, fn(file) ->
         cmd = pass[:command] />
               list_to_binary() />
-              String.replace("<flect>", File.join(["..", "..", "flect"])) />
+              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) />
               String.replace("<file>", file) />
               String.replace("<name>", File.rootname(file)) />
               binary_to_list()

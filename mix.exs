@@ -5,9 +5,8 @@ defmodule Flect.Mixfile do
         [app: :flect,
          version: "0.1",
          deps: deps(),
-         elixirc_options: [debug_info: true],
-         escript_embed_elixir: true,
-         escript_main_module: Flect.Application]
+         escript_main_module: Flect.Application,
+         escript_path: File.join("ebin", "flect")]
     end
 
     def application() do
