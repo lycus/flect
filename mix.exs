@@ -6,7 +6,8 @@ defmodule Flect.Mixfile do
          version: "0.1",
          deps: deps(),
          escript_main_module: Flect.Application,
-         escript_path: File.join("ebin", "flect")]
+         escript_path: File.join("ebin", "flect"),
+         escript_emu_args: "%%! -noinput +B\n"]
     end
 
     def application() do
