@@ -1,11 +1,6 @@
 defmodule Flect.Application do
     use Application.Behaviour
 
-    @spec start() :: :ok
-    def start() do
-        :ok = Application.Behaviour.start(:flect)
-    end
-
     @spec main([char_list()]) :: no_return()
     def main(args) do
         args = lc arg inlist args, do: list_to_binary(arg)
@@ -31,27 +26,27 @@ defmodule Flect.Application do
             Flect.Logger.info("")
         end
 
+        tools = [{"a",
+                  "Statically analyze a set of Flect source files.",
+                  []},
+                 {"c",
+                  "Compile a set of Flect source files.",
+                  [mode: "Select compilation mode. (stlib, shlib, exe) [exe]",
+                   stage: "Stage to stop compilation after. (lex, parse, sema, gen) [gen]",
+                   dump: "Dump a compiler state to stdout. (tokens, ast, ir, c99) []"]},
+                 {"d",
+                  "Generate documentation for a set of Flect source files.",
+                  []},
+                 {"f",
+                  "Run the source code formatter on a set of Flect source files.",
+                  []},
+                 {"p",
+                  "Execute a package manager command.",
+                  []}]
+
         if opts[:help] do
             Flect.Logger.info("Tools:")
             Flect.Logger.info("")
-
-            tools = [{"a",
-                      "Statically analyze a set of Flect source files.",
-                      []},
-                     {"c",
-                      "Compile a set of Flect source files.",
-                      [mode: "Select compilation mode. (stlib, shlib, exe) [exe]",
-                       stage: "Stage to stop compilation after. (lex, parse, sema, gen) [gen]",
-                       dump: "Dump a compiler state to stdout. (tokens, ast, ir, c99) []"]},
-                     {"d",
-                      "Generate documentation for a set of Flect source files.",
-                      []},
-                     {"f",
-                      "Run the source code formatter on a set of Flect source files.",
-                      []},
-                     {"p",
-                      "Execute a package manager command.",
-                      []}]
 
             Enum.each(tools, fn({name, desc, opts}) ->
                 Flect.Logger.info("    #{name}: #{desc}")
@@ -94,29 +89,35 @@ defmodule Flect.Application do
             System.halt(2)
         end
 
-        :application.set_env(:flect, :flect_tool, binary_to_atom(Enum.at!(rest, 0)))
-        :application.set_env(:flect, :flect_options, opts)
-        :application.set_env(:flect, :flect_arguments, Enum.drop(rest, 1))
         :application.set_env(:flect, :flect_colors, !opts[:redir])
-        :application.set_env(:flect, :flect_exit_code, 0)
 
         start()
 
-        {:ok, code} = :application.get_env(:flect, :flect_exit_code)
+        tool = Enum.at!(rest, 0)
+
+        if Enum.find(tools, fn(x) -> elem(x, 0) == tool end) == nil do
+            Flect.Logger.error("Unknown tool: #{tool}")
+            System.halt(2)
+        end
+
+        cfg = Flect.Config.new(tool: binary_to_atom(tool),
+                               options: opts,
+                               arguments: Enum.drop(rest, 1))
+
+        proc = Process.whereis(:flect_worker)
+        code = Flect.Worker.work(proc, cfg)
+
         System.halt(code)
+    end
+
+    @spec start() :: :ok
+    def start() do
+        :ok = Application.Behaviour.start(:flect)
     end
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
     def start(_, []) do
-        {:ok, tool} = :application.get_env(:flect_tool)
-        {:ok, opts} = :application.get_env(:flect_options)
-        {:ok, args} = :application.get_env(:flect_arguments)
-
-        cfg = Flect.Config.new(tool: tool,
-                               options: opts,
-                               arguments: args)
-
-        {:ok, pid} = Flect.Supervisor.start_link(cfg)
+        {:ok, pid} = Flect.Supervisor.start_link()
         {:ok, pid, nil}
     end
 

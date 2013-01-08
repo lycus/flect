@@ -1,26 +1,34 @@
 defmodule Flect.Worker do
     use GenServer.Behaviour
 
-    @spec start_link(Flect.Config.t()) :: {:ok, pid()}
-    def start_link(cfg) do
-        {:ok, _} = :gen_server.start_link(__MODULE__, cfg, [])
+    @spec start_link() :: {:ok, pid()}
+    def start_link() do
+        tup = {:ok, pid} = :gen_server.start_link(__MODULE__, nil, [])
+        Process.register(pid, :flect_worker)
+        tup
     end
 
-    @spec init(Flect.Config.t()) :: {:ok, nil}
-    def init(cfg) do
-        try do
+    @spec work(pid(), Flect.Config.t()) :: non_neg_integer()
+    def work(pid, cfg) do
+        :gen_server.call(pid, {:work, cfg})
+    end
+
+    @spec handle_call({:work, Flect.Config.t()}, {pid(), term()}, nil) :: {:reply, non_neg_integer(), nil}
+    def handle_call({:work, cfg}, _, nil) do
+        code = try do
             case cfg.tool() do
                 :a -> Flect.Analyzer.Tool.run(cfg)
                 :c -> Flect.Compiler.Tool.run(cfg)
                 :d -> Flect.Documentor.Tool.run(cfg)
                 :f -> Flect.Formatter.Tool.run(cfg)
                 :p -> Flect.Packager.Tool.run(cfg)
-                tool -> Flect.Logger.error("Unknown tool: #{tool}")
             end
+
+            0
         catch
-            code -> :application.set_env(:flect, :flect_exit_code, code)
+            code -> code
         end
 
-        {:ok, nil}
+        {:reply, code, nil}
     end
 end
