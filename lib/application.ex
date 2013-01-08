@@ -41,13 +41,16 @@ defmodule Flect.Application do
                      {"c",
                       "Compile a set of Flect source files.",
                       [mode: "Select compilation mode. (stlib, shlib, exe) [exe]",
-                       stage: "Stage to stop compilation at. (lex, parse, sema, gen) [gen]",
+                       stage: "Stage to stop compilation after. (lex, parse, sema, gen) [gen]",
                        dump: "Dump a compiler state to stdout. (tokens, ast, ir, c99) []"]},
                      {"d",
                       "Generate documentation for a set of Flect source files.",
                       []},
                      {"f",
                       "Run the source code formatter on a set of Flect source files.",
+                      []},
+                     {"p",
+                      "Execute a package manager command.",
                       []}]
 
             Enum.each(tools, fn({name, desc, opts}) ->
