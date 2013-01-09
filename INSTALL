@@ -69,6 +69,18 @@ The makefile has a number of targets for building and testing Flect:
   files, etc).
 * distclean: Removes any configuration files. Also invokes clean.
 
+A number of variables can be set in the environment to override the tools used
+by the makefile:
+
+* RM: The POSIX rm tool.
+* TIME: the POSIX time tool.
+* ELIXIR: The Elixir script runner.
+* MIX: The Mix build tool shipped with Elixir.
+* DIALYZER: The Dialyzer tool from the Erlang suite.
+
+You should not normally have to override these if the tools are present in
+your environment.
+
 To get an escript:
 
     $ make escript
