@@ -24,12 +24,10 @@ so a full path can be specified too.
 Compiler types (FLECT_CC_TYPE) supported:
 
 * GCC interface (gcc)
-* MSVC interface (msvc)
 
 Linkers (FLECT_LD) supported:
 
 * LD (ld)
-* MSVC Link (msvc)
 
 Note that FLECT_LD is the path to the linker or the name of its executable so
 a full path can be specified too.
@@ -37,7 +35,6 @@ a full path can be specified too.
 Linker types (FLECT_LD_TYPE) supported:
 
 * LD interface (ld)
-* MSVC Link interface (msvc)
 
 Operating systems (FLECT_OS) supported:
 

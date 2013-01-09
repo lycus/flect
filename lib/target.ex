@@ -58,8 +58,4 @@ defmodule Flect.Target do
     def :get_cross, [], [] do
         System.get_env("FLECT_CROSS")
     end
-
-    def :get_obj_ext, [], [] do
-        if System.get_env("FLECT_CC_TYPE") == "msvc", do: ".obj", else: ".o"
-    end
 end

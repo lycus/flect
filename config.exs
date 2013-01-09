@@ -111,7 +111,7 @@ IO.puts("")
 cc = get.("FLECT_CC", "clang", false)
 cc_type = get.("FLECT_CC_TYPE", "gcc", false)
 
-unless cc_type in ["gcc", "msvc"] do
+unless cc_type in ["gcc"] do
     IO.puts("Error: Invalid C99 compiler type #{cc_type} (FLECT_CC_TYPE)")
     System.halt(1)
 end
@@ -120,7 +120,7 @@ cc_args = get.("FLECT_CC_ARGS", "", true)
 ld = get.("FLECT_LD", "ld", false)
 ld_type = get.("FLECT_LD_TYPE", "ld", false)
 
-unless ld_type in ["ld", "msvc"] do
+unless ld_type in ["ld"] do
     IO.puts("Error: Invalid linker type #{ld_type} (FLECT_LD_TYPE)")
     System.halt(1)
 end
