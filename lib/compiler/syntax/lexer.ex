@@ -330,7 +330,8 @@ defmodule Flect.Compiler.Syntax.Lexer do
     end
 
     @spec lex_string(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                     Flect.Compiler.Syntax.Location.t()) :: {:string, String.t(), String.t(), Flect.Compiler.Syntax.Location.t()}
+                     Flect.Compiler.Syntax.Location.t()) :: {:string, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+                                                             Flect.Compiler.Syntax.Location.t()}
     defp lex_string(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
