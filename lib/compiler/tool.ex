@@ -10,10 +10,18 @@ defmodule Flect.Compiler.Tool do
         end
 
         stage = case cfg.options()[:stage] do
-            s when s in ["lex", "parse", "sema", "gen"] -> binary_to_atom(s)
-            nil -> :gen
+            s when s in ["read", "lex", "parse", "sema", "gen", "cc"] -> binary_to_atom(s)
+            nil -> :cc
             _ ->
                 Flect.Logger.error("Unknown compilation stage given (--stage flag)")
+                throw 2
+        end
+
+        time = case cfg.options()[:time] do
+            s when s in [true, false] -> s
+            nil -> false
+            _ ->
+                Flect.Logger.error("Invalid (non-Boolean) argument given (--time flag)")
                 throw 2
         end
 
@@ -33,14 +41,32 @@ defmodule Flect.Compiler.Tool do
         end)
 
         try do
-            tokenized_files = lc file inlist cfg.arguments() do
+            session = if time, do: Flect.Timer.create_session("Flect Compilation Process"), else: nil
+
+            if time, do: session = Flect.Timer.start_pass(session, :read)
+
+            read_files = lc file inlist cfg.arguments() do
                 case File.read(file) do
-                    {:ok, text} -> {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
+                    {:ok, text} -> {file, text}
                     {:error, reason} ->
                         Flect.Logger.error("Cannot read file #{file}: #{reason}")
                         throw 2
                 end
             end
+
+            if time, do: session = Flect.Timer.end_pass(session, :read)
+
+            if stage == :read do
+                throw {:stop, session}
+            end
+
+            if time, do: session = Flect.Timer.start_pass(session, :lex)
+
+            tokenized_files = lc {file, text} inlist read_files do
+                {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
+            end
+
+            if time, do: session = Flect.Timer.end_pass(session, :lex)
 
             if dump == :tokens do
                 Enum.each(tokenized_files, fn({_, tokens}) ->
@@ -51,12 +77,16 @@ defmodule Flect.Compiler.Tool do
             end
 
             if stage == :lex do
-                throw :stop
+                throw {:stop, session}
             end
+
+            if time, do: session = Flect.Timer.start_pass(session, :parse)
 
             parsed_files = lc {file, tokens} inlist tokenized_files do
                 {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
             end
+
+            if time, do: session = Flect.Timer.end_pass(session, :parse)
 
             if dump == :ast do
                 Enum.each(parsed_files, fn({_, ast}) ->
@@ -67,12 +97,19 @@ defmodule Flect.Compiler.Tool do
             end
 
             if stage == :parse do
-                throw :stop
+                throw {:stop, session}
             end
 
-            :ok
+            throw {:stop, session}
         catch
-            :stop -> :ok
+            {:stop, session} ->
+                if time do
+                    session = Flect.Timer.finish_session(session)
+                    output = Flect.Timer.format_session(session)
+                    Flect.Logger.info(output)
+                end
+
+                :ok
         rescue
             ex ->
                 Flect.Logger.error(ex.message())
