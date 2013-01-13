@@ -111,15 +111,13 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                 {"o", rest, iloc} -> lex_number("0o", rest, loc, iloc, 8, false, true)
                                                 {"x", rest, iloc} -> lex_number("0x", rest, loc, iloc, 16, false, true)
                                                 {_, _, _} -> lex_number(cp, rest, loc, loc, 10, true, true)
-                                                :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered incomplete number literal",
-                                                                                                  location: loc])
+                                                :eof -> raise_error(loc, "Encountered incomplete number literal")
                                             end
                                         else
                                             lex_number(cp, rest, loc, loc, 10, true, true)
                                         end
                                     # Otherwise, we don't know what we're dealing with, so bail.
-                                    true -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Encountered unknown code point: #{cp}",
-                                                                                      location: loc])
+                                    true -> raise_error(loc, "Encountered unknown code point: #{cp}")
                                 end
                         end
 
@@ -298,8 +296,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {^ecp, rest, loc} -> {type, acc <> ecp, rest, oloc, loc}
             {cp, rest, loc} -> lex_comment(type, acc <> cp, rest, oloc, loc, ecp, eol)
             :eof when eol -> {type, acc, text, oloc, loc}
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of input in comment",
-                                                              location: loc])
+            :eof -> raise_error(loc, "Unexpected end of input in comment")
         end
     end
 
@@ -326,18 +323,15 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
-                                                                            location: loc])
+                    {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
                 end
             {cp, rest, loc} when cp != "'" -> {cp, rest, loc}
-            _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point for character literal",
-                                                           location: loc])
+            _ -> raise_error(loc, "Expected UTF-8 code point for character literal")
         end
 
         case next_code_point(rest, loc) do
             {"'", rest, loc} -> {:character, cp, rest, oloc, loc}
-            _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected terminating single quote for character literal",
-                                                           location: loc])
+            _ -> raise_error(loc, "Expected terminating single quote for character literal")
         end
     end
 
@@ -350,14 +344,12 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\\", rest, loc} ->
                 {cp, rest, loc} = case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, _} -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unknown escape sequence code point: #{cp}",
-                                                                            location: loc])
+                    {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
                 end
 
                 lex_string(acc <> cp, rest, oloc, loc)
             {cp, rest, loc} -> lex_string(acc <> cp, rest, oloc, loc)
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected UTF-8 code point(s) for string literal",
-                                                              location: loc])
+            :eof -> raise_error(loc, "Expected UTF-8 code point(s) for string literal")
         end
     end
 
@@ -378,8 +370,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     lex_number(acc <> cp, irest, oloc, iloc, base, float, spec)
                 else
                     if base != 10 && String.length(acc) == 2 do
-                        raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal",
-                                                                  location: iloc])
+                        raise_error(iloc, "Expected base-#{base} integer literal")
                     end
 
                     if spec do
@@ -391,8 +382,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 end
             :eof ->
                 if base != 10 && String.length(acc) == 2 do
-                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected base-#{base} integer literal",
-                                                              location: loc])
+                    raise_error(loc, "Expected base-#{base} integer literal")
                 end
 
                 if spec do
@@ -411,8 +401,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
                 if !is_decimal_digit(cp) do
-                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
-                                                              location: loc])
+                    raise_error(loc, "Expected decimal part of floating point literal")
                 end
 
                 {nil, dec, rest, _, loc} = lex_number(cp, rest, oloc, loc, 10, true, false)
@@ -430,22 +419,19 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         case next_code_point(irest, iloc) do
                             {cp, irest, iloc} ->
                                 if !is_decimal_digit(cp) do
-                                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                              location: iloc])
+                                    raise_error(iloc, "Expected exponent part of floating point literal")
                                 end
 
                                 {nil, dec, irest, _, iloc} = lex_number(cp, irest, oloc, iloc, 10, true, false)
                                 {type, irest, iloc} = lex_literal_type(irest, iloc, true)
                                 {type, acc <> dec, irest, oloc, iloc}
-                            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
-                                                                              location: iloc])
+                            :eof -> raise_error(iloc, "Expected exponent part of floating point literal")
                         end
                     _ ->
                         {type, rest, loc} = lex_literal_type(rest, loc, true)
                         {type, acc, rest, oloc, loc}
                 end
-            :eof -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
-                                                              location: loc])
+            :eof -> raise_error(loc, "Expected decimal part of floating point literal")
         end
     end
 
@@ -477,5 +463,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     end
             end
         end
+    end
+
+    @spec raise_error(Flect.Compiler.Syntax.Location.t(), String.t()) :: no_return()
+    defp raise_error(loc, msg) do
+        raise(Flect.Compiler.Syntax.SyntaxError[error: msg, location: loc])
     end
 end
