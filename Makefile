@@ -6,17 +6,30 @@ ELIXIR ?= elixir
 MIX ?= mix
 DIALYZER ?= dialyzer
 
-.PHONY: all escript ebin deps update clean distclean test dialyze
+TESTS = test-lex-pass \
+	test-lex-fail \
+	test-parse-pass \
+	test-parse-fail
+
+.PHONY: all escript ebin deps update clean distclean test dialyze $(TESTS)
 
 all: ebin/flect
 
 config.mak:
 	@$(ELIXIR) config.exs
 
-test: ebin/flect
+test: $(TESTS)
+
+test-lex-pass: ebin/flect
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-pass
+
+test-lex-fail: ebin/flect
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-fail
+
+test-parse-pass: ebin/flect
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-pass
+
+test-parse-fail: ebin/flect
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-fail
 
 escript: ebin/flect
