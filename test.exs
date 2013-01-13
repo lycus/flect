@@ -1,3 +1,5 @@
+Code.append_path(File.join(["deps", "ansiex", "ebin"]))
+
 path = Enum.at!(System.argv(), 0)
 
 passes = :file.list_dir(path) |>
@@ -53,13 +55,13 @@ results = Enum.map(passes, fn(pass) ->
 
         cond do
             code != pass[:code] ->
-                IO.puts("fail (#{code})")
+                IO.puts(ANSI.bright() <> ANSI.red() <> "fail (#{code})" <> ANSI.reset())
                 false
             !exp ->
-                IO.puts("fail (exp)")
+                IO.puts(ANSI.bright() <> ANSI.red() <> "fail (exp)" <> ANSI.reset())
                 false
             true ->
-                IO.puts("ok (#{code})")
+                IO.puts(ANSI.bright() <> ANSI.green() <> "ok (#{code})" <> ANSI.reset())
                 true
         end
     end)
@@ -74,7 +76,10 @@ test_failures = Enum.count(results, fn(x) -> !x end)
 tests = test_passes + test_failures
 
 IO.puts("")
-IO.puts("  #{tests} test passes executed, #{test_passes} successful, #{test_failures} failed")
+IO.puts("  " <> ANSI.bright() <> ANSI.yellow() <> "#{tests}" <> ANSI.reset() <>
+        " test passes executed, " <> ANSI.bright() <> ANSI.green() <>
+        "#{test_passes}" <> ANSI.reset() <> " successful, " <> ANSI.bright() <> ANSI.red() <>
+        "#{test_failures}" <> ANSI.reset() <> " failed")
 IO.puts("")
 
 System.halt(if test_failures > 0, do: 1, else: 0)
