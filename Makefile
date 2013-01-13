@@ -8,27 +8,36 @@ DIALYZER ?= dialyzer
 
 .PHONY: all escript ebin deps update clean distclean test dialyze
 
-all: escript
+all: ebin/flect
 
 config.mak:
 	@$(ELIXIR) config.exs
 
-test: escript
+test: ebin/flect
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-pass
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-fail
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-pass
 	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-fail
 
-escript: ebin
+escript: ebin/flect
+
+ebin/flect: ebin/flect.app
 	@$(MIX) escriptize
 
-ebin: deps
-	@$(MIX) do deps.compile, compile
+ebin: ebin/flect.app
 
-deps:
+ebin/flect.app: deps/ansiex/ebin/ansiex.app $(wildcard lib/*.ex) $(wildcard lib/*/*.ex)
+	@$(MIX) compile
+
+deps/ansiex/ebin/ansiex.app: deps/ansiex
+	@$(MIX) deps.compile
+
+deps: deps/ansiex
+
+deps/ansiex:
 	@$(MIX) deps.get
 
-update: deps
+update: deps/ansiex
 	@$(MIX) deps.update
 
 clean:
@@ -39,7 +48,7 @@ clean:
 distclean: clean
 	$(RM) -f config.mak
 
-dialyze: ebin
+dialyze: ebin/flect.app
 	@$(DIALYZER) --no_check_plt -r ebin \
 		-Wunmatched_returns \
 		-Werror_handling \
