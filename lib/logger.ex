@@ -1,7 +1,7 @@
 defmodule Flect.Logger do
     @spec colorize(String.t(), String.t()) :: String.t()
     defp colorize(str, color) do
-        if elem(:application.get_env(:flect, :flect_colors), 1) do
+        if ANSI.terminal?() do
             ANSI.bright() <> color <> str <> ":" <> ANSI.reset() <> " "
         else
             str <> ": "

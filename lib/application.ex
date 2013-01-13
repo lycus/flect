@@ -6,11 +6,9 @@ defmodule Flect.Application do
         args = lc arg inlist args, do: list_to_binary(arg)
 
         {opts, rest} = OptionParser.parse(args, [switches: [help: :boolean,
-                                                            version: :boolean,
-                                                            redir: :boolean],
+                                                            version: :boolean],
                                                  aliases: [h: :help,
-                                                           v: :version,
-                                                           r: :redir]])
+                                                           v: :version]])
 
         have_tool = !Enum.empty?(rest)
 
@@ -22,7 +20,7 @@ defmodule Flect.Application do
         end
 
         if (!have_tool && !opts[:version]) || opts[:help] do
-            Flect.Logger.info("Usage: flect [-v] [-h] [-r] <tool> <args>")
+            Flect.Logger.info("Usage: flect [-v] [-h] <tool> <args>")
             Flect.Logger.info("")
         end
 
@@ -89,8 +87,6 @@ defmodule Flect.Application do
         if !have_tool || opts[:help] || opts[:version] do
             System.halt(2)
         end
-
-        :application.set_env(:flect, :flect_colors, !opts[:redir])
 
         start()
 
