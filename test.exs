@@ -17,18 +17,20 @@ File.cd!(path)
 
 results = Enum.map(passes, fn(pass) ->
     IO.puts("")
-    IO.puts("Testing #{path} (#{pass[:description]})...")
+    IO.puts("  Testing #{path} (#{pass[:description]})...")
     IO.puts("")
 
     Enum.map(files, fn(file) ->
-        cmd = pass[:command] |>
-              list_to_binary() |>
-              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) |>
-              String.replace("<file>", file) |>
-              String.replace("<name>", File.rootname(file)) |>
-              binary_to_list()
+        cmd_part = pass[:command] |>
+                   list_to_binary() |>
+                   String.replace("<file>", file) |>
+                   String.replace("<name>", File.rootname(file))
 
-        IO.write("#{file}... ")
+        IO.write("    #{cmd_part |> String.replace("<flect>", "flect")} ... ")
+
+        cmd = cmd_part |>
+              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) |>
+              binary_to_list()
 
         port = Port.open({:spawn, cmd}, [:stream,
                                          :binary,
@@ -51,13 +53,13 @@ results = Enum.map(passes, fn(pass) ->
 
         cond do
             code != pass[:code] ->
-                IO.puts("failure (#{code})")
+                IO.puts("fail (#{code})")
                 false
             !exp ->
-                IO.puts("failure (output)")
+                IO.puts("fail (exp)")
                 false
             true ->
-                IO.puts("success (#{code})")
+                IO.puts("ok (#{code})")
                 true
         end
     end)
@@ -72,7 +74,7 @@ test_failures = Enum.count(results, fn(x) -> !x end)
 tests = test_passes + test_failures
 
 IO.puts("")
-IO.puts("#{tests} test passes executed, #{test_passes} successful, #{test_failures} failed")
+IO.puts("  #{tests} test passes executed, #{test_passes} successful, #{test_failures} failed")
 IO.puts("")
 
 System.halt(if test_failures > 0, do: 1, else: 0)
