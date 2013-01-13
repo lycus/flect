@@ -92,7 +92,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             cp ->
                                 cond do
                                     # Handle identifiers (starting with a letter or an underscore).
-                                    Enum.find_index(identifier_start_chars(), fn(x) -> x == cp end) != nil ->
+                                    is_identifier_start_char(cp) ->
                                         tup = {_, value, rest, oloc, loc} = lex_identifier(cp, rest, loc, loc)
 
                                         # If the identifier is actually a keyword, treat it as such.
@@ -102,7 +102,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                             tup
                                         end
                                     # Handle numbers (starting with a digit).
-                                    Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) != nil ->
+                                    is_decimal_digit(cp) ->
                                         # Zero is a special case because it can mean the number is
                                         # binary, octal, or hexadecimal.
                                         if cp == "0" do
@@ -249,35 +249,47 @@ defmodule Flect.Compiler.Syntax.Lexer do
          "move"]
     end
 
-    @spec binary_number_chars() :: [String.t()]
-    defp :binary_number_chars, [], [] do
-        Enum.map(?0 .. ?1, fn(x) -> <<x>> end)
-    end
+    Enum.each(?0 .. ?1, fn(x) ->
+        defp :is_binary_digit, [<<x>>], [], do: true
+    end)
 
-    @spec octal_number_chars() :: [String.t()]
-    defp :octal_number_chars, [], [] do
-        Enum.map(?0 .. ?7, fn(x) -> <<x>> end)
-    end
+    defp is_binary_digit(_), do: false
 
-    @spec decimal_number_chars() :: [String.t()]
-    defp :decimal_number_chars, [], [] do
-        Enum.map(?0 .. ?9, fn(x) -> <<x>> end)
-    end
+    Enum.each(?0 .. ?7, fn(x) ->
+        defp :is_octal_digit, [<<x>>], [], do: true
+    end)
 
-    @spec hexadecimal_number_chars() :: [String.t()]
-    defp :hexadecimal_number_chars, [], [] do
-        List.flatten(lc xs inlist [?0 .. ?9, ?a .. ?f, ?A .. ?F], do: Enum.map(xs, fn(x) -> <<x>> end))
-    end
+    defp is_octal_digit(_), do: false
 
-    @spec identifier_start_chars() :: [String.t()]
-    defp :identifier_start_chars, [], [] do
-        List.flatten(lc xs inlist [?a .. ?z, ?A .. ?Z], do: Enum.map(xs, fn(x) -> <<x>> end)) ++ ["_"]
-    end
+    Enum.each(?0 .. ?9, fn(x) ->
+        defp :is_decimal_digit, [<<x>>], [], do: true
+    end)
 
-    @spec identifier_chars() :: [String.t()]
-    defp :identifier_chars, [], [] do
-        List.flatten(lc xs inlist [?a .. ?z, ?A .. ?Z, ?0 .. ?9], do: Enum.map(xs, fn(x) -> <<x>> end)) ++ ["_"]
-    end
+    defp is_decimal_digit(_), do: false
+
+    Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
+        Enum.each(xs, fn(x) ->
+            defp :is_hexadecimal_digit, [<<x>>], [], do: true
+        end)
+    end)
+
+    defp is_hexadecimal_digit(_), do: false
+
+    Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
+        Enum.each(xs, fn(x) ->
+            defp :is_identifier_start_char, [<<x>>], [], do: true
+        end)
+    end)
+
+    defp is_identifier_start_char(_), do: false
+
+    Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
+        Enum.each(xs, fn(x) ->
+            defp :is_identifier_char, [<<x>>], [], do: true
+        end)
+    end)
+
+    defp is_identifier_char(_), do: false
 
     @spec lex_comment(atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
                       boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
@@ -297,7 +309,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_identifier(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, irest, iloc} ->
-                if Enum.find_index(identifier_chars(), fn(x) -> x == cp end) != nil do
+                if is_identifier_char(cp) do
                     lex_identifier(acc <> cp, irest, oloc, iloc)
                 else
                     {:identifier, acc, text, oloc, loc}
@@ -352,17 +364,17 @@ defmodule Flect.Compiler.Syntax.Lexer do
     @spec lex_number(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), 2 | 8 | 10 | 16, boolean(),
                      boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
     defp lex_number(acc, text, oloc, loc, base, float, spec) do
-        chars = case base do
-            2 -> binary_number_chars()
-            8 -> octal_number_chars()
-            10 -> decimal_number_chars()
-            16 -> hexadecimal_number_chars()
-        end
-
         case next_code_point(text, loc) do
             {".", rest, loc} when float -> lex_float(acc <> ".", rest, oloc, loc)
             {cp, irest, iloc} ->
-                if Enum.find_index(chars, fn(x) -> x == cp end) != nil do
+                is_digit = case base do
+                    2 -> is_binary_digit(cp)
+                    8 -> is_octal_digit(cp)
+                    10 -> is_decimal_digit(cp)
+                    16 -> is_hexadecimal_digit(cp)
+                end
+
+                if is_digit do
                     lex_number(acc <> cp, irest, oloc, iloc, base, float, spec)
                 else
                     if base != 10 && String.length(acc) == 2 do
@@ -398,7 +410,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_float(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
-                if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
+                if !is_decimal_digit(cp) do
                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected decimal part of floating point literal",
                                                               location: loc])
                 end
@@ -417,7 +429,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
                         case next_code_point(irest, iloc) do
                             {cp, irest, iloc} ->
-                                if Enum.find_index(decimal_number_chars(), fn(x) -> x == cp end) == nil do
+                                if !is_decimal_digit(cp) do
                                     raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected exponent part of floating point literal",
                                                                               location: iloc])
                                 end
