@@ -1,7 +1,7 @@
 defmodule Flect.Compiler.Syntax.Lexer do
     @spec lex(String.t(), String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def lex(text, file) do
-        Enum.reverse(do_lex(text, [], Flect.Compiler.Syntax.Location.new(file: file)))
+        Enum.reverse(do_lex(text, [], Flect.Compiler.Syntax.Location[file: file]))
     end
 
     @spec do_lex(String.t(), [Flect.Compiler.Syntax.Token.t()], Flect.Compiler.Syntax.Location.t()) :: [Flect.Compiler.Syntax.Token.t()]
@@ -130,9 +130,9 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 {type, cp, rest, loc, loc}
                         end
 
-                        token = Flect.Compiler.Syntax.Token.new(type: type,
-                                                                value: value,
-                                                                location: oloc)
+                        token = Flect.Compiler.Syntax.Token[type: type,
+                                                            value: value,
+                                                            location: oloc]
                         do_lex(rest, [token | tokens], loc)
                 end
         end

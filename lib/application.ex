@@ -101,9 +101,9 @@ defmodule Flect.Application do
             System.halt(2)
         end
 
-        cfg = Flect.Config.new(tool: binary_to_atom(tool),
-                               options: opts,
-                               arguments: Enum.drop(rest, 1))
+        cfg = Flect.Config[tool: binary_to_atom(tool),
+                           options: opts,
+                           arguments: Enum.drop(rest, 1)]
 
         proc = Process.whereis(:flect_worker)
         code = Flect.Worker.work(proc, cfg)
