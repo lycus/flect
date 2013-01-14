@@ -5,10 +5,7 @@ defmodule Flect.Application do
     def main(args) do
         args = lc arg inlist args, do: list_to_binary(arg)
 
-        {opts, rest} = OptionParser.parse(args, [switches: [help: :boolean,
-                                                            version: :boolean],
-                                                 aliases: [h: :help,
-                                                           v: :version]])
+        {opts, rest} = parse(args)
 
         have_tool = !Enum.empty?(rest)
 
@@ -107,9 +104,22 @@ defmodule Flect.Application do
         System.halt(code)
     end
 
+    @spec parse([String.t()]) :: {Keyword.t(), [String.t()]}
+    def parse(args) do
+        OptionParser.parse(args, [switches: [help: :boolean,
+                                             version: :boolean],
+                                  aliases: [h: :help,
+                                            v: :version]])
+    end
+
     @spec start() :: :ok
     def start() do
         :ok = Application.Behaviour.start(:flect)
+    end
+
+    @spec stop() :: :ok
+    def stop() do
+        :ok = :application.stop(:flect)
     end
 
     @spec start(:normal, []) :: {:ok, pid(), nil}
