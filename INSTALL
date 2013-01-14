@@ -58,10 +58,10 @@ The build process requires the Mix build tool shipped with Elixir.
 The makefile has a number of targets for building and testing Flect:
 
 * all: Runs deps, ebin, and escript. This is the default target.
-* deps: Fetches and builds all dependencies.
-* ebin: Builds all Flect modules. Runs deps if needed.
+* deps: Fetches all dependencies.
+* ebin: Builds all Flect modules and dependencies. Runs deps if needed.
 * escript: Builds the escriptized Flect binary. Runs ebin if needed.
-* test: Runs the compiler test suite. Runs escript if needed.
+* test: Runs the compiler test suite. Runs ebin if needed.
 * update: Updates all dependencies to their latest versions from Git. Runs deps
   if needed.
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
