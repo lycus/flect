@@ -46,7 +46,7 @@ ebin: ebin/flect.app
 ebin/flect.app: deps/ansiex/ebin/ansiex.app $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*.ex)
 	@$(MIX) compile
 
-deps/ansiex/ebin/ansiex.app: deps/ansiex
+deps/ansiex/ebin/ansiex.app: deps/ansiex $(wildcard deps/ansiex/lib/*.ex)
 	@$(MIX) deps.compile
 
 deps: deps/ansiex
