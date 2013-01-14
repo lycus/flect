@@ -52,10 +52,10 @@ deps/ansiex/ebin/ansiex.app: deps/ansiex $(wildcard deps/ansiex/lib/*.ex)
 deps: deps/ansiex
 
 deps/ansiex:
-	@$(MIX) deps.get
+	@$(MIX) deps.get --no-compile
 
 update: deps/ansiex
-	@$(MIX) deps.update
+	@$(MIX) deps.update --no-compile
 
 clean:
 	@$(MIX) clean --all
