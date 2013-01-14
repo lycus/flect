@@ -22,17 +22,19 @@ config.mak:
 
 test: $(TESTS)
 
-test-lex-pass: ebin/flect
-	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-pass
+RUN_TEST = $(TIME) -p $(ELIXIR) --erl "-noinput +B -kernel error_logger silent" -pz ebin -pz deps/ansiex/ebin test.exs
 
-test-lex-fail: ebin/flect
-	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/lex-fail
+test-lex-pass: ebin/flect.app
+	@$(RUN_TEST) tests/lex-pass
 
-test-parse-pass: ebin/flect
-	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-pass
+test-lex-fail: ebin/flect.app
+	@$(RUN_TEST) tests/lex-fail
 
-test-parse-fail: ebin/flect
-	@$(TIME) -p $(ELIXIR) --erl "-noinput +B" test.exs tests/parse-fail
+test-parse-pass: ebin/flect.app
+	@$(RUN_TEST) tests/parse-pass
+
+test-parse-fail: ebin/flect.app
+	@$(RUN_TEST) tests/parse-fail
 
 escript: ebin/flect
 

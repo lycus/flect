@@ -1,5 +1,3 @@
-Code.append_path(File.join(["deps", "ansiex", "ebin"]))
-
 path = Enum.at!(System.argv(), 0)
 
 passes = :file.list_dir(path) |>
@@ -23,46 +21,82 @@ results = Enum.map(passes, fn(pass) ->
     IO.puts("")
 
     Enum.map(files, fn(file) ->
-        cmd_part = pass[:command] |>
-                   list_to_binary() |>
-                   String.replace("<file>", file) |>
-                   String.replace("<name>", File.rootname(file))
+        check = fn(file, pass, text, code) ->
+            exp = case File.read(file <> "." <> pass[:pass] <> ".exp") do
+                {:ok, data} -> String.strip(text) == String.strip(data)
+                {:error, :enoent} -> true
+            end
 
-        IO.write("    #{cmd_part |> String.replace("<flect>", "flect")} ... ")
-
-        cmd = cmd_part |>
-              String.replace("<flect>", File.join(["..", "..", "ebin", "flect"])) |>
-              binary_to_list()
-
-        port = Port.open({:spawn, cmd}, [:stream,
-                                         :binary,
-                                         :exit_status,
-                                         :hide])
-
-        recv = fn(recv, port, acc) ->
-            receive do
-                {^port, {:data, data}} -> recv.(recv, port, acc <> data)
-                {^port, {:exit_status, code}} -> {acc, code}
+            cond do
+                code != pass[:code] ->
+                    IO.puts(ANSI.bright() <> ANSI.red() <> "fail (#{code})" <> ANSI.reset())
+                    false
+                !exp ->
+                    IO.puts(ANSI.bright() <> ANSI.red() <> "fail (exp)" <> ANSI.reset())
+                    false
+                true ->
+                    IO.puts(ANSI.bright() <> ANSI.green() <> "ok (#{code})" <> ANSI.reset())
+                    true
             end
         end
 
-        {text, code} = recv.(recv, port, "")
+        if is_list(pass[:command]) do
+            args = Enum.map(pass[:command], fn(arg) ->
+                arg |>
+                list_to_binary() |>
+                String.replace("<file>", file) |>
+                String.replace("<name>", File.rootname(file))
+            end)
 
-        exp = case File.read(file <> "." <> pass[:pass] <> ".exp") do
-            {:ok, data} -> String.strip(text) == String.strip(data)
-            {:error, :enoent} -> true
-        end
+            IO.write("    flect #{args |> Enum.join(" ")} ... ")
 
-        cond do
-            code != pass[:code] ->
-                IO.puts(ANSI.bright() <> ANSI.red() <> "fail (#{code})" <> ANSI.reset())
-                false
-            !exp ->
-                IO.puts(ANSI.bright() <> ANSI.red() <> "fail (exp)" <> ANSI.reset())
-                false
-            true ->
-                IO.puts(ANSI.bright() <> ANSI.green() <> "ok (#{code})" <> ANSI.reset())
-                true
+            {opts, rest} = Flect.Application.parse(args)
+
+            cfg = Flect.Config[tool: binary_to_atom(Enum.at!(rest, 0)),
+                               options: opts,
+                               arguments: Enum.drop(rest, 1)]
+
+            :application.set_env(:flect, :flect_event_pid, self())
+            Flect.Application.start()
+
+            proc = Process.whereis(:flect_worker)
+            Flect.Worker.work(proc, cfg)
+
+            Flect.Application.stop()
+
+            recv = fn(recv, acc) ->
+                receive do
+                    {:flect_stdout, str} -> recv.(recv, acc <> str)
+                    {:flect_shutdown, code} -> {acc, code}
+                end
+            end
+
+            {text, code} = recv.(recv, "")
+
+            check.(file, pass, text, code)
+        else
+            cmd = pass[:command] |>
+                  list_to_binary() |>
+                  String.replace("<file>", file) |>
+                  String.replace("<name>", File.rootname(file))
+
+            IO.write("    #{cmd} ... ")
+
+            port = Port.open({:spawn, binary_to_list(cmd)}, [:stream,
+                                                             :binary,
+                                                             :exit_status,
+                                                             :hide])
+
+            recv = fn(recv, port, acc) ->
+                receive do
+                    {^port, {:data, data}} -> recv.(recv, port, acc <> data)
+                    {^port, {:exit_status, code}} -> {acc, code}
+                end
+            end
+
+            {text, code} = recv.(recv, port, "")
+
+            check.(file, pass, text, code)
         end
     end)
 end)
