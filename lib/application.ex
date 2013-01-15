@@ -17,7 +17,7 @@ defmodule Flect.Application do
         end
 
         if (!have_tool && !opts[:version]) || opts[:help] do
-            Flect.Logger.info("Usage: flect [-v] [-h] <tool> <args>")
+            Flect.Logger.info("Usage: flect [-v] [-h] [-p] <tool> <args>")
             Flect.Logger.info("")
         end
 
@@ -85,6 +85,85 @@ defmodule Flect.Application do
             System.halt(2)
         end
 
+        if opts[:preload] do
+            mods = [Access,
+                    Application.Behaviour,
+                    Behaviour,
+                    Binary.Chars,
+                    Binary.Dict,
+                    Binary.Inspect,
+                    Code,
+                    Dict,
+                    Dict.Common,
+                    Enum,
+                    Exception,
+                    File,
+                    GenServer.Behaviour,
+                    HashDict,
+                    IO,
+                    Kernel,
+                    Kernel.CLI,
+                    Kernel.ErrorHandler,
+                    Kernel.ParallelCompiler,
+                    Kernel.ParallelRequire,
+                    Kernel.RecordRewriter,
+                    Kernel.SpecialForms,
+                    Kernel.Typespec,
+                    Keyword,
+                    List,
+                    List.Chars,
+                    Macro,
+                    Macro.Env,
+                    Module,
+                    Node,
+                    OptionParser,
+                    OrdDict,
+                    Port,
+                    Process,
+                    Protocol,
+                    Range,
+                    Record,
+                    Record.Extractor,
+                    Regex,
+                    String,
+                    String.Unicode,
+                    Supervisor.Behaviour,
+                    System,
+                    Tuple,
+                    URI,
+                    URI.FTP,
+                    URI.HTTP,
+                    URI.HTTPS,
+                    URI.LDAP,
+                    URI.Parser,
+                    URI.SFTP,
+                    URI.TFTP,
+
+                    ANSI,
+                    ANSI.Sequence,
+
+                    Flect.Application,
+                    Flect.Config,
+                    Flect.Logger,
+                    Flect.Supervisor,
+                    Flect.Target,
+                    Flect.Timer,
+                    Flect.Worker,
+                    Flect.Analyzer.Tool,
+                    Flect.Compiler.Tool,
+                    Flect.Compiler.Syntax.Lexer,
+                    Flect.Compiler.Syntax.Location,
+                    Flect.Compiler.Syntax.Node,
+                    Flect.Compiler.Syntax.Parser,
+                    Flect.Compiler.Syntax.SyntaxError,
+                    Flect.Compiler.Syntax.Token,
+                    Flect.Documentor.Tool,
+                    Flect.Formatter.Tool,
+                    Flect.Packager.Tool]
+
+            Enum.each(mods, fn(mod) -> {:module, _} = Code.ensure_loaded(mod) end)
+        end
+
         start()
 
         tool = Enum.at!(rest, 0)
@@ -107,9 +186,11 @@ defmodule Flect.Application do
     @spec parse([String.t()]) :: {Keyword.t(), [String.t()]}
     def parse(args) do
         OptionParser.parse(args, [switches: [help: :boolean,
-                                             version: :boolean],
+                                             version: :boolean,
+                                             preload: :boolean],
                                   aliases: [h: :help,
-                                            v: :version]])
+                                            v: :version,
+                                            p: :preload]])
     end
 
     @spec start() :: :ok
