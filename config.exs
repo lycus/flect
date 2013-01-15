@@ -38,7 +38,7 @@ IO.puts("")
 
 get = fn(var, def, empty) ->
     cond do
-        (s = list_to_binary(String.strip(IO.gets("Please enter a value for #{var} [#{def}]: ")))) != "\n" -> s
+        (s = String.strip(list_to_binary(IO.gets("Please enter a value for #{var} [#{def}]: ")))) != "" -> s
         def != "" -> def
         empty -> ""
         true ->
