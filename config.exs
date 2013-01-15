@@ -18,8 +18,8 @@ re = fn(re) -> Regex.match?(re, target) end
 {arch, os, abi} = cond do
     re.(%r/^i\d86-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv32"}
     re.(%r/^x86_64-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv64"}
-    re.(%r/^i\d86-\w*-darwin/) -> {"x86", "osx", "x86-sysv32"}
-    re.(%r/^x86_64-\w*-darwin/) -> {"x86", "osx", "x86-sysv64"}
+    re.(%r/^i\d86-\w*-darwin/) -> {"x86", "darwin", "x86-sysv32"}
+    re.(%r/^x86_64-\w*-darwin/) -> {"x86", "darwin", "x86-sysv64"}
 
     re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-hardfp"}
 
