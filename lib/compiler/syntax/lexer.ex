@@ -174,6 +174,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 "align",
                 "struct",
                 "union",
+                "enum",
                 "type",
                 "fn",
                 "ext",
