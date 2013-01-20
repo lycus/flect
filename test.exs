@@ -2,14 +2,14 @@ path = Enum.at!(System.argv(), 0)
 
 passes = :file.list_dir(path) |>
          elem(1) |>
-         Enum.filter(fn(x) -> File.extname(x) == '.pass' end) |>
+         Enum.filter(fn(x) -> Path.extname(x) == '.pass' end) |>
          Enum.sort() |>
-         Enum.map(fn(x) -> File.join(path, x) end) |>
-         Enum.map(fn(x) -> [pass: x |> File.basename() |> File.rootname()] ++ Enum.at!(elem(:file.consult(x), 1), 0) end)
+         Enum.map(fn(x) -> Path.join(path, x) end) |>
+         Enum.map(fn(x) -> [pass: x |> Path.basename() |> Path.rootname()] ++ Enum.at!(elem(:file.consult(x), 1), 0) end)
 
 files = :file.list_dir(path) |>
         elem(1) |>
-        Enum.filter(fn(x) -> File.extname(x) == '.fl' end) |>
+        Enum.filter(fn(x) -> Path.extname(x) == '.fl' end) |>
         Enum.map(fn(x) -> list_to_binary(x) end) |>
         Enum.sort()
 
@@ -45,7 +45,7 @@ results = Enum.map(passes, fn(pass) ->
                 arg |>
                 list_to_binary() |>
                 String.replace("<file>", file) |>
-                String.replace("<name>", File.rootname(file))
+                String.replace("<name>", Path.rootname(file))
             end)
 
             IO.write("    flect #{args |> Enum.join(" ")} ... ")
@@ -78,7 +78,7 @@ results = Enum.map(passes, fn(pass) ->
             cmd = pass[:command] |>
                   list_to_binary() |>
                   String.replace("<file>", file) |>
-                  String.replace("<name>", File.rootname(file))
+                  String.replace("<name>", Path.rootname(file))
 
             IO.write("    #{cmd} ... ")
 
@@ -101,7 +101,7 @@ results = Enum.map(passes, fn(pass) ->
     end)
 end)
 
-File.cd!(File.join("..", ".."))
+File.cd!(Path.join("..", ".."))
 
 results = List.flatten(results)
 

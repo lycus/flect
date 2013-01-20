@@ -34,7 +34,7 @@ defmodule Flect.Compiler.Tool do
         end
 
         Enum.each(cfg.arguments(), fn(file) ->
-            if File.extname(file) != ".fl" do
+            if Path.extname(file) != ".fl" do
                 Flect.Logger.error("File #{file} does not have extension .fl")
                 throw 2
             end
