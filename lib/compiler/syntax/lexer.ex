@@ -196,8 +196,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 "return",
                 "unsafe",
                 "asm",
-                "new",
-                "delete",
                 "true",
                 "false",
                 "null",
