@@ -198,7 +198,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 "asm",
                 "new",
                 "delete",
-                "with",
                 "true",
                 "false",
                 "null",
