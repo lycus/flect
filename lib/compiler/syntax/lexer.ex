@@ -168,7 +168,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "use",
                 "pub",
                 "priv",
-                "alias",
                 "trait",
                 "impl",
                 "align",
