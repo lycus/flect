@@ -208,20 +208,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 "unquote",
                 # These keywords aren't used today but may be used for something in the future.
                 "tail",
-                "atom",
-                "monad",
-                "do",
-                "lazy",
                 "yield",
-                "mixin",
-                "virt",
                 "fixed",
-                "par",
-                "object",
-                "var",
                 "pragma",
                 "scope",
-                "shared",
                 "tls",
                 "move"], fn(x) ->
         defp :is_keyword, [x], [], do: true
