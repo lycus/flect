@@ -118,6 +118,7 @@ defmodule Flect.Application do
                     Node,
                     OptionParser,
                     OrdDict,
+                    Path,
                     Port,
                     Process,
                     Protocol,
