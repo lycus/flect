@@ -9,8 +9,8 @@ defmodule Flect.Worker do
     end
 
     @spec work(pid(), Flect.Config.t()) :: non_neg_integer()
-    def work(pid, cfg) do
-        code = :gen_server.call(pid, {:work, cfg}, :infinity)
+    def work(pid, cfg, timeout // :infinity) do
+        code = :gen_server.call(pid, {:work, cfg}, timeout)
 
         case :application.get_env(:flect, :flect_event_pid) do
             {:ok, pid} -> pid <- {:flect_shutdown, code}
