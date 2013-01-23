@@ -8,8 +8,6 @@ ELIXIR ?= elixir
 MIX ?= mix
 DIALYZER ?= dialyzer
 
-ERL_LIBS = deps
-
 TESTS = test-lex-pass \
 	test-lex-fail \
 	test-parse-pass \
