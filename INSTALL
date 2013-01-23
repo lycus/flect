@@ -53,7 +53,8 @@ now on, it will use the values written to this file. You can still override
 the values by setting environment variables, should you need to.
 
 Flect can be built, tested, and installed after the configuration is complete.
-The build process requires the Mix build tool shipped with Elixir.
+The build process requires the Mix build tool shipped with Elixir. You should
+avoid invoking Mix directly, however.
 
 The makefile has a number of targets for building and testing Flect:
 
