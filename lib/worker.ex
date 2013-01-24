@@ -12,7 +12,7 @@ defmodule Flect.Worker do
     def work(pid, cfg, timeout // :infinity) do
         code = :gen_server.call(pid, {:work, cfg}, timeout)
 
-        case :application.get_env(:flect, :flect_event_pid) do
+        _ = case :application.get_env(:flect, :flect_event_pid) do
             {:ok, pid} -> pid <- {:flect_shutdown, code}
             :undefined -> :ok
         end
