@@ -22,7 +22,7 @@ config.mak:
 
 test: $(TESTS)
 
-RUN_TEST = $(TIME) -p $(ELIXIR) --erl "-noinput +B -kernel error_logger silent" -pz ebin -pz deps/ansiex/ebin test.exs
+override RUN_TEST = $(TIME) -p $(ELIXIR) --erl "-noinput +B -kernel error_logger silent" -pz ebin -pz deps/ansiex/ebin test.exs
 
 test-lex-pass: ebin/flect.app
 	@$(RUN_TEST) tests/lex-pass
