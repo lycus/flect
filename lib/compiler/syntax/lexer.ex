@@ -143,8 +143,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp next_code_point(text, loc) do
         case String.next_codepoint(text) do
             :no_codepoint -> :eof
-            :invalid_codepoint -> raise_error(loc, "Encountered invalid UTF-8 code point")
             {cp, rest} ->
+                if !String.valid_codepoint?(cp) do
+                    raise_error(loc, "Encountered invalid UTF-8 code point")
+                end
+
                 {line, column} = if cp == "\n", do: {loc.line() + 1, 0}, else: {loc.line(), loc.column() + 1}
                 {cp, rest, loc.line(line).column(column)}
         end
