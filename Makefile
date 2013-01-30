@@ -1,7 +1,5 @@
 -include config.mak
 
-export ELIXIR_ERL_OPTS = -elixir system_services_timeout infinity
-
 RM ?= rm
 TIME ?= time
 ELIXIR ?= elixir
