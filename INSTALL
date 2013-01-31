@@ -58,16 +58,12 @@ avoid invoking Mix directly, however.
 
 The makefile has a number of targets for building and testing Flect:
 
-* all: Runs deps, ebin, and escript. This is the default target.
-* deps: Fetches all dependencies.
-* ebin: Builds all Flect modules and dependencies. Runs deps if needed.
+* all: Runs ebin and escript. This is the default target.
+* ebin: Builds all Flect modules.
 * escript: Builds the escriptized Flect binary. Runs ebin if needed.
 * test: Runs the compiler test suite. Runs ebin if needed.
-* update: Updates all dependencies to their latest versions from Git. Runs deps
-  if needed.
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
-* clean: Cleans up the tree (removes compiled modules, dependencies, dump
-  files, etc).
+* clean: Cleans up the tree (removes compiled modules, dump files, etc).
 * distclean: Removes any configuration files. Also invokes clean.
 
 A number of variables can be set in the environment to override the tools used

@@ -11,7 +11,7 @@ TESTS = test-lex-pass \
 	test-parse-pass \
 	test-parse-fail
 
-.PHONY: all escript ebin deps update clean distclean test dialyze $(TESTS)
+.PHONY: all escript ebin update clean distclean test dialyze $(TESTS)
 
 all: ebin/flect
 
@@ -20,7 +20,7 @@ config.mak:
 
 test: $(TESTS)
 
-override RUN_TEST = $(TIME) -p $(ELIXIR) --erl "-noinput +B -kernel error_logger silent" -pz ebin -pz deps/ansiex/ebin test.exs
+override RUN_TEST = $(TIME) -p $(ELIXIR) --erl "-noinput +B -kernel error_logger silent" -pz ebin test.exs
 
 test-lex-pass: ebin/flect.app
 	@$(RUN_TEST) tests/lex-pass
@@ -41,19 +41,8 @@ ebin/flect: ebin/flect.app
 
 ebin: ebin/flect.app
 
-ebin/flect.app: deps/ansiex/ebin/ansiex.app $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*.ex)
+ebin/flect.app: $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*.ex)
 	@$(MIX) compile
-
-deps/ansiex/ebin/ansiex.app: deps/ansiex $(wildcard deps/ansiex/lib/*.ex)
-	@$(MIX) deps.compile
-
-deps: deps/ansiex
-
-deps/ansiex:
-	@$(MIX) deps.get --no-compile
-
-update: deps/ansiex
-	@$(MIX) deps.update --no-compile
 
 clean:
 	@$(MIX) clean --all
