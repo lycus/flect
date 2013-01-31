@@ -101,6 +101,7 @@ defmodule Flect.Application do
                     GenServer.Behaviour,
                     HashDict,
                     IO,
+                    IO.ANSI,
                     Kernel,
                     Kernel.CLI,
                     Kernel.ErrorHandler,
@@ -139,9 +140,6 @@ defmodule Flect.Application do
                     URI.Parser,
                     URI.SFTP,
                     URI.TFTP,
-
-                    ANSI,
-                    ANSI.Sequence,
 
                     Flect.Application,
                     Flect.Config,

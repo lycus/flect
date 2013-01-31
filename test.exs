@@ -29,13 +29,13 @@ results = Enum.map(passes, fn(pass) ->
 
             cond do
                 code != pass[:code] ->
-                    IO.puts(ANSI.bright() <> ANSI.red() <> "fail (#{code})" <> ANSI.reset())
+                    IO.puts(IO.ANSI.escape("%{red, bright}fail (#{code})"))
                     false
                 !exp ->
-                    IO.puts(ANSI.bright() <> ANSI.red() <> "fail (exp)" <> ANSI.reset())
+                    IO.puts(IO.ANSI.escape("%{red, bright}fail (exp)"))
                     false
                 true ->
-                    IO.puts(ANSI.bright() <> ANSI.green() <> "ok (#{code})" <> ANSI.reset())
+                    IO.puts(IO.ANSI.escape("%{green, bright}ok (#{code})"))
                     true
             end
         end
@@ -110,10 +110,9 @@ test_failures = Enum.count(results, fn(x) -> !x end)
 tests = test_passes + test_failures
 
 IO.puts("")
-IO.puts("  " <> ANSI.bright() <> ANSI.yellow() <> "#{tests}" <> ANSI.reset() <>
-        " test passes executed, " <> ANSI.bright() <> ANSI.green() <>
-        "#{test_passes}" <> ANSI.reset() <> " successful, " <> ANSI.bright() <> ANSI.red() <>
-        "#{test_failures}" <> ANSI.reset() <> " failed")
+IO.puts(IO.ANSI.escape_fragment("  %{yellow, bright}#{tests}%{reset} test passes executed, " <>
+                                "%{green, bright}#{test_passes}%{reset} successful, " <>
+                                "%{red, bright}#{test_failures}%{reset} failed"))
 IO.puts("")
 
 System.halt(if test_failures > 0, do: 1, else: 0)

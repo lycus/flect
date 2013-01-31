@@ -1,11 +1,8 @@
 defmodule Flect.Logger do
     @spec colorize(String.t(), String.t()) :: String.t()
     defp colorize(str, color) do
-        if ANSI.terminal?() && :application.get_env(:flect, :flect_event_pid) == :undefined do
-            ANSI.bright() <> color <> str <> ":" <> ANSI.reset() <> " "
-        else
-            str <> ": "
-        end
+        emit = IO.ANSI.terminal?() && :application.get_env(:flect, :flect_event_pid) == :undefined
+        IO.ANSI.escape_fragment("%{#{color}, bright}#{str}:%{reset} ", emit)
     end
 
     @spec output(String.t()) :: :ok
@@ -23,16 +20,16 @@ defmodule Flect.Logger do
 
     @spec note(String.t()) :: :ok
     def note(str) do
-        output(colorize("Note", ANSI.white()) <> "#{str}")
+        output(colorize("Note", "white") <> "#{str}")
     end
 
     @spec warn(String.t()) :: :ok
     def warn(str) do
-        output(colorize("Warning", ANSI.yellow()) <> "#{str}")
+        output(colorize("Warning", "yellow") <> "#{str}")
     end
 
     @spec error(String.t()) :: :ok
     def error(str) do
-        output(colorize("Error", ANSI.red()) <> "#{str}")
+        output(colorize("Error", "red") <> "#{str}")
     end
 end
