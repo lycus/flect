@@ -20,7 +20,7 @@ defmodule Flect.Logger do
 
     @spec note(String.t()) :: :ok
     def note(str) do
-        output(colorize("Note", "white") <> "#{str}")
+        output(colorize("Note", "green") <> "#{str}")
     end
 
     @spec warn(String.t()) :: :ok
