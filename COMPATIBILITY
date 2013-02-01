@@ -8,8 +8,8 @@ also need GNU Make and basic POSIX utilities to build.
 Flect must be configured at compile time. It needs information about the C99
 compiler to use, the linker to use, operating system (if any), target
 architecture, application binary interface, and so on. Below is a list of the
-various supported values (the values in parentheses are the ones to pass to the
-makefile).
+various supported values (the values in parentheses are the ones to enter in
+the configuration script).
 
 Compilers (FLECT_CC) supported:
 
@@ -62,7 +62,7 @@ Architectures (FLECT_ARCH) supported:
 * x86 (x86)
 
 Note that certain architecture and ABI combinations don't make sense, so you
-may get compilation errors if you configure these values incorrectly.
+may get configuration errors if you configure these values incorrectly.
 
 ABIs (FLECT_ABI) supported:
 
