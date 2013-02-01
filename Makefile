@@ -46,11 +46,11 @@ ebin/flect.app: $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*
 
 clean:
 	@$(MIX) clean --all
-	$(RM) -f flect
-	$(RM) -f *.dump
+	$(RM) flect
+	$(RM) erl_crash.dump
 
 distclean: clean
-	$(RM) -f config.mak
+	$(RM) config.mak
 
 dialyze: ebin/flect.app
 	@$(DIALYZER) --no_check_plt -r ebin \
