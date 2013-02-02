@@ -28,6 +28,7 @@ defmodule Flect.Worker do
                 :c -> Flect.Compiler.Tool.run(cfg)
                 :d -> Flect.Documentor.Tool.run(cfg)
                 :f -> Flect.Formatter.Tool.run(cfg)
+                :i -> Flect.Interactive.Tool.run(cfg)
                 :p -> Flect.Packager.Tool.run(cfg)
             end
 

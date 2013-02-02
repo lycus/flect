@@ -36,6 +36,9 @@ defmodule Flect.Application do
                  {"f",
                   "Run the source code formatter on a set of Flect source files.",
                   []},
+                 {"i",
+                  "Run the Flect interactive read-evaluate-print loop.",
+                  []},
                  {"p",
                   "Execute a package manager command.",
                   []}]
