@@ -133,7 +133,7 @@ IO.puts("")
 
 prefix = get.("FLECT_PREFIX", "/usr/local", false)
 bin_dir = get.("FLECT_BIN_DIR", Path.join(prefix, "bin"), false)
-lib_dir = get.("FLECT_LIB_DIR", Path.join(prefix, "lib"), false)
+lib_dir = get.("FLECT_LIB_DIR", Path.join([prefix, "lib", "flect"]), false)
 st_lib_dir = get.("FLECT_ST_LIB_DIR", Path.join(lib_dir, "static"), false)
 sh_lib_dir = get.("FLECT_SH_LIB_DIR", Path.join(lib_dir, "shared"), false)
 
