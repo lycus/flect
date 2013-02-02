@@ -1,0 +1,30 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Contributing --
+
+Code should be contributed via the Arcanist tool. The user guide is here:
+http://www.phabricator.com/docs/phabricator/article/Arcanist_User_Guide.html
+
+Please do not use GitHub pull requests for anything but very small,
+obvious fixes and corrections. GitHub pull requests do not integrate
+very well with Phabricator.
+
+Contributed code is expected to follow the established code style (see
+the STYLE file and the Flect style guide which is available on the wiki:
+https://github.com/lycus/flect/wiki/Style
+
+A test case for a change should almost always be included unless it is
+problematic to test. In such cases, please explain why in a commit
+message. You are also expected to run the test suite and verify that no
+regressions have been caused by your changes  before submitting them.
+
+Please avoid sending unrelated patches in the same review/patch series.
+
+All contributed code will go through the review process as described on
+the Lycus Phabricator wiki: http://phabricator.lycus.org/w/review_process
+
+Note that all code contributed to Flect must be licensed under the terms
+found in the LICENSE file. Additionally, copyright must be assigned to
+the Lycus Foundation when submitting contributions. The project
+maintainers reserve the right to alter the license at any point in time,
+should this ever become necessary.
