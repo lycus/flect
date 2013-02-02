@@ -2,6 +2,7 @@
 
 RM ?= rm
 TIME ?= time
+INSTALL ?= install
 ELIXIR ?= elixir
 MIX ?= mix
 DIALYZER ?= dialyzer
@@ -11,7 +12,7 @@ TESTS = test-lex-pass \
 	test-parse-pass \
 	test-parse-fail
 
-.PHONY: all escript ebin update clean distclean test dialyze $(TESTS)
+.PHONY: all escript ebin update clean distclean test dialyze install uninstall $(TESTS)
 
 all: ebin/flect
 
@@ -57,3 +58,16 @@ dialyze: ebin/flect.app
 		-Wunmatched_returns \
 		-Werror_handling \
 		-Wrace_conditions
+
+install: ebin/flect
+	$(INSTALL) -m755 -d $(FLECT_PREFIX)
+	$(INSTALL) -m755 -d $(FLECT_BIN_DIR)
+	$(INSTALL) -m755 -d $(FLECT_LIB_DIR)
+	$(INSTALL) -m755 -d $(FLECT_ST_LIB_DIR)
+	$(INSTALL) -m755 -d $(FLECT_SH_LIB_DIR)
+	$(INSTALL) -m755 ebin/flect $(FLECT_BIN_DIR)
+
+uninstall:
+	$(RM) $(FLECT_BIN_DIR)/flect
+	$(RM) -r $(FLECT_ST_LIB_DIR)/*
+	$(RM) -r $(FLECT_SH_LIB_DIR)/*

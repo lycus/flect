@@ -65,12 +65,15 @@ The makefile has a number of targets for building and testing Flect:
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
 * clean: Cleans up the tree (removes compiled modules, dump files, etc).
 * distclean: Removes any configuration files. Also invokes clean.
+* install: Install Flect to FLECT_PREFIX. Runs escript if needed.
+* uninstall: Remove Flect from FLECT_PREFIX.
 
 A number of variables can be set in the environment to override the tools used
 by the makefile:
 
 * RM: The POSIX rm tool.
 * TIME: the POSIX time tool.
+* INSTALL The POSIX install utility.
 * ELIXIR: The Elixir script runner.
 * MIX: The Mix build tool shipped with Elixir.
 * DIALYZER: The Dialyzer tool from the Erlang suite.
