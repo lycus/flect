@@ -46,7 +46,7 @@ defmodule Flect.Interactive.Tool do
                         end
 
                         repl()
-                    text ->
+                    _ ->
                         repl()
                 end
         end
