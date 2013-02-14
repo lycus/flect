@@ -296,7 +296,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_character(text, oloc, loc) do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
-                {cp, rest, loc} = case next_code_point(rest, loc) do
+                case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
                     {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
                 end
