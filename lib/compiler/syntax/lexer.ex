@@ -317,12 +317,12 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case next_code_point(text, loc) do
             {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
             {"\\", rest, loc} ->
-                {cp, rest, loc} = case next_code_point(rest, loc) do
+                {esc, rest, loc} = case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
                     {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
                 end
 
-                lex_string(acc <> cp, rest, oloc, loc)
+                lex_string(acc <> esc, rest, oloc, loc)
             {cp, rest, loc} -> lex_string(acc <> cp, rest, oloc, loc)
             :eof -> raise_error(loc, "Expected UTF-8 code point(s) for string literal")
         end
