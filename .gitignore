@@ -1,5 +1,6 @@
 ebin/*
 deps/*
+docs/*
 
 config.mak
 
