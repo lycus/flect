@@ -61,6 +61,7 @@ The makefile has a number of targets for building and testing Flect:
 * all: Runs ebin and escript. This is the default target.
 * ebin: Builds all Flect modules.
 * escript: Builds the escriptized Flect binary. Runs ebin if needed.
+* docs: Builds the documentation. Runs ebin if needed.
 * test: Runs the compiler test suite. Runs ebin if needed.
 * dialyze: Runs Dialyzer on compiled Flect modules. Runs ebin if needed.
 * clean: Cleans up the tree (removes compiled modules, dump files, etc).

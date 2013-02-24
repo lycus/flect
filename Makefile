@@ -12,7 +12,7 @@ TESTS = test-lex-pass \
 	test-parse-pass \
 	test-parse-fail
 
-.PHONY: all escript ebin update clean distclean test dialyze install uninstall $(TESTS)
+.PHONY: all docs escript ebin update clean distclean test dialyze install uninstall $(TESTS)
 
 all: ebin/flect
 
@@ -34,6 +34,9 @@ test-parse-pass: ebin/flect.app
 
 test-parse-fail: ebin/flect.app
 	@$(RUN_TEST) tests/parse-fail
+
+docs: ebin/flect.app
+	@$(MIX) docs
 
 escript: ebin/flect
 

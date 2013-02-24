@@ -14,3 +14,16 @@ defmodule Flect.Mixfile do
          mod: {Flect.Application, []}]
     end
 end
+
+defmodule Mix.Tasks.Docs do
+    @shortdoc "Generates documentation for the compiler library"
+
+    def run(_) do
+        Mix.Task.run("loadpaths")
+
+        Mix.shell.cmd("elixir -pa ebin -S exdoc " <>
+                      "Flect #{Mix.project()[:version]} " <>
+                      "-m Flect.Application " <>
+                      "-u https://github.com/lycus/flect/blob/master/%{path}#L%{line}")
+    end
+end
