@@ -89,6 +89,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             # Handle string and character literals.
                             "\"" -> lex_string("", rest, loc, loc)
                             "'" -> lex_character(rest, loc, loc)
+                            "\\" -> lex_directive(cp, rest, loc, loc)
                             cp ->
                                 cond do
                                     # Handle identifiers (starting with a letter or an underscore).
@@ -287,6 +288,21 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     {:identifier, acc, text, oloc, loc}
                 end
             :eof -> {:identifier, acc, text, oloc, loc}
+        end
+    end
+
+    @spec lex_directive(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+                        Flect.Compiler.Syntax.Location.t()) :: {:directive, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
+                                                                Flect.Compiler.Syntax.Location.t()}
+    defp lex_directive(acc, text, oloc, loc) do
+        case next_code_point(text, loc) do
+            {cp, irest, iloc} ->
+                if is_identifier_char(cp) do
+                    lex_directive(acc <> cp, irest, oloc, iloc)
+                else
+                    {:directive, acc, text, oloc, loc}
+                end
+            :eof -> {:directive, acc, text, oloc, loc}
         end
     end
 
