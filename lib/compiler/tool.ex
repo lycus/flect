@@ -80,9 +80,29 @@ defmodule Flect.Compiler.Tool do
                 throw {:stop, session}
             end
 
+            if time, do: session = Flect.Timer.start_pass(session, :pp)
+
+            preprocessed_files = lc {file, tokens} inlist tokenized_files do
+                {file, elem(Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file), 0)}
+            end
+
+            if time, do: session = Flect.Timer.end_pass(session, :pp)
+
+            if dump == :"pp-tokens" do
+                Enum.each(preprocessed_files, fn({_, tokens}) ->
+                    Enum.each(tokens, fn(token) ->
+                        Flect.Logger.info(inspect(token))
+                    end)
+                end)
+            end
+
+            if stage == :pp do
+                throw {:stop, session}
+            end
+
             if time, do: session = Flect.Timer.start_pass(session, :parse)
 
-            parsed_files = lc {file, tokens} inlist tokenized_files do
+            parsed_files = lc {file, tokens} inlist preprocessed_files do
                 {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
             end
 

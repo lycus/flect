@@ -62,7 +62,7 @@ arch = get.("FLECT_ARCH", arch, false)
 os = get.("FLECT_OS", os, false)
 abi = get.("FLECT_ABI", abi, false)
 
-unless os in ["none", "aix", "android", "dragonflybsd", "freebsd", "hurd", "haiku", "ios", "linux", "darwin", "openbsd", "solaris", "windows"] do
+unless os in ["none", "aix", "android", "darwin", "dragonflybsd", "freebsd", "hurd", "haiku", "ios", "linux", "openbsd", "solaris", "windows"] do
     IO.puts("Error: Invalid operating system #{os} (FLECT_OS)")
     System.halt(1)
 end
@@ -89,9 +89,9 @@ unless arch_valid do
 end
 
 abi_valid = case arch do
-    "arm" -> abi in ["arm-thumb", "arm-soft", "arm-softfp", "arm-hardfp"]
+    "arm" -> abi in ["arm-thumb", "arm-soft", "arm-softfp", "arm-hardfp", "arm-aarch64"]
     "ia64" -> abi in ["ia64-psabi"]
-    "mips" -> abi in ["mips-o32", "mips-n32", "mips-o64", "mips-n64"]
+    "mips" -> abi in ["mips-o32", "mips-n32", "mips-o64", "mips-n64", "mips-eabi32", "mips-eabi64"]
     "hppa" -> abi in ["hppa-pa32", "hppa-pa64"]
     "ppc" -> abi in ["ppc-softfp", "ppc-hardfp", "ppc-ppc64"]
     "x86" -> abi in ["x86-ms32", "x86-sysv32", "x86-ms64", "x86-sysv64", "x86-x32"]
