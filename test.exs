@@ -40,13 +40,18 @@ results = Enum.map(passes, fn(pass) ->
             end
         end
 
+        extra_args = case :file.consult(file <> "." <> pass[:pass] <> ".arg") do
+            {:ok, [list]} -> Enum.map(list, fn(arg) -> list_to_binary(arg) end)
+            {:error, :enoent} -> []
+        end
+
         if is_list(pass[:command]) do
             args = Enum.map(pass[:command], fn(arg) ->
                 arg |>
                 list_to_binary() |>
                 String.replace("<file>", file) |>
                 String.replace("<name>", Path.rootname(file))
-            end)
+            end) ++ extra_args
 
             IO.write("    flect #{args |> Enum.join(" ")} ... ")
 
@@ -79,6 +84,10 @@ results = Enum.map(passes, fn(pass) ->
                   list_to_binary() |>
                   String.replace("<file>", file) |>
                   String.replace("<name>", Path.rootname(file))
+
+            if extra_args != [] do
+                cmd = cmd <> " " <> Enum.join(extra_args, " ")
+            end
 
             IO.write("    #{cmd} ... ")
 
