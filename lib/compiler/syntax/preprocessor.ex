@@ -22,7 +22,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "freebsd" -> "FreeBSD"
             "hurd" -> "Hurd"
             "haiku" -> "Haiku"
-            "ios" -> "iOS"
+            "ios" -> "IOS"
             "linux" -> "Linux"
             "openbsd" -> "OpenBSD"
             "solaris" -> "Solaris"
@@ -61,13 +61,16 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "x86-x32" -> {"X86_X32", "32", "64"}
         end
 
+        cross = if Flect.Target.get_cross() == "true", do: ["Flect_Cross"], else: []
+
         ["Flect_Compiler_" <> cc,
          "Flect_Linker_" <> ld,
          "Flect_OS_" <> os,
          "Flect_CPU_" <> arch,
          "Flect_ABI_" <> abi,
          "Flect_PointerSize_" <> ptr_size,
-         "Flect_WordSize_" <> word_size]
+         "Flect_WordSize_" <> word_size
+         | cross]
     end
 
     @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: {[Flect.Compiler.Syntax.Token.t()], [String.t()]}
