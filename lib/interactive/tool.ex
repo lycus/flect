@@ -1,4 +1,8 @@
 defmodule Flect.Interactive.Tool do
+    @moduledoc """
+    The interactive tool used by the command line interface.
+    """
+
     @spec repl() :: :ok
     defp repl() do
         case IO.gets("flect> ") do
@@ -52,6 +56,10 @@ defmodule Flect.Interactive.Tool do
         end
     end
 
+    @doc """
+    Runs the interactive tool. Returns `:ok` or throws a non-zero exit code
+    value on failure.
+    """
     @spec run(Flect.Config.t()) :: :ok
     def run(_) do
         Flect.Logger.info("Welcome to the Flect interactive REPL.")

@@ -1,4 +1,18 @@
 defmodule Flect.Compiler.Syntax.Lexer do
+    @moduledoc """
+    Contains the lexical analyzer (lexer) for Flect source code documents.
+    """
+
+    @doc """
+    Lexically analyzes the given source code. Returns a list of tokens
+    on success (which can be empty if the file only contains white space)
+    or raises a `Flect.Compiler.Syntax.SyntaxError` if the source code is
+    malformed.
+
+    The `text` argument must be a binary containing the source code. It
+    is expected to be encoded in UTF-8. The `file` argument must be a
+    binary containing the file name (used to report syntax errors).
+    """
     @spec lex(String.t(), String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def lex(text, file) do
         Enum.reverse(do_lex(text, [], Flect.Compiler.Syntax.Location[file: file]))

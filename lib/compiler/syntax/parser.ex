@@ -1,8 +1,22 @@
 defmodule Flect.Compiler.Syntax.Parser do
+    @moduledoc """
+    Contains the parser for Flect source code documents.
+    """
+
     @typep state() :: {[Flect.Compiler.Syntax.Token.t()], Flect.Compiler.Syntax.Location.t()}
     @typep return() :: {Flect.Compiler.Syntax.Node.t(), state()}
     @typep return_m() :: {[Flect.Compiler.Syntax.Node.t()], state()}
 
+    @doc """
+    Parses the given list of tokens into a list of
+    `Flect.Compiler.Syntax.Node`s representing the module declarations
+    (and everything inside those) of the source code document. Returns the
+    resulting list or throws a `Flect.Compiler.Syntax.SyntaxError` is the
+    source code is malformed.
+
+    `tokens` must be a list of `Flect.Compiler.Syntax.Token`s. `file` must
+    be a binary containing the file name (used to report syntax errors).
+    """
     @spec parse([Flect.Compiler.Syntax.Token.t()], String.t()) :: [Flect.Compiler.Syntax.Node.t()]
     def parse(tokens, file) do
         loc = if (t = Enum.first(tokens)) != nil, do: t.location(), else: Flect.Compiler.Syntax.Location.new(file: file)

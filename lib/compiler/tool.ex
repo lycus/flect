@@ -1,4 +1,12 @@
 defmodule Flect.Compiler.Tool do
+    @moduledoc """
+    The compiler tool used by the command line interface.
+    """
+
+    @doc """
+    Runs the compiler tool. Returns `:ok` or throws a non-zero exit code
+    value on failure.
+    """
     @spec run(Flect.Config.t()) :: :ok
     def run(cfg) do
         _ = case cfg.options()[:mode] do

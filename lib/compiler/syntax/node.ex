@@ -4,6 +4,19 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
                                       named_children: [],
                                       children: [],
                                       data: nil do
+    @moduledoc """
+    Represents an AST (abstract syntax tree) node.
+
+    `type` is an atom indicating the kind of node. `location` is a
+    `Flect.Compiler.Syntax.Location` indicating the node's location in
+    the source code document. `tokens` is a list of the
+    `Flect.Compiler.Syntax.Token`s that make up this node. `named_children`
+    is a keyword list containing all uniquely named children. `children` is
+    a list of all children. `data` is an arbitrary term associated with the
+    node - it can have different meanings depending on which compiler stage
+    the node is being used in.
+    """
+
     record_type(type: atom(),
                 location: Flect.Compiler.Syntax.Location.t(),
                 tokens: [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
@@ -11,6 +24,12 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
                 children: [t()],
                 data: term())
 
+    @doc """
+    Formats the node and all of its children in a user-presentable way.
+    Returns the resulting binary.
+
+    `self` is the node record.
+    """
     @spec format(t()) :: String.t()
     def format(self) do
         do_format(self, "")

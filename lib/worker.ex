@@ -1,6 +1,15 @@
 defmodule Flect.Worker do
+    @moduledoc """
+    Encapsulates a worker process that invokes a Flect tool and collects
+    its exit code. Can be supervised by an OTP supervisor.
+    """
+
     use GenServer.Behaviour
 
+    @doc """
+    Starts a worker process linked to the parent process. Returns `{:ok, pid}`
+    on success.
+    """
     @spec start_link() :: {:ok, pid()}
     def start_link() do
         tup = {:ok, pid} = :gen_server.start_link(__MODULE__, nil, [])
@@ -8,6 +17,14 @@ defmodule Flect.Worker do
         tup
     end
 
+    @doc """
+    Instructs the given worker process to execute a Flect tool as specified
+    by the given configuration. Returns the exit code of the tool.
+
+    `pid` must be the PID of a `Flect.Worker` process. `cfg` must be a valid
+    `Flect.Config` instance. `timeout` must be `:infinity` or a millisecond
+    value specifying how much time to wait for the tool to complete.
+    """
     @spec work(pid(), Flect.Config.t()) :: non_neg_integer()
     def work(pid, cfg, timeout // :infinity) do
         code = :gen_server.call(pid, {:work, cfg}, timeout)
@@ -20,6 +37,7 @@ defmodule Flect.Worker do
         code
     end
 
+    @doc false
     @spec handle_call({:work, Flect.Config.t()}, {pid(), term()}, nil) :: {:reply, non_neg_integer(), nil}
     def handle_call({:work, cfg}, _, nil) do
         code = try do

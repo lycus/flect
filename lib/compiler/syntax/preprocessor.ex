@@ -1,7 +1,85 @@
 defmodule Flect.Compiler.Syntax.Preprocessor do
+    @moduledoc """
+    Contains the preprocessor which is used to filter the token stream
+    produced from a Flect source code document based on various Boolean
+    tests.
+    """
+
     @doc """
     Determine the set of predefined preprocessor identifiers based
-    on the values in the `Flect.Target` module.
+    on the values in the `Flect.Target` module. Returns a list of
+    binaries containing the identifier names.
+
+    Possible C99 compiler identifiers (all mutually exclusive):
+
+    * `"Flect_Compiler_GCC"`: The backing C99 compiler is GCC-compatible.
+
+    Possible object code linker identifiers (all mutually exclusive):
+
+    * `"Flect_Linker_LD"`: The backing object code linker is GNU LD-compatible.
+
+    Possible target operating system identifiers (all mutually exclusive):
+
+    * `"Flect_OS_None"`: The target OS is bare metal.
+    * `"Flect_OS_AIX"`: The target OS is IBM's AIX.
+    * `"Flect_OS_Android"`: The target OS is Android.
+    * `"Flect_OS_Darwin"`: The target OS is Mac OS X.
+    * `"Flect_OS_DragonFlyBSD"`: The target OS is DragonFlyBSD.
+    * `"Flect_OS_FreeBSD"`: The target OS is FreeBSD.
+    * `"Flect_OS_Hurd"`: The target OS is GNU Hurd.
+    * `"Flect_OS_Haiku"`: The target OS is Haiku.
+    * `"Flect_OS_IOS"`: The target OS is iOS.
+    * `"Flect_OS_Linux"`: The target OS is Linux.
+    * `"Flect_OS_OpenBSD"`: The target OS is OpenBSD.
+    * `"Flect_OS_Solaris"`: The target OS is Solaris.
+    * `"Flect_OS_Windows"`: The target OS is Windows.
+
+    Possible target CPU identifiers (all mutually exclusive):
+
+    * `"Flect_CPU_ARM"`: The target CPU is ARM.
+    * `"Flect_CPU_Itanium"`: The target CPU is Itanium.
+    * `"Flect_CPU_MIPS"`: The target CPU is MIPS.
+    * `"Flect_CPU_PARISC"`: The target CPU is PA-RISC.
+    * `"Flect_CPU_PowerPC"`: The target CPU is PowerPC.
+    * `"Flect_CPU_X86"`: The target CPU is x86.
+
+    Possible target application binary interface identifiers (all
+    mutually exclusive):
+
+    * `"Flect_ABI_ARM_Thumb"`: The Thumb instruction set on ARM.
+    * `"Flect_ABI_ARM_Soft"`: The `soft` ABI on ARM.
+    * `"Flect_ABI_ARM_SoftFP"`: The `softfp` ABI on ARM.
+    * `"Flect_ABI_ARM_HardFP"`: The `hardfp` ABI on ARM.
+    * `"Flect_ABI_ARM_AArch64"`: The AArch64 instruction set on ARM.
+    * `"Flect_ABI_Itanium_PSABI"`: The Itanium processor-specific ABI.
+    * `"Flect_ABI_MIPS_O32"`: The MIPS O32 ABI.
+    * `"Flect_ABI_MIPS_N32"`: The MIPS N32 ABI.
+    * `"Flect_ABI_MIPS_O64"`: The MIPS O64 ABI.
+    * `"Flect_ABI_MIPS_N64"`: The MIPS N64 ABI.
+    * `"Flect_ABI_MIPS_EABI32"`: The 32-bit MIPS EABI.
+    * `"Flect_ABI_MIPS_EABI64"`: The 64-bit MIPS EABI.
+    * `"Flect_ABI_PowerPC_SoftFP"`: The `softfp` ABI on PowerPC.
+    * `"Flect_ABI_PowerPC_HardFP"`: The `hardfp` ABI on PowerPC.
+    * `"Flect_ABI_PowerPC_PPC64"`: The 64-bit PowerPC architecture.
+    * `"Flect_ABI_X86_Microsoft32"`: The 32-bit Microsoft ABI on x86.
+    * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x86.
+    * `"Flect_ABI_X86_Microsoft64"`: The 64-bit Microsoft ABI on x86.
+    * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x64.
+    * `"Flect_ABI_X86_X32"`: The x32 ABI on x86.
+
+    Possible pointer size identifiers (all mutually exclusive):
+
+    * `"Flect_PointerSize_32"`: Pointers are 32 bits wide.
+    * `"Flect_PointerSize_64"`: Pointers are 64 bits wide.
+
+    Possible word size identifiers (all mutually exclusive):
+
+    * `"Flect_WordSize_32"`: Words are 32 bits wide.
+    * `"Flect_WordSize_64"`: Words are 64 bits wide.
+
+    Miscellaneous identifiers:
+
+    * `"Flect_Cross"`: The Flect compiler is a cross compiler.
     """
     @spec target_defines() :: [String.t()]
     def :target_defines, [], [] do
@@ -73,6 +151,19 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
          | cross]
     end
 
+    @doc """
+    Preprocesses the given token stream according to the specified
+    preprocessor definitions. Returns the filtered token stream or
+    raises a `Flect.Compiler.Syntax.SyntaxError` if a preprocessor
+    directive is malformed.
+
+    The `tokens` argument must be a list of `Flect.Compiler.Syntax.Token`
+    instances (presumably obtained from lexing). The `defs` argument must
+    be a list of binaries containing predefined identifiers (such as
+    those provided via the `--define` command line option). The `file`
+    argument must be a binary containing the file name (used to report
+    syntax errors).
+    """
     @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: {[Flect.Compiler.Syntax.Token.t()], [String.t()]}
     def preprocess(tokens, defs, file) do
         {tokens, defs}

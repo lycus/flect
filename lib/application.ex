@@ -1,6 +1,16 @@
 defmodule Flect.Application do
+    @moduledoc """
+    This is the main entry point of the Flect application.
+    """
+
     use Application.Behaviour
 
+    @doc """
+    Runs Flect from the command line. Returns via `System.halt/1`.
+
+    `args` must be a list of Erlang-style strings containing the command
+    line arguments.
+    """
     @spec main([char_list()]) :: no_return()
     def main(args) do
         args = lc arg inlist args, do: list_to_binary(arg)
@@ -186,6 +196,12 @@ defmodule Flect.Application do
         System.halt(code)
     end
 
+    @doc """
+    Parses the given command line arguments into an `{options, rest}` pair
+    and returns it.
+
+    `args` must be a list of binaries containing the command line arguments.
+    """
     @spec parse([String.t()]) :: {Keyword.t(), [String.t()]}
     def parse(args) do
         OptionParser.parse(args, [switches: [help: :boolean,
@@ -196,22 +212,30 @@ defmodule Flect.Application do
                                             p: :preload]])
     end
 
+    @doc """
+    Starts the Flect application. Returns `:ok` on success.
+    """
     @spec start() :: :ok
     def start() do
         :ok = Application.Behaviour.start(:flect)
     end
 
+    @doc """
+    Stops the Flect application. Returns `:ok` on success.
+    """
     @spec stop() :: :ok
     def stop() do
         :ok = :application.stop(:flect)
     end
 
+    @doc false
     @spec start(:normal | {:takeover, node()} | {:failover, node()}, []) :: {:ok, pid(), nil}
     def start(_, []) do
         {:ok, pid} = Flect.Supervisor.start_link()
         {:ok, pid, nil}
     end
 
+    @doc false
     @spec stop(nil) :: :ok
     def stop(nil) do
         :ok
