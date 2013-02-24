@@ -89,6 +89,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             # Handle string and character literals.
                             "\"" -> lex_string("", rest, loc, loc)
                             "'" -> lex_character(rest, loc, loc)
+                            # Handle preprocessor directives.
                             "\\" -> lex_directive(cp, rest, loc, loc)
                             cp ->
                                 cond do
@@ -155,13 +156,12 @@ defmodule Flect.Compiler.Syntax.Lexer do
     end
 
     @spec next_code_points(String.t(), Flect.Compiler.Syntax.Location.t(), pos_integer(),
-                           String.t(), non_neg_integer()) :: {String.t(), String.t(), Flect.Compiler.Syntax.Location.t()} |
-                                                             {:eof, String.t(), String.t(), Flect.Compiler.Syntax.Location.t()}
+                           String.t(), non_neg_integer()) :: {String.t(), String.t(), Flect.Compiler.Syntax.Location.t()} | :eof
     defp next_code_points(text, loc, num, acc, num_acc) do
         if num_acc < num do
             case next_code_point(text, loc) do
                 {cp, rest, loc} -> next_code_points(rest, loc, num, acc <> cp, num_acc + 1)
-                :eof -> {:eof, acc, text, loc}
+                :eof -> :eof
             end
         else
             {acc, text, loc}
@@ -442,7 +442,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                         _ -> nil
                     end
-                _ -> nil
+                :eof -> nil
             end
 
             case spec do
