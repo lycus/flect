@@ -86,14 +86,21 @@ To get an escript:
 
     $ make escript
 
-This places the escript named flect in the root of the source tree. It is
-completely self-contained so it can be moved anywhere and will run fine
-provided the host system it is run on has Erlang and Elixir installed. It
-will make assumptions about the location of binaries and libraries based
-on the relevant configuration variables, however.
+This places the escript named flect in the ebin directory. It is completely
+self-contained so it can be moved anywhere and will run fine provided the
+host system it is run on has Erlang installed. It will make assumptions
+about the location of binaries and libraries based on the relevant
+configuration variables, however.
 
 It's a good idea to run the test suite before using the compiler:
 
     $ make test
 
 If this passes, you should be good to go.
+
+Finally, if you're looking to use the Flect library's API, you may want to
+build the documentation:
+
+    $ make docs
+
+This places the documentation in the docs directory.
