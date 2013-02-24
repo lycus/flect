@@ -10,7 +10,7 @@ defmodule Flect.Compiler.Tool do
         end
 
         stage = case cfg.options()[:stage] do
-            s when s in ["read", "lex", "parse", "sema", "gen", "cc"] -> binary_to_atom(s)
+            s when s in ["read", "lex", "pp", "parse", "sema", "gen", "cc"] -> binary_to_atom(s)
             nil -> :cc
             _ ->
                 Flect.Logger.error("Unknown compilation stage given (--stage flag)")
@@ -26,7 +26,7 @@ defmodule Flect.Compiler.Tool do
         end
 
         dump = case cfg.options()[:dump] do
-            d when d in ["tokens", "ast", "ir", "c99"] -> binary_to_atom(d)
+            d when d in ["tokens", "pp-tokens", "ast", "sema-ast", "ir", "c99"] -> binary_to_atom(d)
             nil -> nil
             _ ->
                 Flect.Logger.error("Unknown dump parameter given (--dump flag)")
