@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flect.Compiler.Syntax.Preprocessor</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Flect.Compiler.Syntax.Preprocessor
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Contains the preprocessor which is used to filter the token stream
+produced from a Flect source code document based on various Boolean
+tests.</p>
+
+        </div>
+      
+
+      <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L1" target="_blank" class="view_source">Source</a>
+
+      
+
+      
+
+      
+        <h2>Functions summary</h2>
+        <ul class="summary">
+          <li>
+  <span class="summary_signature">
+    <a href="#preprocess/3">preprocess/3</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#target_defines/0">target_defines/0</a>
+  </span>
+</li>
+
+        </ul>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="preprocess/3">
+    <strong>preprocess(tokens, defs, file)</strong>
+  </p>
+  <div class="docstring"><p>Preprocesses the given token stream according to the specified
+preprocessor definitions. Returns the filtered token stream or
+raises a <code>Flect.Compiler.Syntax.SyntaxError</code> if a preprocessor
+directive is malformed.</p>
+
+<p>The <code>tokens</code> argument must be a list of <code>Flect.Compiler.Syntax.Token</code>
+instances (presumably obtained from lexing). The <code>defs</code> argument must
+be a list of binaries containing predefined identifiers (such as
+those provided via the <code>--define</code> command line option). The <code>file</code>
+argument must be a binary containing the file name (used to report
+syntax errors).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L168" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="target_defines/0">
+    <strong>target_defines()</strong>
+  </p>
+  <div class="docstring"><p>Determine the set of predefined preprocessor identifiers based
+on the values in the <code>Flect.Target</code> module. Returns a list of
+binaries containing the identifier names.</p>
+
+<p>Possible C99 compiler identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_Compiler_GCC&quot;</code>: The backing C99 compiler is GCC-compatible.</li>
+</ul>
+
+<p>Possible object code linker identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_Linker_LD&quot;</code>: The backing object code linker is GNU LD-compatible.</li>
+</ul>
+
+<p>Possible target operating system identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_OS_None&quot;</code>: The target OS is bare metal.</li>
+<li><code>&quot;Flect_OS_AIX&quot;</code>: The target OS is IBM&#39;s AIX.</li>
+<li><code>&quot;Flect_OS_Android&quot;</code>: The target OS is Android.</li>
+<li><code>&quot;Flect_OS_Darwin&quot;</code>: The target OS is Mac OS X.</li>
+<li><code>&quot;Flect_OS_DragonFlyBSD&quot;</code>: The target OS is DragonFlyBSD.</li>
+<li><code>&quot;Flect_OS_FreeBSD&quot;</code>: The target OS is FreeBSD.</li>
+<li><code>&quot;Flect_OS_Hurd&quot;</code>: The target OS is GNU Hurd.</li>
+<li><code>&quot;Flect_OS_Haiku&quot;</code>: The target OS is Haiku.</li>
+<li><code>&quot;Flect_OS_IOS&quot;</code>: The target OS is iOS.</li>
+<li><code>&quot;Flect_OS_Linux&quot;</code>: The target OS is Linux.</li>
+<li><code>&quot;Flect_OS_OpenBSD&quot;</code>: The target OS is OpenBSD.</li>
+<li><code>&quot;Flect_OS_Solaris&quot;</code>: The target OS is Solaris.</li>
+<li><code>&quot;Flect_OS_Windows&quot;</code>: The target OS is Windows.</li>
+</ul>
+
+<p>Possible target CPU identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_CPU_ARM&quot;</code>: The target CPU is ARM.</li>
+<li><code>&quot;Flect_CPU_Itanium&quot;</code>: The target CPU is Itanium.</li>
+<li><code>&quot;Flect_CPU_MIPS&quot;</code>: The target CPU is MIPS.</li>
+<li><code>&quot;Flect_CPU_PARISC&quot;</code>: The target CPU is PA-RISC.</li>
+<li><code>&quot;Flect_CPU_PowerPC&quot;</code>: The target CPU is PowerPC.</li>
+<li><code>&quot;Flect_CPU_X86&quot;</code>: The target CPU is x86.</li>
+</ul>
+
+<p>Possible target application binary interface identifiers (all
+mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_ABI_ARM_Thumb&quot;</code>: The Thumb instruction set on ARM.</li>
+<li><code>&quot;Flect_ABI_ARM_Soft&quot;</code>: The <code>soft</code> ABI on ARM.</li>
+<li><code>&quot;Flect_ABI_ARM_SoftFP&quot;</code>: The <code>softfp</code> ABI on ARM.</li>
+<li><code>&quot;Flect_ABI_ARM_HardFP&quot;</code>: The <code>hardfp</code> ABI on ARM.</li>
+<li><code>&quot;Flect_ABI_ARM_AArch64&quot;</code>: The AArch64 instruction set on ARM.</li>
+<li><code>&quot;Flect_ABI_Itanium_PSABI&quot;</code>: The Itanium processor-specific ABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_O32&quot;</code>: The MIPS O32 ABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_N32&quot;</code>: The MIPS N32 ABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_O64&quot;</code>: The MIPS O64 ABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_N64&quot;</code>: The MIPS N64 ABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_EABI32&quot;</code>: The 32-bit MIPS EABI.</li>
+<li><code>&quot;Flect_ABI_MIPS_EABI64&quot;</code>: The 64-bit MIPS EABI.</li>
+<li><code>&quot;Flect_ABI_PowerPC_SoftFP&quot;</code>: The <code>softfp</code> ABI on PowerPC.</li>
+<li><code>&quot;Flect_ABI_PowerPC_HardFP&quot;</code>: The <code>hardfp</code> ABI on PowerPC.</li>
+<li><code>&quot;Flect_ABI_PowerPC_PPC64&quot;</code>: The 64-bit PowerPC architecture.</li>
+<li><code>&quot;Flect_ABI_X86_Microsoft32&quot;</code>: The 32-bit Microsoft ABI on x86.</li>
+<li><code>&quot;Flect_ABI_X86_SystemV64&quot;</code>: The 64-bit System V ABI on x86.</li>
+<li><code>&quot;Flect_ABI_X86_Microsoft64&quot;</code>: The 64-bit Microsoft ABI on x86.</li>
+<li><code>&quot;Flect_ABI_X86_SystemV64&quot;</code>: The 64-bit System V ABI on x64.</li>
+<li><code>&quot;Flect_ABI_X86_X32&quot;</code>: The x32 ABI on x86.</li>
+</ul>
+
+<p>Possible pointer size identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_PointerSize_32&quot;</code>: Pointers are 32 bits wide.</li>
+<li><code>&quot;Flect_PointerSize_64&quot;</code>: Pointers are 64 bits wide.</li>
+</ul>
+
+<p>Possible word size identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_WordSize_32&quot;</code>: Words are 32 bits wide.</li>
+<li><code>&quot;Flect_WordSize_64&quot;</code>: Words are 64 bits wide.</li>
+</ul>
+
+<p>Miscellaneous identifiers:</p>
+
+<ul>
+<li><code>&quot;Flect_Cross&quot;</code>: The Flect compiler is a cross compiler.</li>
+</ul>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L85" target="_blank" class="view_source">Source</a>
+  
+</div>
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

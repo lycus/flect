@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flect.Application</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Flect.Application
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This is the main entry point of the Flect application.</p>
+
+        </div>
+      
+
+      <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L1" target="_blank" class="view_source">Source</a>
+
+      
+
+      
+
+      
+        <h2>Functions summary</h2>
+        <ul class="summary">
+          <li>
+  <span class="summary_signature">
+    <a href="#main/1">main/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#parse/1">parse/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#start/0">start/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#stop/0">stop/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#stop/1">stop/1</a>
+  </span>
+</li>
+
+        </ul>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="main/1">
+    <strong>main(args)</strong>
+  </p>
+  <div class="docstring"><p>Runs Flect from the command line. Returns via <code>System.halt/1</code>.</p>
+
+<p><code>args</code> must be a list of Erlang-style strings containing the command
+line arguments.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L15" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="parse/1">
+    <strong>parse(args)</strong>
+  </p>
+  <div class="docstring"><p>Parses the given command line arguments into an <code>{options, rest}</code> pair
+and returns it.</p>
+
+<p><code>args</code> must be a list of binaries containing the command line arguments.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L206" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="start/0">
+    <strong>start()</strong>
+  </p>
+  <div class="docstring"><p>Starts the Flect application. Returns <code>:ok</code> on success.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L219" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="stop/0">
+    <strong>stop()</strong>
+  </p>
+  <div class="docstring"><p>Stops the Flect application. Returns <code>:ok</code> on success.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L227" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="stop/1">
+    <strong>stop(arg1)</strong>
+  </p>
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/application.ex#L98" target="_blank" class="view_source">Source</a>
+  
+</div>
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

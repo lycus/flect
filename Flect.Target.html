@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flect.Target</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Flect.Target
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Provides various target configuration information.</p>
+
+        </div>
+      
+
+      <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L1" target="_blank" class="view_source">Source</a>
+
+      
+
+      
+
+      
+        <h2>Functions summary</h2>
+        <ul class="summary">
+          <li>
+  <span class="summary_signature">
+    <a href="#get_abi/0">get_abi/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_arch/0">get_arch/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_bin_dir/0">get_bin_dir/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_cc/0">get_cc/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_cc_args/0">get_cc_args/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_cc_type/0">get_cc_type/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_cross/0">get_cross/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_ld/0">get_ld/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_ld_args/0">get_ld_args/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_ld_type/0">get_ld_type/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_lib_dir/0">get_lib_dir/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_os/0">get_os/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_prefix/0">get_prefix/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_sh_lib_dir/0">get_sh_lib_dir/0</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#get_st_lib_dir/0">get_st_lib_dir/0</a>
+  </span>
+</li>
+
+        </ul>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="get_abi/0">
+    <strong>get_abi()</strong>
+  </p>
+  <div class="docstring"><p>Returns the target application binary interface (<code>FLECT_ABI</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L114" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_arch/0">
+    <strong>get_arch()</strong>
+  </p>
+  <div class="docstring"><p>Returns the target architecture (<code>FLECT_ARCH</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L106" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_bin_dir/0">
+    <strong>get_bin_dir()</strong>
+  </p>
+  <div class="docstring"><p>Returns the binary path (<code>FLECT_BIN_DIR</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L18" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_cc/0">
+    <strong>get_cc()</strong>
+  </p>
+  <div class="docstring"><p>Returns the path to the backing C99 compiler (<code>FLECT_CC</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L50" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_cc_args/0">
+    <strong>get_cc_args()</strong>
+  </p>
+  <div class="docstring"><p>Returns the arguments to pass to the backing C99 compiler (<code>FLECT_CC_ARGS</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L66" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_cc_type/0">
+    <strong>get_cc_type()</strong>
+  </p>
+  <div class="docstring"><p>Returns the type of the backing C99 compiler (<code>FLECT_CC_TYPE</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L58" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_cross/0">
+    <strong>get_cross()</strong>
+  </p>
+  <div class="docstring"><p>Returns a value indicating whether this is a cross compiler (<code>FLECT_CROSS</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L122" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_ld/0">
+    <strong>get_ld()</strong>
+  </p>
+  <div class="docstring"><p>Returns the backing object code linker (<code>FLECT_LD</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L74" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_ld_args/0">
+    <strong>get_ld_args()</strong>
+  </p>
+  <div class="docstring"><p>Returns the arguments to pass to the backing object code linker (<code>FLECT_LD_ARGS</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L90" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_ld_type/0">
+    <strong>get_ld_type()</strong>
+  </p>
+  <div class="docstring"><p>Returns the type of the backing object code linker (<code>FLECT_LD_TYPE</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L82" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_lib_dir/0">
+    <strong>get_lib_dir()</strong>
+  </p>
+  <div class="docstring"><p>Returns the library path (<code>FLECT_LIB_DIR</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L26" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_os/0">
+    <strong>get_os()</strong>
+  </p>
+  <div class="docstring"><p>Returns the target operating system (<code>FLECT_OS</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L98" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_prefix/0">
+    <strong>get_prefix()</strong>
+  </p>
+  <div class="docstring"><p>Returns the installation prefix (<code>FLECT_PREFIX</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L10" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_sh_lib_dir/0">
+    <strong>get_sh_lib_dir()</strong>
+  </p>
+  <div class="docstring"><p>Returns the shared library path (<code>FLECT_SH_LIB_DIR</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L42" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="get_st_lib_dir/0">
+    <strong>get_st_lib_dir()</strong>
+  </p>
+  <div class="docstring"><p>Returns the static library path (<code>FLECT_ST_LIB_DIR</code>).</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/target.ex#L34" target="_blank" class="view_source">Source</a>
+  
+</div>
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>
