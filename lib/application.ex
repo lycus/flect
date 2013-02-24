@@ -157,6 +157,7 @@ defmodule Flect.Application do
                     Flect.Compiler.Syntax.Location,
                     Flect.Compiler.Syntax.Node,
                     Flect.Compiler.Syntax.Parser,
+                    Flect.Compiler.Syntax.Preprocessor,
                     Flect.Compiler.Syntax.SyntaxError,
                     Flect.Compiler.Syntax.Token,
                     Flect.Documentor.Tool,
