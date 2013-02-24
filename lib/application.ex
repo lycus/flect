@@ -206,7 +206,7 @@ defmodule Flect.Application do
         :ok = :application.stop(:flect)
     end
 
-    @spec start(:normal, []) :: {:ok, pid(), nil}
+    @spec start(:normal | {:takeover, node()} | {:failover, node()}, []) :: {:ok, pid(), nil}
     def start(_, []) do
         {:ok, pid} = Flect.Supervisor.start_link()
         {:ok, pid, nil}
