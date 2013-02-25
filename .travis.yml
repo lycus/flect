@@ -6,6 +6,7 @@ otp_release:
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq clang time
+    - export PATH=`pwd`/elixir/bin:`pwd`/exdoc/bin:$PATH
     - git clone http://github.com/elixir-lang/elixir
     - cd elixir
     - make
@@ -13,11 +14,9 @@ before_install:
     - git clone http://github.com/elixir-lang/exdoc
     - cd exdoc
     - make
-    - ../elixir/bin/mix compile
+    - mix compile
     - cd ..
     - git submodule update --init --recursive
-before_script:
-    - export PATH=`pwd`/elixir/bin:`pwd`/exdoc/bin:$PATH
 script:
     - cp ci/travis.clang.config.mak config.mak
     - make ebin
