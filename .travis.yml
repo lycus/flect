@@ -13,6 +13,7 @@ before_install:
     - git clone http://github.com/elixir-lang/exdoc
     - cd exdoc
     - make
+    - mix compile
     - cd ..
     - git submodule update --init --recursive
 before_script:
