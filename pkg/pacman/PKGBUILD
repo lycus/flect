@@ -1,0 +1,84 @@
+# Maintainer: Alex Rønne Petersen <alex@lycus.org>
+
+pkgname=("flect-git")
+pkgdesc=("A pragmatic, functional systems programming language.")
+url=("http://lycus.org")
+license=("MIT")
+arch=("i686" "x86_64")
+pkgver=("2012_02_25")
+pkgrel=("1")
+
+options=("!strip")
+makedepends=("git" "make" "elixir-git") # TODO: Use "elixir" when 0.9.0 is out.
+depends=("erlang" "clang")
+provides=("flect")
+
+if [ $CARCH == "x86_64" ]; then
+    _abi="x86-sysv64"
+elif [ $CARCH == "i686" ]; then
+    _abi="x86-sysv32"
+fi
+
+_git="https://github.com/lycus/flect.git"
+_name="flect"
+
+build() {
+    cd "$srcdir"
+
+    msg "Flect: Cloning Git repository..."
+
+    if [ -d "$startdir/src/$_name" ]; then
+        cd "$_name"
+        git pull origin master
+    else
+        git clone "$_git"
+    fi
+
+    cd "$srcdir/$_name"
+
+    msg "Flect: Updating submodules..."
+
+    git submodule update --init --recursive
+
+    msg "Flect: Configuring the build..."
+
+    cat > config.mak << EOF
+export FLECT_ARCH       ?= x86
+export FLECT_OS         ?= linux
+export FLECT_ABI        ?= $_abi
+export FLECT_CROSS      ?= false
+
+export FLECT_CC         ?= clang
+export FLECT_CC_TYPE    ?= gcc
+export FLECT_CC_ARGS    ?=
+export FLECT_LD         ?= ld
+export FLECT_LD_TYPE    ?= ld
+export FLECT_LD_ARGS    ?=
+
+export FLECT_PREFIX     ?= $pkgdir/usr
+export FLECT_BIN_DIR    ?= $pkgdir/usr/bin
+export FLECT_LIB_DIR    ?= $pkgdir/usr/lib/flect
+export FLECT_ST_LIB_DIR ?= $pkgdir/usr/lib/flect/static
+export FLECT_SH_LIB_DIR ?= $pkgdir/usr/lib/flect/shared
+EOF
+
+    msg "Flect: Building..."
+
+    make
+}
+
+check() {
+    cd "$srcdir/$_name"
+
+    msg "Flect: Running test suite..."
+
+    make test -j 1 # For better output.
+}
+
+package() {
+    cd "$srcdir/$_name"
+
+    msg "Flect: Packaging binaries..."
+
+    make install
+}
