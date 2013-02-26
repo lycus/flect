@@ -14,6 +14,6 @@ export FLECT_LD_ARGS    ?=
 
 export FLECT_PREFIX     ?= /usr/local
 export FLECT_BIN_DIR    ?= /usr/local/bin
-export FLECT_LIB_DIR    ?= /usr/local/lib
-export FLECT_ST_LIB_DIR ?= /usr/local/lib/static
-export FLECT_SH_LIB_DIR ?= /usr/local/lib/shared
+export FLECT_LIB_DIR    ?= /usr/local/lib/flect
+export FLECT_ST_LIB_DIR ?= /usr/local/lib/flect/static
+export FLECT_SH_LIB_DIR ?= /usr/local/lib/flect/shared
