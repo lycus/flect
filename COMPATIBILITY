@@ -77,8 +77,10 @@ ABIs (FLECT_ABI) supported:
 * MIPS
  - 32-bit MIPS O32 (mips-o32)
  - 32-bit MIPS N32 (mips-n32)
+ - 32-bit MIPS EABI (mips-eabi32)
  - 64-bit MIPS O64 (mips-o64)
  - 64-bit MIPS N64 (mips-n64)
+ - 64-bit MIPS EABI (mips-eabi64)
 * PA-RISC
  - 32-bit PA-RISC (hppa-pa32)
  - 64-bit PA-RISC (hppa-pa64)

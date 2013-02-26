@@ -58,6 +58,8 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     * `"Flect_ABI_MIPS_N64"`: The MIPS N64 ABI.
     * `"Flect_ABI_MIPS_EABI32"`: The 32-bit MIPS EABI.
     * `"Flect_ABI_MIPS_EABI64"`: The 64-bit MIPS EABI.
+    * `"Flect_ABI_PARISC_PA32"`: The 32-bit PA-RISC architecture.
+    * `"Flect_ABI_PARISC_PA64"`: The 64-bit PA-RISC architecture.
     * `"Flect_ABI_PowerPC_SoftFP"`: The `softfp` ABI on PowerPC.
     * `"Flect_ABI_PowerPC_HardFP"`: The `hardfp` ABI on PowerPC.
     * `"Flect_ABI_PowerPC_PPC64"`: The 64-bit PowerPC architecture.
