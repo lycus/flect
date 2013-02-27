@@ -9,7 +9,7 @@ pkgver=("2012_02_25")
 pkgrel=("1")
 
 options=("!strip")
-makedepends=("git" "make" "elixir-git") # TODO: Use "elixir" when 0.9.0 is out.
+makedepends=("git" "make" "elixir" "clang")
 depends=("erlang" "clang")
 provides=("flect")
 
