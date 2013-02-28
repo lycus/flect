@@ -197,6 +197,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "ext",
                "ref",
                "glob",
+               "tls",
                "const",
                "mut",
                "imm",
@@ -230,7 +231,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "fixed",
                "pragma",
                "scope",
-               "tls",
                "move"], fn(x) ->
         defp :is_keyword, [x], [], do: true
     end)
