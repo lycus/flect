@@ -3,6 +3,7 @@
 export FLECT_ARCH       ?= x86
 export FLECT_OS         ?= linux
 export FLECT_ABI        ?= x86-sysv32
+export FLECT_ENDIAN     ?= little
 export FLECT_CROSS      ?= false
 
 export FLECT_CC         ?= clang
