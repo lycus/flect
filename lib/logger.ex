@@ -74,4 +74,17 @@ defmodule Flect.Logger do
     def log(str) do
         output(colorize("Log", "cyan") <> str)
     end
+
+    @doc """
+    Prints a debug message if the `FLECT_DEBUG` environment variable is set
+    to `1`. Colorized as magenta. Returns `:ok`.
+
+    `str` must be a binary containing the message.
+    """
+    @spec debug(String.t()) :: :ok
+    def debug(str) do
+        if System.get_env("FLECT_DEBUG") == "1" do
+            output(colorize("Debug", "magenta") <> str)
+        end
+    end
 end

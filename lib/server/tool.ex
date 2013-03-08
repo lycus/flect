@@ -7,10 +7,13 @@ defmodule Flect.Server.Tool do
     @spec server_loop() :: :ok
     def server_loop() do
         receive do
-            {:flect, {:exit}} ->
+            {:flect, from, {:exit}} ->
                 Flect.Logger.log("Shutting down the server")
+                from <- {:flect, {:exit, :ok}}
                 :ok
             {:flect, from, msg} ->
+                Flect.Logger.debug("Received #{inspect(elem(msg, 0))} request from #{inspect(from)}")
+
                 case msg do
                     {:info} ->
                         from <- {:flect, {:info, {Flect.Target.get_cc_type(),
@@ -23,35 +26,38 @@ defmodule Flect.Server.Tool do
                     {:lex, file, text} ->
                         try do
                             tokens = Flect.Compiler.Syntax.Lexer.lex(text, file)
+                            Flect.Logger.debug("Lexing successful; sending result")
                             from <- {:flect, {:lex, :ok, file, tokens}}
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                Flect.Logger.debug("Lexing failed; sending exception")
                                 from <- {:flect, {:lex, :error, file, ex}}
                         end
                     {:pp, file, tokens, defs} ->
                         try do
                             tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, defs, file)
+                            Flect.Logger.debug("Preprocessing successful; sending result")
                             from <- {:flect, {:pp, :ok, file, tokens}}
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                Flect.Logger.debug("Preprocessing failed; sending exception")
                                 from <- {:flect, {:pp, :error, file, ex}}
                         end
                     {:parse, file, tokens} ->
                         try do
                             nodes = Flect.Compiler.Syntax.Parser.parse(tokens, file)
+                            Flect.Logger.debug("Parsing successful; sending result")
                             from <- {:flect, {:parse, :ok, file, nodes}}
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                Flect.Logger.debug("Parsing failed; sending exception")
                                 from <- {:flect, {:parse, :error, file, ex}}
                         end
                 end
 
                 server_loop()
             msg ->
-                Flect.Logger.log("Received unsupported message: #{inspect(msg)} (discarded)")
-                Flect.Logger.log("This likely indicates a non-Flect process erroneously trying to communicate with " <>
-                                 "the compiler server, a mismatch between the Flect client and server versions, or " <>
-                                 "simply a programming error")
+                Flect.Logger.debug("Received unsupported message: #{inspect(msg)}")
         end
     end
 
@@ -111,7 +117,9 @@ defmodule Flect.Server.Tool do
         end
 
         case :net_kernel.start([name, style]) do
-            {:ok, _} ->
+            {:ok, pid} ->
+                Flect.Logger.debug("net_kernel started as #{inspect(pid)}")
+
                 :erlang.set_cookie(node(), cookie)
             {:error, reason} ->
                 Flect.Logger.error("Could not start server: #{inspect(reason)}")
@@ -122,13 +130,18 @@ defmodule Flect.Server.Tool do
         Flect.Logger.log("Flect compiler server running as #{inspect(name)} in group #{inspect(group)} with cookie #{inspect(cookie)}")
 
         :pg2.create(group)
+        Flect.Logger.debug("Created :pg2 group #{inspect(group)}")
+
         :pg2.join(group, server)
+        Flect.Logger.debug("Joined :pg2 group #{inspect(group)}")
 
         Flect.Logger.log("Press Enter to stop the server")
         IO.readline()
 
-        server <- {:flect, {:exit}}
+        server <- {:flect, self(), {:exit}}
 
-        :ok
+        receive do
+            {:flect, {:exit, :ok}} -> :ok
+        end
     end
 end
