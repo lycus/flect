@@ -61,7 +61,12 @@ defmodule Flect.Interactive.Tool do
     value on failure.
     """
     @spec run(Flect.Config.t()) :: :ok
-    def run(_) do
+    def run(cfg) do
+        if length(cfg.arguments()) != 0 do
+            Flect.Logger.error("The REPL does not accept command line arguments")
+            throw 2
+        end
+
         Flect.Logger.info("Welcome to the Flect interactive REPL.")
         Flect.Logger.info("Type /help for help and /quit to quit.")
         Flect.Logger.info("")
