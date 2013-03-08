@@ -1,7 +1,7 @@
 # This is a configuration for ci.lycus.org test runs.
 
 export FLECT_ARCH       ?= x86
-export FLECT_OS         ?= linux
+export FLECT_OS         ?= darwin
 export FLECT_ABI        ?= x86-sysv32
 export FLECT_ENDIAN     ?= little
 export FLECT_CROSS      ?= false
