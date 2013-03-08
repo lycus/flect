@@ -36,32 +36,42 @@ defmodule Flect.Logger do
     end
 
     @doc """
-    Prints a notification message. Returns `:ok`.
+    Prints a notification message. Colorized as green. Returns `:ok`.
 
     `str` must be a binary containing the message.
     """
     @spec note(String.t()) :: :ok
     def note(str) do
-        output(colorize("Note", "green") <> "#{str}")
+        output(colorize("Note", "green") <> str)
     end
 
     @doc """
-    Prints a warning message. Returns `:ok`.
+    Prints a warning message. Colorized as yellow. Returns `:ok`.
 
     `str` must be a binary containing the message.
     """
     @spec warn(String.t()) :: :ok
     def warn(str) do
-        output(colorize("Warning", "yellow") <> "#{str}")
+        output(colorize("Warning", "yellow") <> str)
     end
 
     @doc """
-    Prints an error message. Returns `:ok`.
+    Prints an error message. Colorized as red. Returns `:ok`.
 
     `str` must be a binary containing the message.
     """
     @spec error(String.t()) :: :ok
     def error(str) do
-        output(colorize("Error", "red") <> "#{str}")
+        output(colorize("Error", "red") <> str)
+    end
+
+    @doc """
+    Prints a log message. Colorized as cyan. Returns `:ok`.
+
+    `str` must be a binary containing the message.
+    """
+    @spec log(String.t()) :: :ok
+    def log(str) do
+        output(colorize("Log", "cyan") <> str)
     end
 end
