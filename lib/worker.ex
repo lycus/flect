@@ -48,6 +48,7 @@ defmodule Flect.Worker do
                 :f -> Flect.Formatter.Tool.run(cfg)
                 :i -> Flect.Interactive.Tool.run(cfg)
                 :p -> Flect.Packager.Tool.run(cfg)
+                :s -> Flect.Server.Tool.run(cfg)
             end
 
             0

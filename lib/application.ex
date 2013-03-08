@@ -51,7 +51,12 @@ defmodule Flect.Application do
                   []},
                  {"p",
                   "Execute a package manager command.",
-                  []}]
+                  []},
+                 {"s",
+                  "Start a Flect compiler server.",
+                  [names: "Select node name style. (short, long) [short]",
+                   group: "Select server group name. [flect_compilers]",
+                   cookie: "Select the node cookie. [nocookie]"]}]
 
         if opts[:help] do
             Flect.Logger.info("Tools:")
