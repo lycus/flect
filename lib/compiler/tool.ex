@@ -91,7 +91,7 @@ defmodule Flect.Compiler.Tool do
             if time, do: session = Flect.Timer.start_pass(session, :pp)
 
             preprocessed_files = lc {file, tokens} inlist tokenized_files do
-                {file, elem(Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file), 0)}
+                {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)}
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :pp)
