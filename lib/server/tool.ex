@@ -20,6 +20,30 @@ defmodule Flect.Server.Tool do
                                                   Flect.Target.get_abi(),
                                                   Flect.Target.get_endian(),
                                                   Flect.Target.get_cross()}}}
+                    {:lex, file, text} ->
+                        try do
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(text, file)
+                            from <- {:flect, {:lex, :ok, file, tokens}}
+                        rescue
+                            ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                from <- {:flect, {:lex, :error, file, ex}}
+                        end
+                    {:pp, file, tokens, defs} ->
+                        try do
+                            tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, defs, file)
+                            from <- {:flect, {:pp, :ok, file, tokens}}
+                        rescue
+                            ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                from <- {:flect, {:pp, :error, file, ex}}
+                        end
+                    {:parse, file, tokens} ->
+                        try do
+                            nodes = Flect.Compiler.Syntax.Parser.parse(tokens, file)
+                            from <- {:flect, {:parse, :ok, file, nodes}}
+                        rescue
+                            ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                                from <- {:flect, {:parse, :error, file, ex}}
+                        end
                 end
 
                 server_loop()

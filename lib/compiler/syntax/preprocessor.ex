@@ -177,8 +177,8 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     argument must be a binary containing the file name (used to report
     syntax errors).
     """
-    @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: {[Flect.Compiler.Syntax.Token.t()], [String.t()]}
+    @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def preprocess(tokens, defs, file) do
-        {tokens, defs}
+        tokens
     end
 end
