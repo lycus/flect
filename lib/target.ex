@@ -116,6 +116,14 @@ defmodule Flect.Target do
     end
 
     @doc """
+    Returns the target endianness (`FLECT_ENDIAN`).
+    """
+    @spec get_endian() :: String.t()
+    def :get_endian, [], [] do
+        System.get_env("FLECT_ENDIAN")
+    end
+
+    @doc """
     Returns a value indicating whether this is a cross compiler (`FLECT_CROSS`).
     """
     @spec get_cross() :: String.t()

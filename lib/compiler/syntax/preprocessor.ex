@@ -69,6 +69,11 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x64.
     * `"Flect_ABI_X86_X32"`: The x32 ABI on x86.
 
+    Possible endianness identifiers (all mutually exclusive):
+
+    * `"Flect_Endianness_Big"`: Byte order is big endian.
+    * `"Flect_Endianness_Little"`: Byte order is little endian.
+
     Possible pointer size identifiers (all mutually exclusive):
 
     * `"Flect_PointerSize_32"`: Pointers are 32 bits wide.
@@ -141,6 +146,11 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "x86-x32" -> {"X86_X32", "32", "64"}
         end
 
+        endian = case Flect.Target.get_endian() do
+            "big" -> "Big"
+            "little" -> "Little"
+        end
+
         cross = if Flect.Target.get_cross() == "true", do: ["Flect_Cross"], else: []
 
         ["Flect_Compiler_" <> cc,
@@ -148,6 +158,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
          "Flect_OS_" <> os,
          "Flect_CPU_" <> arch,
          "Flect_ABI_" <> abi,
+         "Flect_Endianness_" <> endian,
          "Flect_PointerSize_" <> ptr_size,
          "Flect_WordSize_" <> word_size
          | cross]
