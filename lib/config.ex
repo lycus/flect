@@ -8,7 +8,7 @@ defrecord Flect.Config, tool: "",
     list of global options. `arguments` is a list of binaries containing
     the command line arguments.
 
-    `options` should contain only any the following keys:
+    `options` can contain (in addition to tool-specific options):
 
     * `help`: Boolean value indicating whether to print the help message.
     * `version`: Boolean value indicating whether to print the version.
