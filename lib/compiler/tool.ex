@@ -97,6 +97,11 @@ defmodule Flect.Compiler.Tool do
                 throw 2
         end
 
+        if cfg.arguments() == [] do
+            Flect.Logger.error("No source file names given")
+            throw 2
+        end
+
         Enum.each(cfg.arguments(), fn(file) ->
             if Path.extname(file) != ".fl" do
                 Flect.Logger.error("File #{file} does not have extension .fl")
