@@ -155,18 +155,27 @@ defmodule Flect.Compiler.Tool do
                     {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
                 end
             else
-                Enum.each(read_files, fn({file, text}) ->
+                refs = lc {file, text} inlist read_files do
                     # It doesn't matter which server we run lexing on since it is
                     # completely target-independent.
-                    get_closest_pid(group) <- {:flect, self(), {:lex, file, text}}
-                end)
+                    pid = get_closest_pid(group)
+                    ref = :erlang.monitor(:process, pid)
+                    pid <- {:flect, self(), {:lex, file, text}}
+
+                    ref
+                end
 
                 tokenized_files = Enum.map(1 .. num_files, fn(_) ->
                     receive do
                         {:flect, {:lex, :ok, file, tokens}} -> {file, tokens}
                         {:flect, {:lex, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                        {:DOWN, _, :process, pid, reason} ->
+                            Flect.Logger.error("Connection lost to compiler server #{inspect(pid)}: #{inspect(reason)}")
+                            throw 2
                     end
                 end)
+
+                Enum.each(refs, fn(ref) -> :erlang.demonitor(ref, [:flush]) end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :lex)
@@ -188,18 +197,27 @@ defmodule Flect.Compiler.Tool do
                     {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)}
                 end
             else
-                Enum.each(tokenized_files, fn({file, tokens}) ->
+                refs = lc {file, tokens} inlist tokenized_files do
                     # We can run preprocessing on any server as long as we pass
                     # along the correct target defines.
-                    get_closest_pid(group) <- {:flect, self(), {:pp, file, tokens, Flect.Compiler.Syntax.Preprocessor.target_defines()}}
-                end)
+                    pid = get_closest_pid(group)
+                    ref = :erlang.monitor(:process, pid)
+                    pid <- {:flect, self(), {:pp, file, tokens, Flect.Compiler.Syntax.Preprocessor.target_defines()}}
+
+                    ref
+                end
 
                 preprocessed_files = Enum.map(1 .. num_files, fn(_) ->
                     receive do
                         {:flect, {:pp, :ok, file, tokens}} -> {file, tokens}
                         {:flect, {:pp, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                        {:DOWN, _, :process, pid, reason} ->
+                            Flect.Logger.error("Connection lost to compiler server #{inspect(pid)}: #{inspect(reason)}")
+                            throw 2
                     end
                 end)
+
+                Enum.each(refs, fn(ref) -> :erlang.demonitor(ref, [:flush]) end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :pp)
@@ -221,18 +239,27 @@ defmodule Flect.Compiler.Tool do
                     {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
                 end
             else
-                Enum.each(preprocessed_files, fn({file, tokens}) ->
+                refs = lc {file, tokens} inlist preprocessed_files do
                     # It doesn't matter which server we run parsing on since it is
                     # completely target-independent.
-                    get_closest_pid(group) <- {:flect, self(), {:parse, file, tokens}}
-                end)
+                    pid = get_closest_pid(group)
+                    ref = :erlang.monitor(:process, pid)
+                    pid <- {:flect, self(), {:parse, file, tokens}}
+
+                    ref
+                end
 
                 parsed_files = Enum.map(1 .. num_files, fn(_) ->
                     receive do
                         {:flect, {:parse, :ok, file, nodes}} -> {file, nodes}
                         {:flect, {:parse, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                        {:DOWN, _, :process, pid, reason} ->
+                            Flect.Logger.error("Connection lost to compiler server #{inspect(pid)}: #{inspect(reason)}")
+                            throw 2
                     end
                 end)
+
+                Enum.each(refs, fn(ref) -> :erlang.demonitor(ref, [:flush]) end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :parse)
