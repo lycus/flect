@@ -3,12 +3,68 @@ defmodule Flect.Compiler.Tool do
     The compiler tool used by the command line interface.
     """
 
+    @spec get_closest_pid(String.t()) :: pid()
+    defp get_closest_pid(group) do
+        case :pg2.get_closest_pid(group) do
+            {:error, {:no_such_group, _}} ->
+                Flect.Logger.error("The server group #{group} does not exist")
+                throw 2
+            {:error, {:no_server, _}} ->
+                Flect.Logger.error("No server found in group #{group}")
+                throw 2
+            pid -> pid
+        end
+    end
+
     @doc """
     Runs the compiler tool. Returns `:ok` or throws a non-zero exit code
     value on failure.
     """
     @spec run(Flect.Config.t()) :: :ok
     def run(cfg) do
+        dist = case cfg.options()[:dist] do
+            nil -> nil
+            group -> to_binary(group)
+        end
+
+        name = case cfg.options()[:name] do
+            nil -> :nonode
+            _ when dist == nil ->
+                Flect.Logger.error("Cannot specify a node name for non-distributed builds (--name flag)")
+                throw 2
+            name ->
+                try do
+                    binary_to_atom(name)
+                rescue
+                    _ ->
+                        Flect.Logger.error("Invalid node name given (--name flag)")
+                        throw 2
+                end
+        end
+
+        style = case cfg.options()[:names] do
+            "long" -> :longnames
+            n when n in ["short", nil] -> :shortnames
+            _ ->
+                Flect.Logger.error("Unknown node name style given (--names flag)")
+                throw 2
+        end
+
+        cookie = case cfg.options()[:cookie] do
+            nil -> :nocookie
+            _ when dist == nil ->
+                Flect.Logger.error("Cannot specify a cookie for non-distributed builds (--cookie flag)")
+                throw 2
+            cookie ->
+                try do
+                    binary_to_atom(cookie)
+                rescue
+                    _ ->
+                        Flect.Logger.error("Invalid cookie given (--cookie flag)")
+                        throw 2
+                end
+        end
+
         _ = case cfg.options()[:mode] do
             m when m in ["stlib", "shlib", "exe"] -> binary_to_atom(m)
             nil -> :exe
@@ -48,6 +104,27 @@ defmodule Flect.Compiler.Tool do
             end
         end)
 
+        num_files = length(cfg.arguments())
+
+        if dist != nil do
+            case :net_kernel.start([name, style]) do
+                {:ok, _} -> :ok
+                {:error, reason} ->
+                    Flect.Logger.error("Could not start :net_kernel process: #{inspect(reason)}")
+                    throw 2
+            end
+
+            case :pg2.start() do
+                {:ok, _} -> :ok
+                {:error, reason} ->
+                    Flect.Logger.error("Could not start :pg2 process: #{inspect(reason)}")
+                    throw 2
+            end
+
+            :erlang.set_cookie(node(), cookie)
+            :net_adm.world()
+        end
+
         try do
             session = if time, do: Flect.Timer.create_session("Flect Compilation Process"), else: nil
 
@@ -64,14 +141,27 @@ defmodule Flect.Compiler.Tool do
 
             if time, do: session = Flect.Timer.end_pass(session, :read)
 
-            if stage == :read do
-                throw {:stop, session}
-            end
+            if stage == :read, do: throw {:stop, session}
 
             if time, do: session = Flect.Timer.start_pass(session, :lex)
 
-            tokenized_files = lc {file, text} inlist read_files do
-                {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
+            if dist == nil do
+                tokenized_files = lc {file, text} inlist read_files do
+                    {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
+                end
+            else
+                Enum.each(read_files, fn({file, text}) ->
+                    # It doesn't matter which server we run lexing on since it is
+                    # completely target-independent.
+                    get_closest_pid(group) <- {:flect, self(), {:lex, file, text}}
+                end)
+
+                tokenized_files = Enum.map(1 .. num_files, fn(_) ->
+                    receive do
+                        {:flect, {:lex, :ok, file, tokens}} -> {file, tokens}
+                        {:flect, {:lex, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                    end
+                end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :lex)
@@ -84,14 +174,27 @@ defmodule Flect.Compiler.Tool do
                 end)
             end
 
-            if stage == :lex do
-                throw {:stop, session}
-            end
+            if stage == :lex, do: throw {:stop, session}
 
             if time, do: session = Flect.Timer.start_pass(session, :pp)
 
-            preprocessed_files = lc {file, tokens} inlist tokenized_files do
-                {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)}
+            if dist == nil do
+                preprocessed_files = lc {file, tokens} inlist tokenized_files do
+                    {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)}
+                end
+            else
+                Enum.each(tokenized_files, fn({file, tokens}) ->
+                    # We can run preprocessing on any server as long as we pass
+                    # along the correct target defines.
+                    get_closest_pid(group) <- {:flect, self(), {:pp, file, tokens, Flect.Compiler.Syntax.Preprocessor.target_defines()}}
+                end)
+
+                preprocessed_files = Enum.map(1 .. num_files, fn(_) ->
+                    receive do
+                        {:flect, {:pp, :ok, file, tokens}} -> {file, tokens}
+                        {:flect, {:pp, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                    end
+                end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :pp)
@@ -104,14 +207,27 @@ defmodule Flect.Compiler.Tool do
                 end)
             end
 
-            if stage == :pp do
-                throw {:stop, session}
-            end
+            if stage == :pp, do: throw {:stop, session}
 
             if time, do: session = Flect.Timer.start_pass(session, :parse)
 
-            parsed_files = lc {file, tokens} inlist preprocessed_files do
-                {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
+            if dist == nil do
+                parsed_files = lc {file, tokens} inlist preprocessed_files do
+                    {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
+                end
+            else
+                Enum.each(preprocessed_files, fn({file, tokens}) ->
+                    # It doesn't matter which server we run parsing on since it is
+                    # completely target-independent.
+                    get_closest_pid(group) <- {:flect, self(), {:parse, file, tokens}}
+                end)
+
+                parsed_files = Enum.map(1 .. num_files, fn(_) ->
+                    receive do
+                        {:flect, {:parse, :ok, file, nodes}} -> {file, nodes}
+                        {:flect, {:parse, :error, _, ex}} -> raise(ex, [], System.stacktrace())
+                    end
+                end)
             end
 
             if time, do: session = Flect.Timer.end_pass(session, :parse)
@@ -124,9 +240,7 @@ defmodule Flect.Compiler.Tool do
                 end)
             end
 
-            if stage == :parse do
-                throw {:stop, session}
-            end
+            if stage == :parse, do: throw {:stop, session}
 
             throw {:stop, session}
         catch

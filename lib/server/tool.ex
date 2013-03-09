@@ -3,16 +3,15 @@ defmodule Flect.Server.Tool do
     The server tool used by the command line interface.
     """
 
-    @doc false
     @spec server_loop() :: :ok
-    def server_loop() do
+    defp server_loop() do
         receive do
             {:flect, from, {:exit}} ->
                 Flect.Logger.log("Shutting down the server")
                 from <- {:flect, {:exit, :ok}}
                 :ok
             {:flect, from, msg} ->
-                Flect.Logger.debug("Received #{inspect(elem(msg, 0))} request from #{inspect(from)}")
+                Flect.Logger.debug("Received #{inspect(elem(msg, 0))} request from #{inspect(from)} at #{inspect(node(from))}")
 
                 case msg do
                     {:info} ->
@@ -93,15 +92,8 @@ defmodule Flect.Server.Tool do
         end
 
         group = case cfg.options()[:group] do
-            nil -> :flect_compilers
-            group ->
-                try do
-                    binary_to_atom(group)
-                rescue
-                    _ ->
-                        Flect.Logger.error("Invalid server group name given (not a valid Erlang atom)")
-                        throw 2
-                end
+            nil -> "flect_compilers"
+            group -> to_binary(group)
         end
 
         cookie = case cfg.options()[:cookie] do
@@ -111,29 +103,38 @@ defmodule Flect.Server.Tool do
                     binary_to_atom(cookie)
                 rescue
                     _ ->
-                        Flect.Logger.error("Invalid cookie given (not a valid Erlang atom)")
+                        Flect.Logger.error("Invalid cookie given (--cookie flag)")
                         throw 2
                 end
         end
 
         case :net_kernel.start([name, style]) do
             {:ok, pid} ->
-                Flect.Logger.debug("net_kernel started as #{inspect(pid)}")
-
-                :erlang.set_cookie(node(), cookie)
+                Flect.Logger.debug("Started :net_kernel as #{inspect(pid)}")
             {:error, reason} ->
-                Flect.Logger.error("Could not start server: #{inspect(reason)}")
+                Flect.Logger.error("Could not start :net_kernel process: #{inspect(reason)}")
                 throw 2
         end
 
-        server = spawn(function(__MODULE__, :server_loop, 0))
-        Flect.Logger.log("Flect compiler server running as #{inspect(name)} in group #{inspect(group)} with cookie #{inspect(cookie)}")
+        case :pg2.start() do
+            {:ok, pid} ->
+                Flect.Logger.debug("Started :pg2 as #{inspect(pid)}")
+            {:error, reason} ->
+                Flect.Logger.error("Could not start :pg2 process: #{inspect(reason)}")
+                throw 2
+        end
+
+        :erlang.set_cookie(node(), cookie)
+        :net_adm.world()
+
+        server = spawn(function(server_loop/0))
+        Flect.Logger.log("Flect compiler server running as #{inspect(node())} in group #{group} with cookie #{inspect(cookie)}")
 
         :pg2.create(group)
-        Flect.Logger.debug("Created :pg2 group #{inspect(group)}")
+        Flect.Logger.debug("Created :pg2 group #{group}")
 
         :pg2.join(group, server)
-        Flect.Logger.debug("Joined :pg2 group #{inspect(group)}")
+        Flect.Logger.debug("Joined :pg2 group #{group}")
 
         Flect.Logger.log("Press Enter to stop the server")
         IO.readline()
