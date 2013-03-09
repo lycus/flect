@@ -188,7 +188,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "priv",
                "trait",
                "impl",
-               "align",
                "struct",
                "union",
                "enum",
