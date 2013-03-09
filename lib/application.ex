@@ -39,7 +39,11 @@ defmodule Flect.Application do
                   [mode: "Select compilation mode. (stlib, shlib, exe) [exe]",
                    stage: "Stage to stop compilation after. (read, lex, pp, parse, sema, gen, cc) [cc]",
                    dump: "Dump a compiler state to stdout. (tokens, pp-tokens, ast, sema-ast, ir, c99) []",
-                   time: "Time compilation passes and show a summary. (true, false) [false]"]},
+                   time: "Time compilation passes and show a summary. (true, false) [false]",
+                   dist: "Select server group name for distributed compilation. []",
+                   name: "Select node name. [nonode]",
+                   names: "Select node name style. (short, long) [short]",
+                   cookie: "Select the node cookie. [nocookie]"]},
                  {"d",
                   "Generate documentation for a set of Flect source files.",
                   []},
@@ -109,11 +113,9 @@ defmodule Flect.Application do
                     Application.Behaviour,
                     Behaviour,
                     Binary.Chars,
-                    Binary.Dict,
                     Binary.Inspect,
                     Code,
                     Dict,
-                    Dict.Common,
                     Enum,
                     Exception,
                     File,
@@ -137,7 +139,6 @@ defmodule Flect.Application do
                     Module,
                     Node,
                     OptionParser,
-                    OrdDict,
                     Path,
                     Port,
                     Process,
@@ -178,7 +179,9 @@ defmodule Flect.Application do
                     Flect.Compiler.Syntax.Token,
                     Flect.Documentor.Tool,
                     Flect.Formatter.Tool,
-                    Flect.Packager.Tool]
+                    Flect.Interactive.Tool,
+                    Flect.Packager.Tool,
+                    Flect.Server.Tool]
 
             Enum.each(mods, fn(mod) -> {:module, _} = Code.ensure_loaded(mod) end)
         end
