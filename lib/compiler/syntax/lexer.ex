@@ -406,7 +406,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
                 if !is_decimal_digit(cp) do
-                    raise_error(loc, "Expected decimal part of floating point literal")
+                    raise_error(loc, "Expected fractional part of floating point literal")
                 end
 
                 {nil, dec, rest, _, loc} = lex_number(cp, rest, oloc, loc, 10, true, false)
@@ -436,7 +436,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         {type, rest, loc} = lex_literal_type(rest, loc, true)
                         {type, acc, rest, oloc, loc}
                 end
-            :eof -> raise_error(loc, "Expected decimal part of floating point literal")
+            :eof -> raise_error(loc, "Expected fractional part of floating point literal")
         end
     end
 
