@@ -331,7 +331,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         tup = {and_and_expr, state} = parse_and_and_expr(state)
 
         case next_token(state) do
-            {:pipe, tok, state} ->
+            {:pipe_pipe, tok, state} ->
                 {expr, state} = parse_and_and_expr(state)
                 {new_node(:or_or_expr, tok.location(), [logical_or: tok], [left_expression: and_and_expr, right_expression: expr]), state}
             _ -> tup
@@ -343,7 +343,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         tup = {unary_expr, state} = parse_unary_expr(state)
 
         case next_token(state) do
-            {:and, tok, state} ->
+            {:ampersand_ampersand, tok, state} ->
                 {expr, state} = parse_unary_expr(state)
                 {new_node(:and_and_expr, tok.location(), [logical_and: tok], [left_expression: unary_expr, right_expression: expr]), state}
             _ -> tup
@@ -388,17 +388,17 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 # would do), we need to process them and continue going.
                 if itok.value() in ["\\define", "\\undef"] do
                     {istate, toks} = handle_directive(istate, itok)
-                    grab_tokens(istate, toks ++ tokens)
+                    grab_tokens(istate, skipping, toks ++ tokens)
                 else
                     # We only want to process \error directives when
                     # we are not skipping a token section.
                     if itok.value() == "\\error" && skipping do
-                        grab_tokens(istate, tokens)
+                        grab_tokens(istate, skipping, tokens)
                     else
                         {state, Enum.reverse(tokens)}
                     end
                 end
-            {_, tok, state} -> grab_tokens(state, [tok | tokens])
+            {_, tok, state} -> grab_tokens(state, skipping, [tok | tokens])
         end
     end
 
