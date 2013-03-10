@@ -1,0 +1,4 @@
+\define My_Ident
+\undef My_Ident
+"this is a string"
+\define My_Other_Ident
