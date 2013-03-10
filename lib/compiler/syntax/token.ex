@@ -61,7 +61,6 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:priv`
     * `:trait`
     * `:impl`
-    * `:align`
     * `:struct`
     * `:union`
     * `:enum`
@@ -70,6 +69,7 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:ext`
     * `:ref`
     * `:glob`
+    * `:tls`
     * `:const`
     * `:mut`
     * `:imm`
