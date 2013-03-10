@@ -67,7 +67,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     * `"Flect_ABI_PowerPC_HardFP"`: The `hardfp` ABI on PowerPC.
     * `"Flect_ABI_PowerPC_PPC64"`: The 64-bit PowerPC architecture.
     * `"Flect_ABI_X86_Microsoft32"`: The 32-bit Microsoft ABI on x86.
-    * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x86.
+    * `"Flect_ABI_X86_SystemV32"`: The 32-bit System V ABI on x86.
     * `"Flect_ABI_X86_Microsoft64"`: The 64-bit Microsoft ABI on x86.
     * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x64.
     * `"Flect_ABI_X86_X32"`: The x32 ABI on x86.
