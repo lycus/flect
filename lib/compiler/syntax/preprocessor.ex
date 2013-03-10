@@ -190,20 +190,34 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     defp do_preprocess(state, tokens // []) do
         case next_token(state, true) do
             {:directive, tok, state} ->
-                {state, toks} = parse_directive(state, tok)
+                {state, toks} = handle_directive(state, tok)
                 do_preprocess(state, toks ++ tokens)
             {_, tok, state} -> do_preprocess(state, [tok | tokens])
             :eof -> Enum.reverse(tokens)
         end
     end
 
-    @spec parse_directive(state(), Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
-    defp parse_directive(state = {tokens, defs, stack, eval, loc}, token) do
+    @spec handle_directive(state(), Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    defp handle_directive(state = {tokens, defs, stack, eval, loc}, token) do
         case token.value() do
             "\\if" ->
                 stack = [:if | stack]
 
-                {{tokens, defs, stack, nil, loc}, []} # TODO
+                {expr, state} = parse_expr(state)
+                eval = evaluate_expr(expr, defs)
+
+                # If the condition evaluated to true, we need to grab as
+                # many tokens as we can until we hit another directive.
+                # If it evaluated to false, we drop all tokens until the
+                # next directive.
+                {{tokens, defs, _, _, loc}, toks} = if eval do
+                    grab_tokens(state, false)
+                else
+                    {state, _} = grab_tokens(state, true) # Discard the tokens.
+                    {state, []}
+                end
+
+                {{tokens, defs, stack, eval, loc}, toks}
             "\\elif" ->
                 if stack == [] || !(hd(stack) in [:if, :elif]) do
                     raise_error(loc, "Unexpected \\elif directive encountered")
@@ -212,7 +226,26 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 [_ | stack] = stack
                 stack = [:elif | stack]
 
-                {{tokens, defs, stack, nil, loc}, []} # TODO
+                # If the last evaluation was true, this \elif branch is
+                # dead and we should skip all tokens until we hit another
+                # directive (\elif, \else, \endif).
+                {{tokens, defs, _, eval, loc}, toks} = if eval do
+                    {state, _} = grab_tokens(state, true) # Discard the tokens.
+                    {state, []}
+                else
+                    # This branch may be live. Let's find out!
+                    {expr, state} = parse_expr(state)
+                    eval = evaluate_expr(expr, defs)
+
+                    if eval do
+                        grab_tokens(state, false)
+                    else
+                        {state, _} = grab_tokens(state, true) # Discard the tokens.
+                        {state, []}
+                    end
+                end
+
+                {{tokens, defs, stack, eval, loc}, toks}
             "\\else" ->
                 if stack == [] || !(hd(stack) in [:if, :elif]) do
                     raise_error(loc, "Unexpected \\else directive encountered")
@@ -226,10 +259,10 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 # If the last evaluation was true, this \else branch is
                 # dead and we should skip all tokens until we hit \endif.
                 {{tokens, defs, _, eval, loc}, toks} = if eval do
-                    {state, _} = grab_tokens(state) # Discard the tokens.
+                    {state, _} = grab_tokens(state, true) # Discard the tokens.
                     {state, []}
                 else
-                    grab_tokens(state)
+                    grab_tokens(state, false)
                 end
 
                 {{tokens, defs, stack, eval, loc}, toks}
@@ -275,18 +308,95 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec grab_tokens(state(), [Flect.Compiler.Syntax.Token.t()]) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
-    defp grab_tokens(state, tokens // []) do
+    @spec evaluate_expr(Flect.Compiler.Syntax.Node.t(), [String.t()]) :: boolean()
+    defp evaluate_expr(node, defs) do
+        case node.type() do
+            :parenthesized_expr -> evaluate_expr(node.children()[:expression], defs)
+            :identifier_expr -> List.member?(defs, node.tokens()[:identifier].value())
+            :false_expr -> false
+            :true_expr -> true
+            :unary_expr -> !evaluate_expr(node.children()[:expression], defs)
+            :and_and_expr -> evaluate_expr(node.children()[:left_expression], defs) && evaluate_expr(node.children()[:right_expression], defs)
+            :or_or_expr -> evaluate_expr(node.children()[:left_expression], defs) || evaluate_expr(node.children()[:right_expression], defs)
+        end
+    end
+
+    @spec parse_expr(state()) :: return()
+    defp parse_expr(state) do
+        parse_or_or_expr(state)
+    end
+
+    @spec parse_or_or_expr(state()) :: return()
+    defp parse_or_or_expr(state) do
+        tup = {and_and_expr, state} = parse_and_and_expr(state)
+
+        case next_token(state) do
+            {:pipe, tok, state} ->
+                {expr, state} = parse_and_and_expr(state)
+                {new_node(:or_or_expr, tok.location(), [logical_or: tok], [left_expression: and_and_expr, right_expression: expr]), state}
+            _ -> tup
+        end
+    end
+
+    @spec parse_and_and_expr(state()) :: return()
+    defp parse_and_and_expr(state) do
+        tup = {unary_expr, state} = parse_unary_expr(state)
+
+        case next_token(state) do
+            {:and, tok, state} ->
+                {expr, state} = parse_unary_expr(state)
+                {new_node(:and_and_expr, tok.location(), [logical_and: tok], [left_expression: unary_expr, right_expression: expr]), state}
+            _ -> tup
+        end
+    end
+
+    @spec parse_unary_expr(state()) :: return()
+    defp parse_unary_expr(state) do
+        case next_token(state) do
+            {:exclamation, tok, state} ->
+                {expr, state} = parse_unary_expr(state)
+                {new_node(:unary_expr, tok.location(), [logical_not: tok], [expression: expr]), state}
+            _ -> parse_primary_expr(state)
+        end
+    end
+
+    @spec parse_primary_expr(state()) :: return()
+    defp parse_primary_expr(state = {_, _, _, _, loc}) do
+        case next_token(state) do
+            {:true, tok, state} -> {new_node(:true_expr, tok.location(), [value: tok]), state}
+            {:false, tok, state} -> {new_node(:false_expr, tok.location(), [value: tok]), state}
+            {:identifier, tok, state} -> {new_node(:identifier_expr, tok.location(), [identifier: tok]), state}
+            {:paren_open, _, _} -> parse_parenthesized_expr(state)
+            _ -> raise_error(loc, "Expected primary preprocessor expression")
+        end
+    end
+
+    @spec parse_parenthesized_expr(state()) :: return()
+    defp parse_parenthesized_expr(state) do
+        {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
+        {expr, state} = parse_expr(state)
+        {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+        {new_node(:parenthesized_expr, tok_open.location(), [open_paren: tok_open, close_paren: tok_close], [expression: expr]), state}
+    end
+
+    @spec grab_tokens(state(), boolean(), [Flect.Compiler.Syntax.Token.t()]) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    defp grab_tokens(state, skipping, tokens // []) do
         case next_token(state) do
             {:directive, itok, istate} ->
-                # These two are special cases. Since they don't actually
-                # 'interrupt' the token section (as e.g. \elif and \error
+                # \define and \undef are special cases. Since they don't
+                # actually 'interrupt' the token section (as e.g. \elif
                 # would do), we need to process them and continue going.
                 if itok.value() in ["\\define", "\\undef"] do
-                    {istate, toks} = parse_directive(istate, itok)
+                    {istate, toks} = handle_directive(istate, itok)
                     grab_tokens(istate, toks ++ tokens)
                 else
-                    {state, Enum.reverse(tokens)}
+                    # We only want to process \error directives when
+                    # we are not skipping a token section.
+                    if itok.value() == "\\error" && skipping do
+                        grab_tokens(istate, tokens)
+                    else
+                        {state, Enum.reverse(tokens)}
+                    end
                 end
             {_, tok, state} -> grab_tokens(state, [tok | tokens])
         end
@@ -318,6 +428,15 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             # We only get :eof if eof is true.
             :eof -> :eof
         end
+    end
+
+    @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
+                   [Flect.Compiler.Syntax.Node.t()]) :: Flect.Compiler.Syntax.Node.t()
+    defp new_node(type, loc, tokens, children // []) do
+        Flect.Compiler.Syntax.Node[type: type,
+                                   location: loc,
+                                   tokens: tokens,
+                                   children: children]
     end
 
     @spec raise_error(Flect.Compiler.Syntax.Location.t(), String.t()) :: no_return()
