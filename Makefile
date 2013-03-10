@@ -9,6 +9,7 @@ DIALYZER ?= dialyzer
 
 TESTS = test-lex-pass \
 	test-lex-fail \
+	test-pp-pass \
 	test-pp-fail \
 	test-parse-pass \
 	test-parse-fail
@@ -29,6 +30,9 @@ test-lex-pass: ebin/flect.app
 
 test-lex-fail: ebin/flect.app
 	@$(RUN_TEST) tests/lex-fail
+
+test-pp-pass: ebin/flect.app
+	@$(RUN_TEST) tests/pp-pass
 
 test-pp-fail: ebin/flect.app
 	@$(RUN_TEST) tests/pp-fail
