@@ -1,0 +1,16 @@
+\if true && false
+\error "definitely not"
+\endif
+
+\if false && true
+\error "neither"
+\endif
+
+\if false || false
+\error "nope"
+\endif
+
+\if false || true
+\else
+\error "should not happen"
+\endif

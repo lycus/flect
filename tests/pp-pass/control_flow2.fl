@@ -1,0 +1,5 @@
+\if !Foo
+"this should happen"
+\else
+\error "this shouldn't happen"
+\endif

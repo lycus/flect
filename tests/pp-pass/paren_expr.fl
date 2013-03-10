@@ -1,0 +1,14 @@
+\if (true)
+\else
+\error "should not happen"
+\endif
+
+\if (true && (true))
+\else
+\error "should not happen either"
+\endif
+
+\if (true && true) || true
+\else
+\error "neither should this"
+\endif

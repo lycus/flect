@@ -1,0 +1,8 @@
+\define Foo
+
+\if true
+\undef Foo
+\if Foo
+\error "we shouldn't end up here"
+\endif
+\endif

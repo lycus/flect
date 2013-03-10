@@ -1,0 +1,7 @@
+\if true
+\if false
+\error "should not be emitted"
+\else
+"string2"
+\endif
+\endif

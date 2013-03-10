@@ -1,0 +1,3 @@
+\if !Foo
+\error "should not trigger"
+\endif

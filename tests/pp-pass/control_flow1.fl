@@ -1,0 +1,7 @@
+\define Foo
+
+\if !Foo
+\error "this shouldn't happen"
+\else
+"this should"
+\endif
