@@ -10,8 +10,7 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
     `type` is an atom indicating the kind of node. `location` is a
     `Flect.Compiler.Syntax.Location` indicating the node's location in
     the source code document. `tokens` is a list of the
-    `Flect.Compiler.Syntax.Token`s that make up this node. `named_children`
-    is a keyword list containing all uniquely named children. `children` is
+    `Flect.Compiler.Syntax.Token`s that make up this node. `children` is
     a list of all children. `data` is an arbitrary term associated with the
     node - it can have different meanings depending on which compiler stage
     the node is being used in.
@@ -20,7 +19,6 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
     record_type(type: atom(),
                 location: Flect.Compiler.Syntax.Location.t(),
                 tokens: [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
-                named_children: [{atom(), t()}],
                 children: [{atom(), t()}],
                 data: term())
 
