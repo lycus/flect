@@ -182,7 +182,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         case next_token(state, eof) do
             tup = {t, tok, {_, l}} ->
                 ok = cond do
-                    is_list(type) -> Enum.find_index(type, fn(x) -> x == t end) != nil
+                    is_list(type) -> List.member?(type, t)
                     is_atom(type) -> t == type
                 end
 
