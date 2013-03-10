@@ -231,52 +231,80 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "pragma",
                "scope",
                "move"], fn(x) ->
-        defp :is_keyword, [x], [], do: true
+        def :is_keyword, [x], [], do: true
     end)
 
-    defp is_keyword(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) is a keyword in Flect.
+    """
+    def is_keyword(_), do: false
 
     Enum.each(?0 .. ?1, fn(x) ->
-        defp :is_binary_digit, [<<x>>], [], do: true
+        def :is_binary_digit, [<<x>>], [], do: true
     end)
 
-    defp is_binary_digit(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) is a binary digit in Flect.
+    """
+    def is_binary_digit(_), do: false
 
     Enum.each(?0 .. ?7, fn(x) ->
-        defp :is_octal_digit, [<<x>>], [], do: true
+        def :is_octal_digit, [<<x>>], [], do: true
     end)
 
-    defp is_octal_digit(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) is an octal digit in Flect.
+    """
+    def is_octal_digit(_), do: false
 
     Enum.each(?0 .. ?9, fn(x) ->
-        defp :is_decimal_digit, [<<x>>], [], do: true
+        def :is_decimal_digit, [<<x>>], [], do: true
     end)
 
-    defp is_decimal_digit(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) is a decimal digit in Flect.
+    """
+    def is_decimal_digit(_), do: false
 
     Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            defp :is_hexadecimal_digit, [<<x>>], [], do: true
+            def :is_hexadecimal_digit, [<<x>>], [], do: true
         end)
     end)
 
-    defp is_hexadecimal_digit(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) is a hexadecimal digit in Flect.
+    """
+    def is_hexadecimal_digit(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            defp :is_identifier_start_char, [<<x>>], [], do: true
+            def :is_identifier_start_char, [<<x>>], [], do: true
         end)
     end)
 
-    defp is_identifier_start_char(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) can start an identifier in Flect.
+    """
+    def is_identifier_start_char(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            defp :is_identifier_char, [<<x>>], [], do: true
+            def :is_identifier_char, [<<x>>], [], do: true
         end)
     end)
 
-    defp is_identifier_char(_), do: false
+    @doc """
+    Returns a Boolean indicating whether the given code point (expected to
+    be a binary) can be part of an identifier in Flect.
+    """
+    def is_identifier_char(_), do: false
 
     @spec lex_comment(atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
                       boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}

@@ -97,6 +97,33 @@ defmodule Flect.Compiler.Tool do
                 throw 2
         end
 
+        defs = lc {:define, define} inlist cfg.options() do
+            if !is_binary(define) do
+                Flect.Logger.error("No definition name given (--define flag)")
+                throw 2
+            end
+
+            case String.next_codepoint(define) do
+                {cp, rest} ->
+                    if !Flect.Compiler.Syntax.Lexer.is_identifier_start_char(cp) do
+                        Flect.Logger.error("Invalid definition name given (--define flag)")
+                        throw 2
+                    end
+
+                    Enum.each(String.codepoints(rest), fn(cp) ->
+                        if !Flect.Compiler.Syntax.Lexer.is_identifier_char(cp) do
+                            Flect.Logger.error("Invalid definition name given (--define flag)")
+                            throw 2
+                        end
+                    end)
+                :no_codepoint ->
+                    Flect.Logger.error("Empty definition name given (--define flag)")
+                    throw 2
+            end
+
+            define
+        end
+
         if cfg.arguments() == [] do
             Flect.Logger.error("No source file names given")
             throw 2
@@ -194,7 +221,7 @@ defmodule Flect.Compiler.Tool do
 
             if dist == nil do
                 preprocessed_files = lc {file, tokens} inlist tokenized_files do
-                    {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)}
+                    {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines() ++ defs, file)}
                 end
             else
                 refs = lc {file, tokens} inlist tokenized_files do
@@ -202,7 +229,7 @@ defmodule Flect.Compiler.Tool do
                     # along the correct target defines.
                     pid = get_closest_pid(group)
                     ref = :erlang.monitor(:process, pid)
-                    pid <- {:flect, self(), {:pp, file, tokens, Flect.Compiler.Syntax.Preprocessor.target_defines()}}
+                    pid <- {:flect, self(), {:pp, file, tokens, Flect.Compiler.Syntax.Preprocessor.target_defines() ++ defs}}
 
                     ref
                 end

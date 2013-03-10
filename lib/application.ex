@@ -40,6 +40,7 @@ defmodule Flect.Application do
                    stage: "Stage to stop compilation after. (read, lex, pp, parse, sema, gen, cc) [cc]",
                    dump: "Dump a compiler state to stdout. (tokens, pp-tokens, ast, sema-ast, ir, c99) []",
                    time: "Time compilation passes and show a summary. (true, false) [false]",
+                   define: "Define a preprocessor identifier. []",
                    dist: "Select server group name for distributed compilation. []",
                    name: "Select node name. [nonode]",
                    names: "Select node name style. (short, long) [short]",
@@ -215,7 +216,8 @@ defmodule Flect.Application do
     def parse(args) do
         OptionParser.parse(args, [switches: [help: :boolean,
                                              version: :boolean,
-                                             preload: :boolean],
+                                             preload: :boolean,
+                                             define: :keep],
                                   aliases: [h: :help,
                                             v: :version,
                                             p: :preload]])
