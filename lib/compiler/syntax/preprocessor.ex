@@ -190,14 +190,14 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     defp do_preprocess(state, defs, tokens // []) do
         case next_token(state, true) do
             {:directive, tok, state} ->
-                {state, toks} = parse_directive(state, defs, tok)
-                do_preprocess(state, toks ++ tokens)
-            {_, tok, state} -> do_preprocess(state, [tok | tokens])
+                {state, toks, defs} = parse_directive(state, defs, tok)
+                do_preprocess(state, defs, toks ++ tokens)
+            {_, tok, state} -> do_preprocess(state, defs, [tok | tokens])
             :eof -> Enum.reverse(tokens)
         end
     end
 
-    @spec parse_directive(state(), [String.t()], Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    @spec parse_directive(state(), [String.t()], Flect.Compiler.Syntax.Token.t()) :: {state(), [String.t()], [Flect.Compiler.Syntax.Token.t()]}
     defp parse_directive(state = {tokens, loc}, defs, token) do
         case token.value() do
             "\\if" -> {state, tokens}
