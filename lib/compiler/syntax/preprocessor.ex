@@ -209,6 +209,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                     raise_error(loc, "Unexpected \\elif directive encountered")
                 end
 
+                [_ | stack] = stack
                 stack = [:elif | stack]
 
                 {{tokens, defs, stack, nil, loc}, []} # TODO
@@ -219,6 +220,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
 
                 # We only push this to the stack so that there is at least
                 # one item there for the check in the \endif code below.
+                [_ | stack] = stack
                 stack = [:else | stack]
 
                 # If the last evaluation was true, this \else branch is
