@@ -45,11 +45,11 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         case next_token(state) do
             {:colon_colon, tok, state} ->
-                parse_qualified_name(state, {[name | names], [tok | seps]})
+                parse_qualified_name(state, {[{:name, name} | names], [tok | seps]})
             _ ->
-                names = [name | names] |> Enum.reverse()
+                names = [{:name, name} | names] |> Enum.reverse()
                 seps = seps |> Enum.map(fn(x) -> {:separator, x} end) |> Enum.reverse()
-                {new_node(:qualified_name, Enum.at!(names, 0).location(), seps, names), state}
+                {new_node(:qualified_name, elem(Enum.at!(names, 0), 1).location(), seps, names), state}
         end
     end
 
@@ -65,25 +65,29 @@ defmodule Flect.Compiler.Syntax.Parser do
                   opening_brace: tok_open,
                   closing_brace: tok_close]
 
-        {new_node(:module_declaration, tok_mod.location(), tokens, decls, [name: name]), state}
+        {new_node(:module_declaration, tok_mod.location(), tokens, [{:name, name} | decls]), state}
     end
 
     @spec parse_decls(state(),  [Flect.Compiler.Syntax.Node.t()]) :: return_m()
     defp parse_decls(state, decls // []) do
         case next_token(state) do
             {v, token, state} when v in [:pub, :priv] ->
-                decl = case expect_token(state, [:fn, :struct, :union, :trait, :impl, :glob, :const, :macro], "declaration") do
+                {decl, state} = case expect_token(state, [:fn, :struct, :union, :enum, :type, :trait,
+                                                          :impl, :glob, :tls, :const, :macro], "declaration") do
                     {:fn, _, _} -> parse_fn(state, token)
                     {:struct, _, _} -> parse_struct(state, token)
                     {:union, _, _} -> parse_union(state, token)
+                    {:enum, _, _} -> parse_enum(state, token)
+                    {:type, _, _} -> parse_type(state, token)
                     {:trait, _, _} -> parse_trait(state, token)
                     {:impl, _, _} -> parse_impl(state, token)
                     {:glob, _, _} -> parse_glob(state, token)
+                    {:tls, _, _} -> parse_tls(state, token)
                     {:const, _, _} -> parse_const(state, token)
                     {:macro, _, _} -> parse_macro(state, token)
                 end
 
-                parse_decls(state, [decl | decls])
+                parse_decls(state, [{:declaration, decl} | decls])
             _ -> {Enum.reverse(decls), state}
         end
     end
@@ -95,11 +99,37 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_struct(state(), Flect.Compiler.Syntax.Token.t()) :: return()
     defp parse_struct(state, visibility) do
+        {_, tok_struct, state} = expect_token(state, :struct, "structure declaration")
+        {name, state} = parse_simple_name(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        fields = []
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [visibility: visibility,
+                  struct_keyword: tok_struct,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        {new_node(:struct_declaration, tok_struct.location(), tokens, [{:name, name} | fields]), state}
+    end
+
+    @spec parse_fields(state(),  [Flect.Compiler.Syntax.Node.t()]) :: return_m()
+    defp parse_fields(state, fields // []) do
         exit(:todo)
     end
 
     @spec parse_union(state(), Flect.Compiler.Syntax.Token.t()) :: return()
     defp parse_union(state, visibility) do
+        exit(:todo)
+    end
+
+    @spec parse_enum(state(), Flect.Compiler.Syntax.Token.t()) :: return()
+    defp parse_enum(state, visibility) do
+        exit(:todo)
+    end
+
+    @spec parse_type(state(), Flect.Compiler.Syntax.Token.t()) :: return()
+    defp parse_type(state, visibility) do
         exit(:todo)
     end
 
@@ -115,6 +145,11 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_glob(state(), Flect.Compiler.Syntax.Token.t()) :: return()
     defp parse_glob(state, visibility) do
+        exit(:todo)
+    end
+
+    @spec parse_tls(state(), Flect.Compiler.Syntax.Token.t()) :: return()
+    defp parse_tls(state, visibility) do
         exit(:todo)
     end
 
@@ -138,8 +173,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                     a -> {a, h, {t, h.location()}}
                 end
             [] when eof -> :eof
-            _ -> raise(Flect.Compiler.Syntax.SyntaxError, [error: "Unexpected end of token stream",
-                                                           location: loc])
+            _ -> raise_error(loc, "Unexpected end of token stream")
         end
     end
 
@@ -153,8 +187,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                 end
 
                 if !ok do
-                    raise(Flect.Compiler.Syntax.SyntaxError, [error: "Expected #{str}, but got '#{tok.value()}'",
-                                                              location: l])
+                    raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
                 end
 
                 tup
@@ -164,12 +197,16 @@ defmodule Flect.Compiler.Syntax.Parser do
     end
 
     @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
-                   [Flect.Compiler.Syntax.Node.t()], [{atom(), Flect.Compiler.Syntax.Node.t()}]) :: Flect.Compiler.Syntax.Node.t()
-    defp new_node(type, loc, tokens, children // [], named_children // []) do
-        Flect.Compiler.Syntax.Node.new(type: type,
-                                       location: loc,
-                                       tokens: tokens,
-                                       named_children: named_children,
-                                       children: children)
+                   [Flect.Compiler.Syntax.Node.t()]) :: Flect.Compiler.Syntax.Node.t()
+    defp new_node(type, loc, tokens, children // []) do
+        Flect.Compiler.Syntax.Node[type: type,
+                                   location: loc,
+                                   tokens: tokens,
+                                   children: children]
+    end
+
+    @spec raise_error(Flect.Compiler.Syntax.Location.t(), String.t()) :: no_return()
+    defp raise_error(loc, msg) do
+        raise(Flect.Compiler.Syntax.SyntaxError[error: msg, location: loc])
     end
 end
