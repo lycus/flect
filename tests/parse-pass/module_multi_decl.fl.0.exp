@@ -1,61 +1,36 @@
-(module_declaration <"module_multi_decl.fl", 1, 1>,
- (mod_keyword: "mod" <"module_multi_decl.fl", 1, 1>,
-  opening_brace: "{" <"module_multi_decl.fl", 1, 9>,
-  closing_brace: "}" <"module_multi_decl.fl", 2, 1>),
- (),
- (name: (qualified_name <"module_multi_decl.fl", 1, 5>,
-  (),
-  ((simple_name <"module_multi_decl.fl", 1, 5>,
-    (name: "foo" <"module_multi_decl.fl", 1, 5>),
-    (),
-    ()
-   )),
-  ()
- ))
-)
-(module_declaration <"module_multi_decl.fl", 4, 1>,
- (mod_keyword: "mod" <"module_multi_decl.fl", 4, 1>,
-  opening_brace: "{" <"module_multi_decl.fl", 4, 14>,
-  closing_brace: "}" <"module_multi_decl.fl", 5, 1>),
- (),
- (name: (qualified_name <"module_multi_decl.fl", 4, 5>,
-  (separator: "::" <"module_multi_decl.fl", 4, 8>),
-  ((simple_name <"module_multi_decl.fl", 4, 5>,
-    (name: "foo" <"module_multi_decl.fl", 4, 5>),
-    (),
-    ()
-   ),
-   (simple_name <"module_multi_decl.fl", 4, 10>,
-    (name: "bar" <"module_multi_decl.fl", 4, 10>),
-    (),
-    ()
-   )),
-  ()
- ))
-)
-(module_declaration <"module_multi_decl.fl", 7, 1>,
- (mod_keyword: "mod" <"module_multi_decl.fl", 7, 1>,
-  opening_brace: "{" <"module_multi_decl.fl", 7, 19>,
-  closing_brace: "}" <"module_multi_decl.fl", 8, 1>),
- (),
- (name: (qualified_name <"module_multi_decl.fl", 7, 5>,
-  (separator: "::" <"module_multi_decl.fl", 7, 8>,
-   separator: "::" <"module_multi_decl.fl", 7, 13>),
-  ((simple_name <"module_multi_decl.fl", 7, 5>,
-    (name: "foo" <"module_multi_decl.fl", 7, 5>),
-    (),
-    ()
-   ),
-   (simple_name <"module_multi_decl.fl", 7, 10>,
-    (name: "bar" <"module_multi_decl.fl", 7, 10>),
-    (),
-    ()
-   ),
-   (simple_name <"module_multi_decl.fl", 7, 15>,
-    (name: "baz" <"module_multi_decl.fl", 7, 15>),
-    (),
-    ()
-   )),
-  ()
- ))
-)
+module_declaration (1,1) [ "mod" (1,1), "{" (1,9), "}" (2,1) ]
+{
+    qualified_name (1,5) [  ]
+    {
+        simple_name (1,5) [ "foo" (1,5) ]
+        {
+        }
+    }
+}
+module_declaration (4,1) [ "mod" (4,1), "{" (4,14), "}" (5,1) ]
+{
+    qualified_name (4,5) [ "::" (4,8) ]
+    {
+        simple_name (4,5) [ "foo" (4,5) ]
+        {
+        }
+        simple_name (4,10) [ "bar" (4,10) ]
+        {
+        }
+    }
+}
+module_declaration (7,1) [ "mod" (7,1), "{" (7,19), "}" (8,1) ]
+{
+    qualified_name (7,5) [ "::" (7,8), "::" (7,13) ]
+    {
+        simple_name (7,5) [ "foo" (7,5) ]
+        {
+        }
+        simple_name (7,10) [ "bar" (7,10) ]
+        {
+        }
+        simple_name (7,15) [ "baz" (7,15) ]
+        {
+        }
+    }
+}
