@@ -401,16 +401,11 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec expect_token(state(), atom() | [atom(), ...], String.t(), boolean()) :: {atom(), Flect.Compiler.Syntax.Token.t(), state()} | :eof
+    @spec expect_token(state(), atom(), String.t(), boolean()) :: {atom(), Flect.Compiler.Syntax.Token.t(), state()} | :eof
     defp expect_token(state, type, str, eof // false) do
         case next_token(state, eof) do
             tup = {t, tok, {_, _, _, _, l}} ->
-                ok = cond do
-                    is_list(type) -> List.member?(type, t)
-                    is_atom(type) -> t == type
-                end
-
-                if !ok, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
+                if t != type, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
 
                 tup
             # We only get :eof if eof is true.
@@ -419,7 +414,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     end
 
     @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
-                   [Flect.Compiler.Syntax.Node.t()]) :: Flect.Compiler.Syntax.Node.t()
+                   [{atom(), Flect.Compiler.Syntax.Node.t()}]) :: Flect.Compiler.Syntax.Node.t()
     defp new_node(type, loc, tokens, children // []) do
         Flect.Compiler.Syntax.Node[type: type,
                                    location: loc,

@@ -9,7 +9,7 @@ defmodule Flect.Compiler.Tool do
             {:error, {:no_such_group, _}} ->
                 Flect.Logger.error("The server group #{group} does not exist")
                 throw 2
-            {:error, {:no_server, _}} ->
+            {:error, {:no_process, _}} ->
                 Flect.Logger.error("No server found in group #{group}")
                 throw 2
             pid -> pid

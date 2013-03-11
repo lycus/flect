@@ -13,7 +13,7 @@ defmodule Flect.Server.Tool do
             {:flect, from, msg} ->
                 Flect.Logger.debug("Received #{inspect(elem(msg, 0))} request from #{inspect(from)} at #{inspect(node(from))}")
 
-                case msg do
+                _ = case msg do
                     {:info} ->
                         from <- {:flect, {:info, {Flect.Target.get_cc_type(),
                                                   Flect.Target.get_ld_type(),
@@ -125,7 +125,7 @@ defmodule Flect.Server.Tool do
         end
 
         :erlang.set_cookie(node(), cookie)
-        :net_adm.world()
+        _ = :net_adm.world()
 
         server = spawn(function(server_loop/0))
         Flect.Logger.log("Flect compiler server running as #{inspect(node())} in group #{group} with cookie #{inspect(cookie)}")
@@ -133,7 +133,7 @@ defmodule Flect.Server.Tool do
         :pg2.create(group)
         Flect.Logger.debug("Created :pg2 group #{group}")
 
-        :pg2.join(group, server)
+        :ok = :pg2.join(group, server)
         Flect.Logger.debug("Joined :pg2 group #{group}")
 
         Flect.Logger.log("Press Enter to stop the server")

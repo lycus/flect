@@ -26,7 +26,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec do_parse(state(), [Flect.Compiler.Syntax.Node.t()]) :: [Flect.Compiler.Syntax.Node.t()]
     defp do_parse(state, mods // []) do
         case expect_token(state, [:pub, :priv], "module declaration", true) do
-            {v, token, state} ->
+            {_, token, state} ->
                 {mod, state} = parse_mod(state, token)
                 do_parse(state, [mod | mods])
             :eof -> Enum.reverse(mods)
@@ -39,7 +39,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         {new_node(:simple_name, tok.location(), [name: tok]), state}
     end
 
-    @spec parse_qualified_name(state(), {[Flect.Compiler.Syntax.Node.t()], [Flect.Compiler.Syntax.Token.t()]}) :: return()
+    @spec parse_qualified_name(state(), {[{atom(), Flect.Compiler.Syntax.Node.t()}], [Flect.Compiler.Syntax.Token.t()]}) :: return()
     defp parse_qualified_name(state, {names, seps} // {[], []}) do
         {name, state} = parse_simple_name(state)
 
@@ -54,7 +54,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     end
 
     @spec parse_mod(state(), Flect.Compiler.Syntax.Token.t()) :: return()
-    defp parse_mod(state = {_, loc}, visibility) do
+    defp parse_mod(state, visibility) do
         {_, tok_mod, state} = expect_token(state, :mod, "'mod' keyword")
         {name, state} = parse_qualified_name(state)
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
@@ -69,7 +69,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         {new_node(:module_declaration, tok_mod.location(), tokens, [{:name, name} | decls]), state}
     end
 
-    @spec parse_decls(state(),  [Flect.Compiler.Syntax.Node.t()]) :: return_m()
+    @spec parse_decls(state(),  [{atom(), Flect.Compiler.Syntax.Node.t()}]) :: return_m()
     defp parse_decls(state, decls // []) do
         case next_token(state) do
             {v, token, state} when v in [:pub, :priv] ->
@@ -196,7 +196,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     end
 
     @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
-                   [Flect.Compiler.Syntax.Node.t()]) :: Flect.Compiler.Syntax.Node.t()
+                   [{atom(), Flect.Compiler.Syntax.Node.t()}]) :: Flect.Compiler.Syntax.Node.t()
     defp new_node(type, loc, tokens, children // []) do
         Flect.Compiler.Syntax.Node[type: type,
                                    location: loc,
