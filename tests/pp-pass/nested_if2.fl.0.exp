@@ -1,1 +1,1 @@
-Flect.Compiler.Syntax.Token[type: :string, value: "string", location: Flect.Compiler.Syntax.Location[file: "nested_if2.fl", line: 4, column: 1]]
+Flect.Compiler.Syntax.Token[type: :string, value: "\"string\"", location: Flect.Compiler.Syntax.Location[file: "nested_if2.fl", line: 4, column: 1]]

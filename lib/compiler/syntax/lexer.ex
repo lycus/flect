@@ -101,8 +101,8 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     _ -> :angle_close
                                 end
                             # Handle string and character literals.
-                            "\"" -> lex_string("", rest, loc, loc)
-                            "'" -> lex_character(rest, loc, loc)
+                            "\"" -> lex_string(cp, rest, loc, loc)
+                            "'" -> lex_character(cp, rest, loc, loc)
                             # Handle preprocessor directives.
                             "\\" -> lex_directive(cp, rest, loc, loc)
                             cp ->
@@ -347,10 +347,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_character(String.t(), Flect.Compiler.Syntax.Location.t(),
+    @spec lex_character(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                         Flect.Compiler.Syntax.Location.t()) :: {:character, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
                                                                 Flect.Compiler.Syntax.Location.t()}
-    defp lex_character(text, oloc, loc) do
+    defp lex_character(acc, text, oloc, loc) do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 case next_code_point(rest, loc) do
@@ -362,7 +362,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
 
         case next_code_point(rest, loc) do
-            {"'", rest, loc} -> {:character, cp, rest, oloc, loc}
+            {icp, rest, loc} when icp == "'" -> {:character, acc <> cp <> icp, rest, oloc, loc}
             _ -> raise_error(loc, "Expected terminating single quote for character literal")
         end
     end
@@ -372,7 +372,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                              Flect.Compiler.Syntax.Location.t()}
     defp lex_string(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
-            {"\"", rest, loc} -> {:string, acc, rest, oloc, loc}
+            {cp, rest, loc} when cp == "\"" -> {:string, acc <> cp, rest, oloc, loc}
             {"\\", rest, loc} ->
                 {esc, rest, loc} = case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
