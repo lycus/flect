@@ -25,9 +25,9 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec do_parse(state(), [Flect.Compiler.Syntax.Node.t()]) :: [Flect.Compiler.Syntax.Node.t()]
     defp do_parse(state, mods // []) do
-        case expect_token(state, :mod, "module declaration", true) do
-            {_, _, _} ->
-                {mod, state} = parse_mod(state)
+        case expect_token(state, [:pub, :priv], "module declaration", true) do
+            {v, token, state} ->
+                {mod, state} = parse_mod(state, token)
                 do_parse(state, [mod | mods])
             :eof -> Enum.reverse(mods)
         end
@@ -53,15 +53,16 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
     end
 
-    @spec parse_mod(state()) :: return()
-    defp parse_mod(state) do
-        {_, tok_mod, state} = expect_token(state, :mod, "module declaration")
+    @spec parse_mod(state(), Flect.Compiler.Syntax.Token.t()) :: return()
+    defp parse_mod(state = {_, loc}, visibility) do
+        {_, tok_mod, state} = expect_token(state, :mod, "'mod' keyword")
         {name, state} = parse_qualified_name(state)
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
         {decls, state} = parse_decls(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
-        tokens = [mod_keyword: tok_mod,
+        tokens = [visibility: visibility,
+                  mod_keyword: tok_mod,
                   opening_brace: tok_open,
                   closing_brace: tok_close]
 

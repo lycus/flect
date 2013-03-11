@@ -1,5 +1,5 @@
-mod foo {
+pub mod foo {
 }
 
-mod {
+pub mod {
 }

@@ -1,1 +1,1 @@
-Error: bad_module_ident.fl(1,11): Expected identifier, but got '{'
+Error: bad_module_ident.fl(1,15): Expected identifier, but got '{'

@@ -1,8 +1,8 @@
-mod foo {
+priv mod foo {
 }
 
-mod foo::bar {
+priv mod foo::bar {
 }
 
-mod foo::bar::baz {
+priv mod foo::bar::baz {
 }

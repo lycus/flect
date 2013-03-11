@@ -3,6 +3,7 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
                                       tokens: [],
                                       named_children: [],
                                       children: [],
+                                      comments: [],
                                       data: nil do
     @moduledoc """
     Represents an AST (abstract syntax tree) node.
@@ -11,15 +12,17 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
     `Flect.Compiler.Syntax.Location` indicating the node's location in
     the source code document. `tokens` is a list of the
     `Flect.Compiler.Syntax.Token`s that make up this node. `children` is
-    a list of all children. `data` is an arbitrary term associated with the
-    node - it can have different meanings depending on which compiler stage
-    the node is being used in.
+    a list of all children. `comments` contains a list of comment tokens
+    that belong to this node. `data` is an arbitrary term associated with
+    the node - it can have different meanings depending on which compiler
+    stage the node is being used in.
     """
 
     record_type(type: atom(),
                 location: Flect.Compiler.Syntax.Location.t(),
                 tokens: [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
                 children: [{atom(), t()}],
+                comments: [Flect.Compiler.Syntax.Token.t()],
                 data: term())
 
     @doc """

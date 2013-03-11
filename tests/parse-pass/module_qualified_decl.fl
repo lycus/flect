@@ -1,2 +1,2 @@
-mod foo::bar::baz {
+pub mod foo::bar::baz {
 }

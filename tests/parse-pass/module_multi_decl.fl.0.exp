@@ -1,35 +1,35 @@
-module_declaration (1,1) [ "mod" (1,1), "{" (1,9), "}" (2,1) ]
+module_declaration (1,6) [ "priv" (1,1), "mod" (1,6), "{" (1,14), "}" (2,1) ]
 {
-    qualified_name (1,5) [  ]
+    qualified_name (1,10) [  ]
     {
-        simple_name (1,5) [ "foo" (1,5) ]
+        simple_name (1,10) [ "foo" (1,10) ]
         {
         }
     }
 }
-module_declaration (4,1) [ "mod" (4,1), "{" (4,14), "}" (5,1) ]
+module_declaration (4,6) [ "priv" (4,1), "mod" (4,6), "{" (4,19), "}" (5,1) ]
 {
-    qualified_name (4,5) [ "::" (4,8) ]
+    qualified_name (4,10) [ "::" (4,13) ]
     {
-        simple_name (4,5) [ "foo" (4,5) ]
+        simple_name (4,10) [ "foo" (4,10) ]
         {
         }
-        simple_name (4,10) [ "bar" (4,10) ]
+        simple_name (4,15) [ "bar" (4,15) ]
         {
         }
     }
 }
-module_declaration (7,1) [ "mod" (7,1), "{" (7,19), "}" (8,1) ]
+module_declaration (7,6) [ "priv" (7,1), "mod" (7,6), "{" (7,24), "}" (8,1) ]
 {
-    qualified_name (7,5) [ "::" (7,8), "::" (7,13) ]
+    qualified_name (7,10) [ "::" (7,13), "::" (7,18) ]
     {
-        simple_name (7,5) [ "foo" (7,5) ]
+        simple_name (7,10) [ "foo" (7,10) ]
         {
         }
-        simple_name (7,10) [ "bar" (7,10) ]
+        simple_name (7,15) [ "bar" (7,15) ]
         {
         }
-        simple_name (7,15) [ "baz" (7,15) ]
+        simple_name (7,20) [ "baz" (7,20) ]
         {
         }
     }
