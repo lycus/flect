@@ -3,6 +3,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Contains the lexical analyzer (lexer) for Flect source code documents.
     """
 
+    @typep location() :: Flect.Compiler.Syntax.Location.t()
+    @typep token() :: Flect.Compiler.Syntax.Token.t()
+    @typep return(t()) :: {t, String.t(), String.t(), location(), location()}
+
     @doc """
     Lexically analyzes the given source code. Returns a list of tokens
     on success (which can be empty if the file only contains white space)
@@ -18,7 +22,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         Enum.reverse(do_lex(text, [], Flect.Compiler.Syntax.Location[file: file]))
     end
 
-    @spec do_lex(String.t(), [Flect.Compiler.Syntax.Token.t()], Flect.Compiler.Syntax.Location.t()) :: [Flect.Compiler.Syntax.Token.t()]
+    @spec do_lex(String.t(), [token()], location()) :: [token()]
     defp do_lex(text, tokens, loc) do
         case next_code_point(text, loc) do
             :eof -> tokens
@@ -154,8 +158,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec next_code_point(String.t(), Flect.Compiler.Syntax.Location.t()) :: {String.codepoint(), String.t(),
-                                                                              Flect.Compiler.Syntax.Location.t()} | :eof
+    @spec next_code_point(String.t(), location()) :: {String.codepoint(), String.t(), location()} | :eof
     defp next_code_point(text, loc) do
         case String.next_codepoint(text) do
             :no_codepoint -> :eof
@@ -169,8 +172,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec next_code_points(String.t(), Flect.Compiler.Syntax.Location.t(), pos_integer(),
-                           String.t(), non_neg_integer()) :: {String.t(), String.t(), Flect.Compiler.Syntax.Location.t()} | :eof
+    @spec next_code_points(String.t(), location(), pos_integer(), String.t(), non_neg_integer()) :: {String.t(), String.t(), location()} | :eof
     defp next_code_points(text, loc, num, acc, num_acc) do
         if num_acc < num do
             case next_code_point(text, loc) do
@@ -238,6 +240,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given string (expected to be
     a binary) is a keyword in Flect.
     """
+    @spec keyword?(String.t()) :: boolean()
     def keyword?(_), do: false
 
     Enum.each(?0 .. ?1, fn(x) ->
@@ -248,6 +251,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a binary digit in Flect.
     """
+    @spec binary_digit?(String.codepoint()) :: boolean()
     def binary_digit?(_), do: false
 
     Enum.each(?0 .. ?7, fn(x) ->
@@ -258,6 +262,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is an octal digit in Flect.
     """
+    @spec octal_digit?(String.codepoint()) :: boolean()
     def octal_digit?(_), do: false
 
     Enum.each(?0 .. ?9, fn(x) ->
@@ -268,6 +273,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a decimal digit in Flect.
     """
+    @spec decimal_digit?(String.codepoint()) :: boolean()
     def decimal_digit?(_), do: false
 
     Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
@@ -280,6 +286,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a hexadecimal digit in Flect.
     """
+    @spec hexadecimal_digit?(String.codepoint()) :: boolean()
     def hexadecimal_digit?(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
@@ -292,6 +299,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) can start an identifier in Flect.
     """
+    @spec identifier_start_char?(String.codepoint()) :: boolean()
     def identifier_start_char?(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
@@ -304,10 +312,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) can be part of an identifier in Flect.
     """
+    @spec identifier_char?(String.codepoint()) :: boolean()
     def identifier_char?(_), do: false
 
-    @spec lex_comment(atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
-                      boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
+    @spec lex_comment(:line_comment | :block_comment, String.t(), String.t(), location(), location(), String.codepoint(),
+                      boolean()) :: return(:line_comment | :block_comment)
     defp lex_comment(type, acc, text, oloc, loc, ecp, eol) do
         case next_code_point(text, loc) do
             {^ecp, rest, loc} -> {type, acc <> ecp, rest, oloc, loc}
@@ -317,9 +326,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_identifier(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                         Flect.Compiler.Syntax.Location.t()) :: {:identifier, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                                                                 Flect.Compiler.Syntax.Location.t()}
+    @spec lex_identifier(String.t(), String.t(), location(), location()) :: return(:identifier)
     defp lex_identifier(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, irest, iloc} ->
@@ -332,9 +339,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_directive(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                        Flect.Compiler.Syntax.Location.t()) :: {:directive, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                                                                Flect.Compiler.Syntax.Location.t()}
+    @spec lex_directive(String.t(), String.t(), location(), location()) :: return(:directive)
     defp lex_directive(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, irest, iloc} ->
@@ -347,9 +352,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_character(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                        Flect.Compiler.Syntax.Location.t()) :: {:character, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                                                                Flect.Compiler.Syntax.Location.t()}
+    @spec lex_character(String.t(), String.t(), location(), location()) :: return(:character)
     defp lex_character(acc, text, oloc, loc) do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
@@ -367,9 +370,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_string(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                     Flect.Compiler.Syntax.Location.t()) :: {:string, String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                                                             Flect.Compiler.Syntax.Location.t()}
+    @spec lex_string(String.t(), String.t(), location(), location()) :: return(:string)
     defp lex_string(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} when cp == "\"" -> {:string, acc <> cp, rest, oloc, loc}
@@ -385,8 +386,8 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_number(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), 2 | 8 | 10 | 16, boolean(),
-                     boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
+    @spec lex_number(String.t(), String.t(), location(), location(), 2 | 8 | 10 | 16, boolean(),
+                     boolean()) :: return(:integer | :float | :i | :u | :i8 | :u8 | :i16 | :u16 | :i32 | :u32 | :i64 | :u64 | :f32 | :f64)
     defp lex_number(acc, text, oloc, loc, base, float, spec) do
         case next_code_point(text, loc) do
             {".", rest, loc} when float -> lex_float(acc <> ".", rest, oloc, loc)
@@ -426,9 +427,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_float(String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                    Flect.Compiler.Syntax.Location.t()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(),
-                                                            Flect.Compiler.Syntax.Location.t()}
+    @spec lex_float(String.t(), String.t(), location(), location()) :: return(:float | :f32 | :f64)
     defp lex_float(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
@@ -467,7 +466,9 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec lex_literal_type(String.t(), Flect.Compiler.Syntax.Location.t(), boolean()) :: {atom(), String.t(), Flect.Compiler.Syntax.Location.t()}
+    @spec lex_literal_type(String.t(), location(),
+                           boolean()) :: {:integer | :float | :i | :u | :i8 | :u8 | :i16 | :u16 | :i32 | :u32 | :i64 | :u64 | :f32 | :f64,
+                                          String.t(), location()}
     defp lex_literal_type(text, loc, float) do
         if float do
             case next_code_points(text, loc, 4, "", 0) do
@@ -497,7 +498,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec raise_error(Flect.Compiler.Syntax.Location.t(), String.t()) :: no_return()
+    @spec raise_error(location(), String.t()) :: no_return()
     defp raise_error(loc, msg) do
         raise(Flect.Compiler.Syntax.SyntaxError[error: msg, location: loc])
     end

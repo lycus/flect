@@ -5,8 +5,12 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     tests.
     """
 
-    @typep state() :: {[Flect.Compiler.Syntax.Token.t()], [String.t()], [:if | :elif | :else], nil | boolean(), Flect.Compiler.Syntax.Location.t()}
-    @typep return() :: {Flect.Compiler.Syntax.Node.t(), state()}
+    @typep location() :: Flect.Compiler.Syntax.Location.t()
+    @typep token() :: Flect.Compiler.Syntax.Token.t()
+    @typep ast_node() :: Flect.Compiler.Syntax.Node.t()
+    @typep state() :: {[token()], [String.t()], [:if | :elif | :else], nil | boolean(), location()}
+    @typep return_t() :: {state(), [token()]}
+    @typep return_n() :: {ast_node(), state()}
 
     @doc """
     Determine the set of predefined preprocessor identifiers based
@@ -186,7 +190,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         do_preprocess({tokens, defs, [], nil, loc})
     end
 
-    @spec do_preprocess(state(), [Flect.Compiler.Syntax.Token.t()]) :: [Flect.Compiler.Syntax.Token.t()]
+    @spec do_preprocess(state(), [token()]) :: [token()]
     defp do_preprocess(state, tokens // []) do
         case next_token(state, true) do
             {:directive, tok, state} ->
@@ -197,7 +201,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec handle_directive(state(), boolean(), Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    @spec handle_directive(state(), boolean(), token()) :: return_t()
     defp handle_directive(state = {tokens, defs, stack, eval, loc}, skipping, token) do
         case token.value() do
             "\\if" ->
@@ -304,7 +308,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec evaluate_expr(Flect.Compiler.Syntax.Node.t(), [String.t()]) :: boolean()
+    @spec evaluate_expr(ast_node(), [String.t()]) :: boolean()
     defp evaluate_expr(node, defs) do
         case node.type() do
             :parenthesized_expr -> evaluate_expr(node.children()[:expression], defs)
@@ -317,12 +321,12 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec parse_expr(state()) :: return()
+    @spec parse_expr(state()) :: return_n()
     defp parse_expr(state) do
         parse_or_or_expr(state)
     end
 
-    @spec parse_or_or_expr(state()) :: return()
+    @spec parse_or_or_expr(state()) :: return_n()
     defp parse_or_or_expr(state) do
         tup = {and_and_expr, state} = parse_and_and_expr(state)
 
@@ -334,7 +338,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec parse_and_and_expr(state()) :: return()
+    @spec parse_and_and_expr(state()) :: return_n()
     defp parse_and_and_expr(state) do
         tup = {unary_expr, state} = parse_unary_expr(state)
 
@@ -346,7 +350,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec parse_unary_expr(state()) :: return()
+    @spec parse_unary_expr(state()) :: return_n()
     defp parse_unary_expr(state) do
         case next_token(state) do
             {:exclamation, tok, state} ->
@@ -356,7 +360,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec parse_primary_expr(state()) :: return()
+    @spec parse_primary_expr(state()) :: return_n()
     defp parse_primary_expr(state) do
         case next_token(state) do
             {:true, tok, state} -> {new_node(:true_expr, tok.location(), [value: tok]), state}
@@ -367,7 +371,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec parse_parenthesized_expr(state()) :: return()
+    @spec parse_parenthesized_expr(state()) :: return_n()
     defp parse_parenthesized_expr(state) do
         {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
         {expr, state} = parse_expr(state)
@@ -375,7 +379,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         {new_node(:parenthesized_expr, tok_open.location(), [open_paren: tok_open, close_paren: tok_close], [expression: expr]), state}
     end
 
-    @spec grab_tokens(state(), boolean(), [Flect.Compiler.Syntax.Token.t()]) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    @spec grab_tokens(state(), boolean(), [token()]) :: return_t()
     defp grab_tokens(state, skipping, tokens // []) do
         case next_token(state) do
             {:directive, tok, state} ->
@@ -390,7 +394,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec next_token(state(), boolean()) :: {atom(), Flect.Compiler.Syntax.Token.t(), state()} | :eof
+    @spec next_token(state(), boolean()) :: {atom(), token(), state()} | :eof
     defp next_token({tokens, defs, stack, eval, loc}, eof // false) do
         case tokens do
             [h | t] -> {h.type(), h, {t, defs, stack, eval, h.location()}}
@@ -399,7 +403,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec expect_token(state(), atom(), String.t(), boolean()) :: {atom(), Flect.Compiler.Syntax.Token.t(), state()} | :eof
+    @spec expect_token(state(), atom(), String.t(), boolean()) :: {atom(), token(), state()} | :eof
     defp expect_token(state, type, str, eof // false) do
         case next_token(state, eof) do
             tup = {t, tok, {_, _, _, _, l}} ->
@@ -411,8 +415,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec new_node(atom(), Flect.Compiler.Syntax.Location.t(), [{atom(), Flect.Compiler.Syntax.Token.t()}, ...],
-                   [{atom(), Flect.Compiler.Syntax.Node.t()}]) :: Flect.Compiler.Syntax.Node.t()
+    @spec new_node(atom(), location(), [{atom(), token()}, ...], [{atom(), ast_node()}]) :: ast_node()
     defp new_node(type, loc, tokens, children // []) do
         Flect.Compiler.Syntax.Node[type: type,
                                    location: loc,
@@ -420,7 +423,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                                    children: children]
     end
 
-    @spec raise_error(Flect.Compiler.Syntax.Location.t(), String.t()) :: no_return()
+    @spec raise_error(location(), String.t()) :: no_return()
     defp raise_error(loc, msg) do
         raise(Flect.Compiler.Syntax.SyntaxError[error: msg, location: loc])
     end
