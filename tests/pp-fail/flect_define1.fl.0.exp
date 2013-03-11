@@ -1,1 +1,1 @@
-Error: flect_define1.fl(1,9): Definition names cannot start with 'Flect_'
+Error: flect_define1.fl(1,9): Definition identifiers cannot start with 'Flect_'

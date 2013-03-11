@@ -1,0 +1,8 @@
+\if false
+\error "1"
+\elif false
+\error "2"
+\elif true
+\else
+\error "3"
+\endif

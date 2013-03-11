@@ -1,0 +1,9 @@
+\if false
+
+\if false
+\elif false
+\else
+\error "this should not happen"
+\endif
+
+\endif

@@ -8,8 +8,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @typep location() :: Flect.Compiler.Syntax.Location.t()
     @typep token() :: Flect.Compiler.Syntax.Token.t()
     @typep ast_node() :: Flect.Compiler.Syntax.Node.t()
-    @typep state() :: {[token()], [String.t()], [:if | :elif | :else], nil | boolean(), location()}
-    @typep return_t() :: {state(), [token()]}
+    @typep state() :: {[token()], [String.t()], location()}
     @typep return_n() :: {ast_node(), state()}
 
     @doc """
@@ -187,138 +186,199 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def preprocess(tokens, defs, file) do
         loc = if (t = Enum.first(tokens)) != nil, do: t.location(), else: Flect.Compiler.Syntax.Location.new(file: file)
-        do_preprocess({tokens, defs, [], nil, loc})
+        {section, _} = parse_section_stmt({tokens, defs, loc})
+
+        {nodes, _} = evaluate_section(section, defs)
+        lc node inlist nodes, do: node.tokens()[:token]
     end
 
-    @spec do_preprocess(state(), [token()]) :: [token()]
-    defp do_preprocess(state, tokens // []) do
-        case next_token(state, true) do
-            {:directive, tok, state} ->
-                {state, toks} = handle_directive(state, false, tok)
-                do_preprocess(state, toks ++ tokens)
-            {_, tok, state} -> do_preprocess(state, [tok | tokens])
-            :eof -> Enum.reverse(tokens)
-        end
+    @spec evaluate_section(ast_node(), [String.t()]) :: {token(), String.t()}
+    defp evaluate_section(section, defs) do
+        {toks, defs} = Enum.map_reduce(section.children(), defs, fn({type, child}, defs) ->
+            if type in [:if, :define, :undef, :error] do
+                evaluate_directive(child, defs)
+            else
+                {child, defs}
+            end
+        end)
+
+        {List.flatten(toks), defs}
     end
 
-    @spec handle_directive(state(), boolean(), token()) :: return_t()
-    defp handle_directive(state = {tokens, defs, stack, eval, loc}, skipping, token) do
-        case token.value() do
-            "\\if" ->
-                stack = [:if | stack]
-                state = setelem(state, 2, stack)
-
-                {expr, state} = parse_expr(state)
-                eval = if skipping, do: false, else: evaluate_expr(expr, defs)
-                state = setelem(state, 3, eval)
-
-                # If the condition evaluated to true, we need to grab as
-                # many tokens as we can until we hit another directive.
-                # If it evaluated to false, we drop all tokens until the
-                # next directive.
-                grab_tokens(state, !eval)
-            "\\elif" ->
-                if stack == [] || !(hd(stack) in [:if, :elif]) do
-                    raise_error(loc, "Unexpected \\elif directive encountered")
-                end
-
-                [_ | stack] = stack
-                stack = [:elif | stack]
-                state = setelem(state, 2, stack)
-
-                # If the last evaluation was true, this \elif branch is
-                # dead and we should skip all tokens until we hit another
-                # directive (\elif, \else, \endif).
-                if eval do
-                    grab_tokens(state, true) # Discard the tokens.
+    @spec evaluate_directive(ast_node(), [String.t()]) :: {token(), String.t()}
+    defp evaluate_directive(directive, defs) do
+        case directive.type() do
+            :if_stmt ->
+                if evaluate_expr(directive.children()[:expression], defs) do
+                    evaluate_section(directive.children()[:section], defs)
                 else
-                    # This branch may be live. Let's find out!
-                    {expr, state} = parse_expr(state)
-                    eval = if skipping, do: false, else: evaluate_expr(expr, defs)
-                    state = setelem(state, 3, eval)
+                    elif_stmt = directive.children() |>
+                                Enum.filter(fn({type, _}) -> type == :elif end) |>
+                                Enum.map(fn({_, child}) -> child end) |>
+                                Enum.find(fn(child) -> evaluate_expr(child.children()[:expression], defs) end)
 
-                    grab_tokens(state, !eval)
+                    cond do
+                        elif_stmt != nil -> evaluate_section(elif_stmt.children()[:section], defs)
+                        (else_stmt = directive.children()[:else]) != nil -> evaluate_section(else_stmt.children()[:section], defs)
+                        true -> {[], defs}
+                    end
                 end
-            "\\else" ->
-                if stack == [] || !(hd(stack) in [:if, :elif]) do
-                    raise_error(loc, "Unexpected \\else directive encountered")
-                end
+            :define_stmt ->
+                ident = directive.tokens()[:identifier]
 
-                # We only push this to the stack so that there is at least
-                # one item there for the check in the \endif code below.
-                [_ | stack] = stack
-                stack = [:else | stack]
-                state = setelem(state, 2, stack)
-
-                # If the last evaluation was true, this \else branch is
-                # dead and we should skip all tokens until we hit \endif.
-                grab_tokens(state, eval)
-            "\\endif" ->
-                if stack == [] do
-                    raise_error(loc, "Unexpected \\endif directive encountered")
+                if List.member?(defs, ident.value()) do
+                    raise_error(directive.location(), "'#{ident.value()}' is already defined")
                 end
 
-                # We don't actually need to check the head of the stack
-                # because if anything at all is on the stack (checked
-                # above), then \endif is valid.
-                [_ | stack] = stack
-                state = setelem(state, 2, stack)
-                state = setelem(state, 3, nil)
+                {[], [ident.value() | defs]}
+            :undef_stmt ->
+                ident = directive.tokens()[:identifier]
 
-                {state, []}
-            "\\define" -> {state, tokens}
-                {_, tok, state = {_, _, _, _, loc}} = expect_token(state, :identifier, "definition name")
-
-                if match?(<<"Flect_", _ :: binary()>>, tok.value()) do
-                    raise_error(loc, "Definition names cannot start with 'Flect_'")
+                if !List.member?(defs, ident.value()) do
+                    raise_error(directive.location(), "'#{ident.value()}' is not defined")
                 end
 
-                if List.member?(defs, tok.value()) do
-                    raise_error(loc, "'#{tok.value()}' is already defined")
-                end
-
-                defs = if skipping, do: defs, else: [tok.value() | defs]
-                state = setelem(state, 1, defs)
-
-                {state, []}
-            "\\undef" -> {state, tokens}
-                {_, tok, state = {_, _, _, _, loc}} = expect_token(state, :identifier, "definition name")
-
-                if match?(<<"Flect_", _ :: binary()>>, tok.value()) do
-                    raise_error(loc, "Cannot undefine definition names starting with 'Flect_'")
-                end
-
-                if !List.member?(defs, tok.value()) do
-                    raise_error(loc, "'#{tok.value()}' is not defined")
-                end
-
-                defs = if skipping, do: defs, else: List.delete(defs, tok.value())
-                state = setelem(state, 1, defs)
-
-                {state, []}
-            "\\error" -> {state, tokens}
-                {_, tok, state} = expect_token(state, :string, "error message string")
-
-                if skipping do
-                    {state, []}
-                else
-                    raise_error(loc, "\\error: #{Flect.String.expand_escapes(Flect.String.strip_quotes(tok.value()), :string)}")
-                end
-            dir -> raise_error(loc, "Unknown preprocessor directive: '#{dir}'")
+                {[], List.delete(defs, ident.value())}
+            :error_stmt ->
+                str = Flect.String.expand_escapes(Flect.String.strip_quotes(directive.tokens()[:string].value()), :string)
+                raise_error(directive.location(), "\\error: #{str}")
         end
     end
 
     @spec evaluate_expr(ast_node(), [String.t()]) :: boolean()
-    defp evaluate_expr(node, defs) do
-        case node.type() do
-            :parenthesized_expr -> evaluate_expr(node.children()[:expression], defs)
-            :identifier_expr -> List.member?(defs, node.tokens()[:identifier].value())
+    defp evaluate_expr(expr, defs) do
+        case expr.type() do
+            :parenthesized_expr -> evaluate_expr(expr.children()[:expression], defs)
+            :identifier_expr -> List.member?(defs, expr.tokens()[:identifier].value())
             :false_expr -> false
             :true_expr -> true
-            :unary_expr -> !evaluate_expr(node.children()[:expression], defs)
-            :and_and_expr -> evaluate_expr(node.children()[:left_expression], defs) && evaluate_expr(node.children()[:right_expression], defs)
-            :or_or_expr -> evaluate_expr(node.children()[:left_expression], defs) || evaluate_expr(node.children()[:right_expression], defs)
+            :unary_expr -> !evaluate_expr(expr.children()[:expression], defs)
+            :and_and_expr -> evaluate_expr(expr.children()[:left_expression], defs) && evaluate_expr(expr.children()[:right_expression], defs)
+            :or_or_expr -> evaluate_expr(expr.children()[:left_expression], defs) || evaluate_expr(expr.children()[:right_expression], defs)
         end
+    end
+
+    @spec parse_section_stmt(state(), [String.t()], [{atom(), ast_node()}]) :: return_n()
+    defp parse_section_stmt(state = {_, _, loc}, terms // [], nodes // []) do
+        case next_token(state, terms == []) do
+            {:directive, t, _} ->
+                case t.value() do
+                    "\\if" ->
+                        {node, state} = parse_if_stmt(state)
+                        parse_section_stmt(state, terms, [{:if, node} | nodes])
+                    "\\define" ->
+                        {node, state} = parse_define_stmt(state)
+                        parse_section_stmt(state, terms, [{:define, node} | nodes])
+                    "\\undef" ->
+                        {node, state} = parse_undef_stmt(state)
+                        parse_section_stmt(state, terms, [{:undef, node} | nodes])
+                    "\\error" ->
+                        {node, state} = parse_error_stmt(state)
+                        parse_section_stmt(state, terms, [{:error, node} | nodes])
+                    v ->
+                        cond do
+                            List.member?(terms, v) -> {new_node(:section_stmt, loc, [], Enum.reverse(nodes)), state}
+                            v in ["\\else", "\\elif", "\\endif"] -> raise_error(t.location(), "Unexpected #{v} directive")
+                            true -> raise_error(t.location(), "Unknown preprocessor directive: '#{v}'")
+                        end
+                end
+            {_, _, _} ->
+                {node, state} = parse_token_stmt(state)
+                parse_section_stmt(state, terms, [{:token, node} | nodes])
+            :eof -> {new_node(:section_stmt, loc, [], Enum.reverse(nodes)), state}
+        end
+    end
+
+    @spec parse_token_stmt(state()) :: return_n()
+    defp parse_token_stmt(state) do
+        {_, tok, state} = expect_token(state, nil, "any token")
+        {new_node(:token_stmt, tok.location(), [token: tok]), state}
+    end
+
+    @spec parse_if_stmt(state()) :: return_n()
+    defp parse_if_stmt(state) do
+        {_, tok_if, state} = expect_token(state, :directive, "\\if directive")
+        {expr, state} = parse_expr(state)
+        {section, state} = parse_section_stmt(state, ["\\elif", "\\else", "\\endif"])
+        {alts, state} = parse_elif_else_stmts(state, [])
+        {_, tok_endif, state} = expect_token(state, :directive, "\\endif directive")
+
+        {new_node(:if_stmt, tok_if.location(), [if: tok_if, endif: tok_endif], [expression: expr, section: section] ++ alts), state}
+    end
+
+    @spec parse_elif_else_stmts(state(), [{atom(), ast_node()}], boolean()) :: {[{atom(), ast_node()}], state()}
+    defp parse_elif_else_stmts(state, nodes, seen_else // false) do
+        str = if seen_else, do: "\\endif directive", else: "\\else, \\elif, or \\endif directive"
+
+        case expect_token(state, :directive, str) do
+            {_, tok, _} ->
+                case tok.value() do
+                    "\\elif" ->
+                        if seen_else do
+                            raise_error(tok.location(), "Unexpected \\elif directive; \\else already seen")
+                        end
+
+                        {node, state} = parse_elif_stmt(state)
+                        parse_elif_else_stmts(state, [{:elif, node} | nodes], false)
+                    "\\else" ->
+                        if seen_else do
+                            raise_error(tok.location(), "Unexpected \\else directive; \\else already seen")
+                        end
+
+                        {node, state} = parse_else_stmt(state)
+                        parse_elif_else_stmts(state, [{:else, node} | nodes], true)
+                    "\\endif" -> {Enum.reverse(nodes), state}
+                end
+        end
+    end
+
+    @spec parse_elif_stmt(state()) :: return_n()
+    defp parse_elif_stmt(state) do
+        {_, tok_elif, state} = expect_token(state, :directive, "\\elif directive")
+        {expr, state} = parse_expr(state)
+        {section, state} = parse_section_stmt(state, ["\\elif", "\\else", "\\endif"])
+
+        {new_node(:elif_stmt, tok_elif.location(), [elif: tok_elif], [expression: expr, section: section]), state}
+    end
+
+    @spec parse_else_stmt(state()) :: return_n()
+    defp parse_else_stmt(state) do
+        {_, tok_else, state} = expect_token(state, :directive, "\\else directive")
+        {section, state} = parse_section_stmt(state, ["\\endif"])
+
+        {new_node(:else_stmt, tok_else.location(), [else: tok_else], [section: section]), state}
+    end
+
+    @spec parse_define_stmt(state()) :: return_n()
+    defp parse_define_stmt(state) do
+        {_, tok_define, state} = expect_token(state, :directive, "\\define directive")
+        {_, tok_ident, state} = expect_token(state, :identifier, "definition identifier")
+
+        if match?(<<"Flect_", _ :: binary()>>, tok_ident.value()) do
+            raise_error(tok_ident.location(), "Definition identifiers cannot start with 'Flect_'")
+        end
+
+        {new_node(:define_stmt, tok_define.location(), [define: tok_define, identifier: tok_ident]), state}
+    end
+
+    @spec parse_undef_stmt(state()) :: return_n()
+    defp parse_undef_stmt(state) do
+        {_, tok_undef, state} = expect_token(state, :directive, "\\undef directive")
+        {_, tok_ident, state} = expect_token(state, :identifier, "definition identifier")
+
+        if match?(<<"Flect_", _ :: binary()>>, tok_ident.value()) do
+            raise_error(tok_ident.location(), "Definition identifiers cannot start with 'Flect_'")
+        end
+
+        {new_node(:undef_stmt, tok_undef.location(), [undef: tok_undef, identifier: tok_ident]), state}
+    end
+
+    @spec parse_error_stmt(state()) :: return_n()
+    defp parse_error_stmt(state) do
+        {_, tok_error, state} = expect_token(state, :directive, "\\error directive")
+        {_, tok_str, state} = expect_token(state, :string, "error string")
+
+        {new_node(:error_stmt, tok_error.location(), [error: tok_error, string: tok_str]), state}
     end
 
     @spec parse_expr(state()) :: return_n()
@@ -379,25 +439,10 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         {new_node(:parenthesized_expr, tok_open.location(), [open_paren: tok_open, close_paren: tok_close], [expression: expr]), state}
     end
 
-    @spec grab_tokens(state(), boolean(), [token()]) :: return_t()
-    defp grab_tokens(state, skipping, tokens // []) do
-        case next_token(state) do
-            {:directive, tok, state} ->
-                if tok.value() in ["\\else", "\\elif", "\\endif"] do
-                    {state, toks} = handle_directive(state, skipping, tok)
-                    {state, Enum.reverse(toks ++ tokens)}
-                else
-                    {state, toks} = handle_directive(state, skipping, tok)
-                    grab_tokens(state, skipping, toks ++ tokens)
-                end
-            {_, tok, state} -> grab_tokens(state, skipping, [tok | tokens])
-        end
-    end
-
     @spec next_token(state(), boolean()) :: {atom(), token(), state()} | :eof
-    defp next_token({tokens, defs, stack, eval, loc}, eof // false) do
+    defp next_token({tokens, defs, loc}, eof // false) do
         case tokens do
-            [h | t] -> {h.type(), h, {t, defs, stack, eval, h.location()}}
+            [h | t] -> {h.type(), h, {t, defs, h.location()}}
             [] when eof -> :eof
             _ -> raise_error(loc, "Unexpected end of token stream")
         end
@@ -406,8 +451,10 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @spec expect_token(state(), atom(), String.t(), boolean()) :: {atom(), token(), state()} | :eof
     defp expect_token(state, type, str, eof // false) do
         case next_token(state, eof) do
-            tup = {t, tok, {_, _, _, _, l}} ->
-                if t != type, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
+            tup = {t, tok, _} ->
+                if type != nil do
+                    if t != type, do: raise_error(tok.location(), "Expected #{str}, but got '#{tok.value()}'")
+                end
 
                 tup
             # We only get :eof if eof is true.
@@ -415,7 +462,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         end
     end
 
-    @spec new_node(atom(), location(), [{atom(), token()}, ...], [{atom(), ast_node()}]) :: ast_node()
+    @spec new_node(atom(), location(), [{atom(), token()}], [{atom(), ast_node()}]) :: ast_node()
     defp new_node(type, loc, tokens, children // []) do
         Flect.Compiler.Syntax.Node[type: type,
                                    location: loc,

@@ -1,1 +1,1 @@
-Error: error_directive_missing_str.fl(1,8): Expected error message string, but got '123'
+Error: error_directive_missing_str.fl(1,8): Expected error string, but got '123'
