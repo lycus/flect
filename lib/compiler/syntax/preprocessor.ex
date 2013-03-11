@@ -300,33 +300,23 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         {_, tok_if, state} = expect_token(state, :directive, "\\if directive")
         {expr, state} = parse_expr(state)
         {section, state} = parse_section_stmt(state, ["\\elif", "\\else", "\\endif"])
-        {alts, state} = parse_elif_else_stmts(state, [])
+        {alts, state} = parse_elif_else_stmts(state)
         {_, tok_endif, state} = expect_token(state, :directive, "\\endif directive")
 
         {new_node(:if_stmt, tok_if.location(), [if: tok_if, endif: tok_endif], [expression: expr, section: section] ++ alts), state}
     end
 
-    @spec parse_elif_else_stmts(state(), [{atom(), ast_node()}], boolean()) :: {[{atom(), ast_node()}], state()}
-    defp parse_elif_else_stmts(state, nodes, seen_else // false) do
-        str = if seen_else, do: "\\endif directive", else: "\\else, \\elif, or \\endif directive"
-
-        case expect_token(state, :directive, str) do
+    @spec parse_elif_else_stmts(state(), [{atom(), ast_node()}]) :: {[{atom(), ast_node()}], state()}
+    defp parse_elif_else_stmts(state, nodes // []) do
+        case expect_token(state, :directive, "\\else, \\elif, or \\endif directive") do
             {_, tok, _} ->
                 case tok.value() do
                     "\\elif" ->
-                        if seen_else do
-                            raise_error(tok.location(), "Unexpected \\elif directive; \\else already seen")
-                        end
-
                         {node, state} = parse_elif_stmt(state)
-                        parse_elif_else_stmts(state, [{:elif, node} | nodes], false)
+                        parse_elif_else_stmts(state, [{:elif, node} | nodes])
                     "\\else" ->
-                        if seen_else do
-                            raise_error(tok.location(), "Unexpected \\else directive; \\else already seen")
-                        end
-
                         {node, state} = parse_else_stmt(state)
-                        parse_elif_else_stmts(state, [{:else, node} | nodes], true)
+                        parse_elif_else_stmts(state, [{:else, node} | nodes])
                     "\\endif" -> {Enum.reverse(nodes), state}
                 end
         end
