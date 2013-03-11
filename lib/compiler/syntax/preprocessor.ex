@@ -298,9 +298,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 if skipping do
                     {state, []}
                 else
-                    # TODO: Replace escape sequences.
-                    str = if (substr = String.slice(tok.value(), 1, String.length(tok.value()) - 2)) != nil, do: substr, else: ""
-                    raise_error(loc, "\\error: #{str}")
+                    raise_error(loc, "\\error: #{Flect.String.expand_escapes(Flect.String.strip_quotes(tok.value()), :string)}")
                 end
             dir -> raise_error(loc, "Unknown preprocessor directive: '#{dir}'")
         end

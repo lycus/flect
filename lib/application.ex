@@ -168,6 +168,7 @@ defmodule Flect.Application do
                     Flect.Supervisor,
                     Flect.Target,
                     Flect.Timer,
+                    Flect.String,
                     Flect.Worker,
                     Flect.Analyzer.Tool,
                     Flect.Compiler.Tool,
