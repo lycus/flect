@@ -105,13 +105,13 @@ defmodule Flect.Compiler.Tool do
 
             case String.next_codepoint(define) do
                 {cp, rest} ->
-                    if !Flect.Compiler.Syntax.Lexer.is_identifier_start_char(cp) do
+                    if !Flect.Compiler.Syntax.Lexer.identifier_start_char?(cp) do
                         Flect.Logger.error("Invalid definition name given (--define flag)")
                         throw 2
                     end
 
                     Enum.each(String.codepoints(rest), fn(cp) ->
-                        if !Flect.Compiler.Syntax.Lexer.is_identifier_char(cp) do
+                        if !Flect.Compiler.Syntax.Lexer.identifier_char?(cp) do
                             Flect.Logger.error("Invalid definition name given (--define flag)")
                             throw 2
                         end

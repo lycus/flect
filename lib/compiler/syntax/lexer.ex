@@ -108,17 +108,17 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             cp ->
                                 cond do
                                     # Handle identifiers (starting with a letter or an underscore).
-                                    is_identifier_start_char(cp) ->
+                                    identifier_start_char?(cp) ->
                                         tup = {_, value, rest, oloc, loc} = lex_identifier(cp, rest, loc, loc)
 
                                         # If the identifier is actually a keyword, treat it as such.
-                                        if is_keyword(value) do
+                                        if keyword?(value) do
                                             {binary_to_atom(value), value, rest, oloc, loc}
                                         else
                                             tup
                                         end
                                     # Handle numbers (starting with a digit).
-                                    is_decimal_digit(cp) ->
+                                    decimal_digit?(cp) ->
                                         # Zero is a special case because it can mean the number is
                                         # binary, octal, or hexadecimal.
                                         if cp == "0" do
@@ -231,48 +231,48 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "pragma",
                "scope",
                "move"], fn(x) ->
-        def :is_keyword, [x], [], do: true
+        def :keyword?, [x], [], do: true
     end)
 
     @doc """
-    Returns a Boolean indicating whether the given code point (expected to
-    be a binary) is a keyword in Flect.
+    Returns a Boolean indicating whether the given string (expected to be
+    a binary) is a keyword in Flect.
     """
-    def is_keyword(_), do: false
+    def keyword?(_), do: false
 
     Enum.each(?0 .. ?1, fn(x) ->
-        def :is_binary_digit, [<<x>>], [], do: true
+        def :binary_digit?, [<<x>>], [], do: true
     end)
 
     @doc """
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a binary digit in Flect.
     """
-    def is_binary_digit(_), do: false
+    def binary_digit?(_), do: false
 
     Enum.each(?0 .. ?7, fn(x) ->
-        def :is_octal_digit, [<<x>>], [], do: true
+        def :octal_digit?, [<<x>>], [], do: true
     end)
 
     @doc """
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is an octal digit in Flect.
     """
-    def is_octal_digit(_), do: false
+    def octal_digit?(_), do: false
 
     Enum.each(?0 .. ?9, fn(x) ->
-        def :is_decimal_digit, [<<x>>], [], do: true
+        def :decimal_digit?, [<<x>>], [], do: true
     end)
 
     @doc """
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a decimal digit in Flect.
     """
-    def is_decimal_digit(_), do: false
+    def decimal_digit?(_), do: false
 
     Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :is_hexadecimal_digit, [<<x>>], [], do: true
+            def :hexadecimal_digit?, [<<x>>], [], do: true
         end)
     end)
 
@@ -280,11 +280,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) is a hexadecimal digit in Flect.
     """
-    def is_hexadecimal_digit(_), do: false
+    def hexadecimal_digit?(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :is_identifier_start_char, [<<x>>], [], do: true
+            def :identifier_start_char?, [<<x>>], [], do: true
         end)
     end)
 
@@ -292,11 +292,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) can start an identifier in Flect.
     """
-    def is_identifier_start_char(_), do: false
+    def identifier_start_char?(_), do: false
 
     Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :is_identifier_char, [<<x>>], [], do: true
+            def :identifier_char?, [<<x>>], [], do: true
         end)
     end)
 
@@ -304,7 +304,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     Returns a Boolean indicating whether the given code point (expected to
     be a binary) can be part of an identifier in Flect.
     """
-    def is_identifier_char(_), do: false
+    def identifier_char?(_), do: false
 
     @spec lex_comment(atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t(), String.codepoint(),
                       boolean()) :: {atom(), String.t(), String.t(), Flect.Compiler.Syntax.Location.t(), Flect.Compiler.Syntax.Location.t()}
@@ -323,7 +323,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_identifier(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, irest, iloc} ->
-                if is_identifier_char(cp) do
+                if identifier_char?(cp) do
                     lex_identifier(acc <> cp, irest, oloc, iloc)
                 else
                     {:identifier, acc, text, oloc, loc}
@@ -338,7 +338,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_directive(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, irest, iloc} ->
-                if is_identifier_char(cp) do
+                if identifier_char?(cp) do
                     lex_directive(acc <> cp, irest, oloc, iloc)
                 else
                     {:directive, acc, text, oloc, loc}
@@ -392,10 +392,10 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {".", rest, loc} when float -> lex_float(acc <> ".", rest, oloc, loc)
             {cp, irest, iloc} ->
                 is_digit = case base do
-                    2 -> is_binary_digit(cp)
-                    8 -> is_octal_digit(cp)
-                    10 -> is_decimal_digit(cp)
-                    16 -> is_hexadecimal_digit(cp)
+                    2 -> binary_digit?(cp)
+                    8 -> octal_digit?(cp)
+                    10 -> decimal_digit?(cp)
+                    16 -> hexadecimal_digit?(cp)
                 end
 
                 if is_digit do
@@ -432,7 +432,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     defp lex_float(acc, text, oloc, loc) do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
-                if !is_decimal_digit(cp) do
+                if !decimal_digit?(cp) do
                     raise_error(loc, "Expected fractional part of floating point literal")
                 end
 
@@ -450,7 +450,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
                         case next_code_point(irest, iloc) do
                             {cp, irest, iloc} ->
-                                if !is_decimal_digit(cp) do
+                                if !decimal_digit?(cp) do
                                     raise_error(iloc, "Expected exponent part of floating point literal")
                                 end
 
