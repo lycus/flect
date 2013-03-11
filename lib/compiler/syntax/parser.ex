@@ -187,9 +187,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                     is_atom(type) -> t == type
                 end
 
-                if !ok do
-                    raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
-                end
+                if !ok, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
 
                 tup
             # We only get :eof if eof is true.

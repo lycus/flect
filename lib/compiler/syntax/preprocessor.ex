@@ -190,34 +190,29 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     defp do_preprocess(state, tokens // []) do
         case next_token(state, true) do
             {:directive, tok, state} ->
-                {state, toks} = handle_directive(state, tok)
+                {state, toks} = handle_directive(state, false, tok)
                 do_preprocess(state, toks ++ tokens)
             {_, tok, state} -> do_preprocess(state, [tok | tokens])
             :eof -> Enum.reverse(tokens)
         end
     end
 
-    @spec handle_directive(state(), Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
-    defp handle_directive(state = {tokens, defs, stack, eval, loc}, token) do
+    @spec handle_directive(state(), boolean(), Flect.Compiler.Syntax.Token.t()) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
+    defp handle_directive(state = {tokens, defs, stack, eval, loc}, skipping, token) do
         case token.value() do
             "\\if" ->
                 stack = [:if | stack]
+                state = setelem(state, 2, stack)
 
                 {expr, state} = parse_expr(state)
-                eval = evaluate_expr(expr, defs)
+                eval = if skipping, do: false, else: evaluate_expr(expr, defs)
+                state = setelem(state, 3, eval)
 
                 # If the condition evaluated to true, we need to grab as
                 # many tokens as we can until we hit another directive.
                 # If it evaluated to false, we drop all tokens until the
                 # next directive.
-                {{tokens, defs, _, _, loc}, toks} = if eval do
-                    grab_tokens(state, false)
-                else
-                    {state, _} = grab_tokens(state, true) # Discard the tokens.
-                    {state, []}
-                end
-
-                {{tokens, defs, stack, eval, loc}, toks}
+                grab_tokens(state, !eval)
             "\\elif" ->
                 if stack == [] || !(hd(stack) in [:if, :elif]) do
                     raise_error(loc, "Unexpected \\elif directive encountered")
@@ -225,27 +220,21 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
 
                 [_ | stack] = stack
                 stack = [:elif | stack]
+                state = setelem(state, 2, stack)
 
                 # If the last evaluation was true, this \elif branch is
                 # dead and we should skip all tokens until we hit another
                 # directive (\elif, \else, \endif).
-                {{tokens, defs, _, eval, loc}, toks} = if eval do
-                    {state, _} = grab_tokens(state, true) # Discard the tokens.
-                    {state, []}
+                if eval do
+                    grab_tokens(state, true) # Discard the tokens.
                 else
                     # This branch may be live. Let's find out!
                     {expr, state} = parse_expr(state)
-                    eval = evaluate_expr(expr, defs)
+                    eval = if skipping, do: false, else: evaluate_expr(expr, defs)
+                    state = setelem(state, 3, eval)
 
-                    if eval do
-                        grab_tokens(state, false)
-                    else
-                        {state, _} = grab_tokens(state, true) # Discard the tokens.
-                        {state, []}
-                    end
+                    grab_tokens(state, !eval)
                 end
-
-                {{tokens, defs, stack, eval, loc}, toks}
             "\\else" ->
                 if stack == [] || !(hd(stack) in [:if, :elif]) do
                     raise_error(loc, "Unexpected \\else directive encountered")
@@ -255,17 +244,11 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 # one item there for the check in the \endif code below.
                 [_ | stack] = stack
                 stack = [:else | stack]
+                state = setelem(state, 2, stack)
 
                 # If the last evaluation was true, this \else branch is
                 # dead and we should skip all tokens until we hit \endif.
-                {{tokens, defs, _, eval, loc}, toks} = if eval do
-                    {state, _} = grab_tokens(state, true) # Discard the tokens.
-                    {state, []}
-                else
-                    grab_tokens(state, false)
-                end
-
-                {{tokens, defs, stack, eval, loc}, toks}
+                grab_tokens(state, eval)
             "\\endif" ->
                 if stack == [] do
                     raise_error(loc, "Unexpected \\endif directive encountered")
@@ -275,10 +258,12 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 # because if anything at all is on the stack (checked
                 # above), then \endif is valid.
                 [_ | stack] = stack
+                state = setelem(state, 2, stack)
+                state = setelem(state, 3, nil)
 
-                {{tokens, defs, stack, nil, loc}, []}
+                {state, []}
             "\\define" -> {state, tokens}
-                {_, tok, {tokens, defs, stack, eval, loc}} = expect_token(state, :identifier, "definition name")
+                {_, tok, state = {_, _, _, _, loc}} = expect_token(state, :identifier, "definition name")
 
                 if match?(<<"Flect_", _ :: binary()>>, tok.value()) do
                     raise_error(loc, "Definition names cannot start with 'Flect_'")
@@ -288,9 +273,12 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                     raise_error(loc, "'#{tok.value()}' is already defined")
                 end
 
-                {{tokens, [tok.value() | defs], stack, eval, loc}, []}
+                defs = if skipping, do: defs, else: [tok.value() | defs]
+                state = setelem(state, 1, defs)
+
+                {state, []}
             "\\undef" -> {state, tokens}
-                {_, tok, {tokens, defs, stack, eval, loc}} = expect_token(state, :identifier, "definition name")
+                {_, tok, state = {_, _, _, _, loc}} = expect_token(state, :identifier, "definition name")
 
                 if match?(<<"Flect_", _ :: binary()>>, tok.value()) do
                     raise_error(loc, "Cannot undefine definition names starting with 'Flect_'")
@@ -300,11 +288,19 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                     raise_error(loc, "'#{tok.value()}' is not defined")
                 end
 
-                {{tokens, List.delete(defs, tok.value()), stack, eval, loc}, []}
+                defs = if skipping, do: defs, else: List.delete(defs, tok.value())
+                state = setelem(state, 1, defs)
+
+                {state, []}
             "\\error" -> {state, tokens}
-                {_, tok, _} = expect_token(state, :string, "error message string")
-                raise_error(loc, "\\error: #{tok.value()}")
-            dir -> raise_error(loc, "Unknown preprocessor directive: #{dir}")
+                {_, tok, state} = expect_token(state, :string, "error message string")
+
+                if skipping do
+                    {state, []}
+                else
+                    raise_error(loc, "\\error: #{tok.value()}")
+                end
+            dir -> raise_error(loc, "Unknown preprocessor directive: '#{dir}'")
         end
     end
 
@@ -361,13 +357,13 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     end
 
     @spec parse_primary_expr(state()) :: return()
-    defp parse_primary_expr(state = {_, _, _, _, loc}) do
+    defp parse_primary_expr(state) do
         case next_token(state) do
             {:true, tok, state} -> {new_node(:true_expr, tok.location(), [value: tok]), state}
             {:false, tok, state} -> {new_node(:false_expr, tok.location(), [value: tok]), state}
             {:identifier, tok, state} -> {new_node(:identifier_expr, tok.location(), [identifier: tok]), state}
             {:paren_open, _, _} -> parse_parenthesized_expr(state)
-            _ -> raise_error(loc, "Expected primary preprocessor expression")
+            {_, tok, _} -> raise_error(tok.location(), "Expected primary preprocessor expression")
         end
     end
 
@@ -382,21 +378,13 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @spec grab_tokens(state(), boolean(), [Flect.Compiler.Syntax.Token.t()]) :: {state(), [Flect.Compiler.Syntax.Token.t()]}
     defp grab_tokens(state, skipping, tokens // []) do
         case next_token(state) do
-            {:directive, itok, istate} ->
-                # \define and \undef are special cases. Since they don't
-                # actually 'interrupt' the token section (as e.g. \elif
-                # would do), we need to process them and continue going.
-                if itok.value() in ["\\define", "\\undef"] do
-                    {istate, toks} = handle_directive(istate, itok)
-                    grab_tokens(istate, skipping, toks ++ tokens)
+            {:directive, tok, state} ->
+                if tok.value() in ["\\else", "\\elif", "\\endif"] do
+                    {state, toks} = handle_directive(state, skipping, tok)
+                    {state, Enum.reverse(toks ++ tokens)}
                 else
-                    # We only want to process \error directives when
-                    # we are not skipping a token section.
-                    if itok.value() == "\\error" && skipping do
-                        grab_tokens(istate, skipping, tokens)
-                    else
-                        {state, Enum.reverse(tokens)}
-                    end
+                    {state, toks} = handle_directive(state, skipping, tok)
+                    grab_tokens(state, skipping, toks ++ tokens)
                 end
             {_, tok, state} -> grab_tokens(state, skipping, [tok | tokens])
         end
@@ -420,9 +408,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                     is_atom(type) -> t == type
                 end
 
-                if !ok do
-                    raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
-                end
+                if !ok, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
 
                 tup
             # We only get :eof if eof is true.
