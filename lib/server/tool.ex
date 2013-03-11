@@ -136,9 +136,6 @@ defmodule Flect.Server.Tool do
         :ok = :pg2.join(group, server)
         Flect.Logger.debug("Joined :pg2 group #{group}")
 
-        Flect.Logger.log("Press Enter to stop the server")
-        IO.readline()
-
         server <- {:flect, self(), {:exit}}
 
         receive do
