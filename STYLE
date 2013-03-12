@@ -1,0 +1,70 @@
+            == Flect: Functional Systems Programming Language ==
+
+                -- Style --
+
+This is a guide to the general code style used in the Flect source base.
+If you're contributing code to the project, you should make sure to
+follow these. We are rather strict about these rules as we believe that
+they help us keep a clean and consistent source base.
+
+Note that the rules here only cover the Elixir code in the source base (i.e.
+the compiler). For the code style used in Flect code, see the Flect wiki.
+
+        ++ Indentation ++
+
+We indent with 4 spaces, always, everywhere. Do not use hard tabs.
+
+        ++ Spacing ++
+
+One place where spacing is very important is in expressions. You should
+always put a space on all sides of binary and ternary operators, for example.
+Note that this is not necessary for unary operators.
+
+Spacing is not necessary in function calls either (other than after a comma).
+For example, you should do:
+
+    * foo()
+    * foo(bar)
+    * foo(bar, baz)
+
+It's recommended to use empty lines between lines that are not closely
+related. This helps a lot when skimming code.
+
+        ++ Naming ++
+
+We follow the naming conventions of Elixir's standard library:
+
+    * Module, record, exception, and protocol names are PascalCase.
+    * Type specification names are snake_case.
+    * Function, macro, and variable names are snake_case.
+
+You should have a VERY good reason if you're going to deviate from these
+naming rules. We want to keep the Flect compiler's source base consistent
+with standard naming in Elixir so that it feels natural to use it together
+with Elixir's standard library.
+
+        ++ Comments ++
+
+Comments should be written in clear, concise English with correct grammar
+(yes, this includes punctuation). Avoid using abbreviations and acronyms
+unless they are generally well-understood in the context. Also, you should
+avoid overly verbose comments (often referred to as literate programming),
+as they make it harder to read the code. In general, don't comment on the
+obvious or on things that are considered common sense.
+
+Bad comments:
+
+    * # do some space opts
+    * # revert to prev tok
+
+Good comments:
+
+    * # Do some space optimizations.
+    * # Revert to the previous token.
+
+        ++ Documentation ++
+
+Every externally accessible element in the API surface should have a @doc
+documentation comment. Since we generate documentation for the API, this
+is important so that users of the libraries can easily look up a function
+or type in the documentation, rather than having to read the source.
