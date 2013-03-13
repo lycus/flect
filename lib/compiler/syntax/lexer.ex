@@ -74,7 +74,11 @@ defmodule Flect.Compiler.Syntax.Lexer do
                             "[" -> :bracket_open
                             "]" -> :bracket_close
                             "," -> :comma
-                            "." -> :period
+                            "." ->
+                                case next_code_point(rest, loc) do
+                                    {".", rest, iloc} -> {:period_period, "..", rest, loc, iloc}
+                                    _ -> :period
+                                end
                             "@" -> :at
                             ":" ->
                                 case next_code_point(rest, loc) do

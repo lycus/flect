@@ -37,6 +37,7 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:bracket_close`
     * `:comma`
     * `:period`
+    * `:period_period`
     * `:at`
     * `:colon`
     * `:colon_colon`
