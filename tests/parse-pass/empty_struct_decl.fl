@@ -1,0 +1,4 @@
+pub mod struct_decl {
+    pub struct bar {
+    }
+}

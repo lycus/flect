@@ -106,7 +106,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         {_, tok_struct, state} = expect_token(state, :struct, "structure declaration")
         {name, state} = parse_simple_name(state)
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
-        fields = []
+        {fields, state} = parse_fields(state);
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
         tokens = [visibility: visibility,
@@ -114,12 +114,27 @@ defmodule Flect.Compiler.Syntax.Parser do
                   opening_brace: tok_open,
                   closing_brace: tok_close]
 
+        fields = lc field inlist fields, do: {:field, field}
+
         {new_node(:struct_declaration, tok_struct.location(), tokens, [{:name, name} | fields]), state}
     end
 
     @spec parse_fields(state(), [ast_node()]) :: return_m()
     defp parse_fields(state, fields // []) do
-        exit(:todo)
+        case next_token(state) do
+            {v, token, state} when v in [:pub, :priv] ->
+                {field, state} = parse_field(state, token)
+                parse_fields(state, [field | fields])
+            _ -> {Enum.reverse(fields), state}
+        end
+    end
+
+    @spec parse_field(state(), token()) :: return_n()
+    defp parse_field(state, visibility) do
+        {name, state} = parse_simple_name(state)
+        {_, tok_semicolon, state} = expect_token(state, [:semicolon], "semicolon")
+
+        {new_node(:field_declaration, name.location(), [visibility: visibility, semicolon: tok_semicolon], [name: name]), state}
     end
 
     @spec parse_union(state(), token()) :: return_n()
