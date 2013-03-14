@@ -15,6 +15,7 @@ You will be asked to configure the following variables:
 * FLECT_OS
 * FLECT_ARCH
 * FLECT_ABI
+* FLECT_ENDIAN
 * FLECT_CROSS
 * FLECT_CC
 * FLECT_CC_TYPE

@@ -94,3 +94,8 @@ ABIs (FLECT_ABI) supported:
  - 64-bit x86 Microsoft (x86-ms64)
  - 64-bit x86 System V (x86-sysv64)
  - 64-bit x86 w/ x32 (x86-x32)
+
+Endiannesses (FLECT_ENDIAN) supported:
+
+* Big endian (big)
+* Little endian (little)
