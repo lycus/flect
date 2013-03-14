@@ -9,7 +9,7 @@ Please do not use GitHub pull requests for anything but very small,
 obvious fixes and corrections. GitHub pull requests do not integrate
 very well with Phabricator.
 
-Contributed code is expected to follow the established code style (see
+Contributed code is expected to follow the established code style. See
 the STYLE file and the Flect style guide which is available on the wiki:
 https://github.com/lycus/flect/wiki/Style
 
