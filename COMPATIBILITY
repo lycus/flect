@@ -16,7 +16,6 @@ Compilers (FLECT_CC) supported:
     * Clang (clang)
     * GCC (gcc)
     * ICC (icc)
-    * ICL (icl)
 
 Note that FLECT_CC is the path to the compiler or the name of its executable
 so a full path can be specified too.
