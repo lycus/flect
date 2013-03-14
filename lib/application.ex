@@ -192,7 +192,7 @@ defmodule Flect.Application do
 
         tool = Enum.at!(rest, 0)
 
-        if Enum.find(tools, fn(x) -> elem(x, 0) == tool end) == nil do
+        if !Enum.find(tools, fn(x) -> elem(x, 0) == tool end) do
             Flect.Logger.error("Unknown tool: #{tool}")
             System.halt(2)
         end

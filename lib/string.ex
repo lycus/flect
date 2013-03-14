@@ -12,7 +12,7 @@ defmodule Flect.String do
     """
     @spec strip_quotes(String.t()) :: String.t()
     def strip_quotes(str) do
-        if (sub = String.slice(str, 1, String.length(str) - 2)) != nil, do: sub, else: ""
+        if sub = String.slice(str, 1, String.length(str) - 2), do: sub, else: ""
     end
 
     @doc """

@@ -138,7 +138,7 @@ defmodule Flect.Compiler.Tool do
 
         num_files = length(cfg.arguments())
 
-        if dist != nil do
+        if dist do
             case :net_kernel.start([name, style]) do
                 {:ok, _} -> :ok
                 {:error, reason} ->
@@ -177,7 +177,7 @@ defmodule Flect.Compiler.Tool do
 
             if time, do: session = Flect.Timer.start_pass(session, :lex)
 
-            if dist == nil do
+            if !dist do
                 tokenized_files = lc {file, text} inlist read_files do
                     {file, Flect.Compiler.Syntax.Lexer.lex(text, file)}
                 end
@@ -219,7 +219,7 @@ defmodule Flect.Compiler.Tool do
 
             if time, do: session = Flect.Timer.start_pass(session, :pp)
 
-            if dist == nil do
+            if !dist do
                 preprocessed_files = lc {file, tokens} inlist tokenized_files do
                     {file, Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines() ++ defs, file)}
                 end
@@ -261,7 +261,7 @@ defmodule Flect.Compiler.Tool do
 
             if time, do: session = Flect.Timer.start_pass(session, :parse)
 
-            if dist == nil do
+            if !dist do
                 parsed_files = lc {file, tokens} inlist preprocessed_files do
                     {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
                 end
