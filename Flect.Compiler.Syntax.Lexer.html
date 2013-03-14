@@ -43,7 +43,42 @@
         <ul class="summary">
           <li>
   <span class="summary_signature">
+    <a href="#binary_digit?/1">binary_digit?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#decimal_digit?/1">decimal_digit?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#hexadecimal_digit?/1">hexadecimal_digit?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#identifier_char?/1">identifier_char?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#identifier_start_char?/1">identifier_start_char?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#keyword?/1">keyword?/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
     <a href="#lex/2">lex/2</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#octal_digit?/1">octal_digit?/1</a>
   </span>
 </li>
 
@@ -58,6 +93,66 @@
         <div id="functions_details" class="details_list">
           <h2>Functions</h2>
           <div class="detail">
+  <p class="signature" id="binary_digit?/1">
+    <strong>binary_digit?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) is a binary digit in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L251" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="decimal_digit?/1">
+    <strong>decimal_digit?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) is a decimal digit in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L273" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="hexadecimal_digit?/1">
+    <strong>hexadecimal_digit?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) is a hexadecimal digit in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L285" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="identifier_char?/1">
+    <strong>identifier_char?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) can be part of an identifier in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L311" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="identifier_start_char?/1">
+    <strong>identifier_start_char?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) can start an identifier in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L298" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="keyword?/1">
+    <strong>keyword?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given string (expected to be
+a binary) is a keyword in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L240" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
   <p class="signature" id="lex/2">
     <strong>lex(text, file)</strong>
   </p>
@@ -71,7 +166,17 @@ is expected to be encoded in UTF-8. The <code>file</code> argument must be a
 binary containing the file name (used to report syntax errors).</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L17" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L21" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="octal_digit?/1">
+    <strong>octal_digit?(arg1)</strong>
+  </p>
+  <div class="docstring"><p>Returns a Boolean indicating whether the given code point (expected to
+be a binary) is an octal digit in Flect.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/lexer.ex#L262" target="_blank" class="view_source">Source</a>
   
 </div>
         </div>

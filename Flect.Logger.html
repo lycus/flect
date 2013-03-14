@@ -34,8 +34,9 @@
 (where <code>msg</code> is a binary) to that PID instead of being printed to standard
 output.</p>
 
-<p>Note also that if <code>:flect_event_pid</code> is set or the current terminal is
-not ANSI-compatible, colored output will be disabled.</p>
+<p>Note also that if <code>:flect_event_pid</code> is set, the current terminal is
+not ANSI-compatible, or the <code>FLECT_COLORS</code> environment variable is set to
+<code>0</code>, colored output will be disabled.</p>
 
         </div>
       
@@ -51,12 +52,22 @@ not ANSI-compatible, colored output will be disabled.</p>
         <ul class="summary">
           <li>
   <span class="summary_signature">
+    <a href="#debug/1">debug/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
     <a href="#error/1">error/1</a>
   </span>
 </li>
 <li>
   <span class="summary_signature">
     <a href="#info/1">info/1</a>
+  </span>
+</li>
+<li>
+  <span class="summary_signature">
+    <a href="#log/1">log/1</a>
   </span>
 </li>
 <li>
@@ -81,15 +92,27 @@ not ANSI-compatible, colored output will be disabled.</p>
         <div id="functions_details" class="details_list">
           <h2>Functions</h2>
           <div class="detail">
-  <p class="signature" id="error/1">
-    <strong>error(str)</strong>
+  <p class="signature" id="debug/1">
+    <strong>debug(str)</strong>
   </p>
-  <div class="docstring"><p>Prints an error message. Returns <code>:ok</code>.</p>
+  <div class="docstring"><p>Prints a debug message if the <code>FLECT_DEBUG</code> environment variable is set
+to <code>1</code>. Colorized as magenta. Returns <code>:ok</code>.</p>
 
 <p><code>str</code> must be a binary containing the message.</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L64" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L86" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="error/1">
+    <strong>error(str)</strong>
+  </p>
+  <div class="docstring"><p>Prints an error message. Colorized as red. Returns <code>:ok</code>.</p>
+
+<p><code>str</code> must be a binary containing the message.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L65" target="_blank" class="view_source">Source</a>
   
 </div><div class="detail">
   <p class="signature" id="info/1">
@@ -100,29 +123,40 @@ not ANSI-compatible, colored output will be disabled.</p>
 <p><code>str</code> must be a binary containing the message.</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L34" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L35" target="_blank" class="view_source">Source</a>
+  
+</div><div class="detail">
+  <p class="signature" id="log/1">
+    <strong>log(str)</strong>
+  </p>
+  <div class="docstring"><p>Prints a log message. Colorized as cyan. Returns <code>:ok</code>.</p>
+
+<p><code>str</code> must be a binary containing the message.</p>
+</div>
+  
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L75" target="_blank" class="view_source">Source</a>
   
 </div><div class="detail">
   <p class="signature" id="note/1">
     <strong>note(str)</strong>
   </p>
-  <div class="docstring"><p>Prints a notification message. Returns <code>:ok</code>.</p>
+  <div class="docstring"><p>Prints a notification message. Colorized as green. Returns <code>:ok</code>.</p>
 
 <p><code>str</code> must be a binary containing the message.</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L44" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L45" target="_blank" class="view_source">Source</a>
   
 </div><div class="detail">
   <p class="signature" id="warn/1">
     <strong>warn(str)</strong>
   </p>
-  <div class="docstring"><p>Prints a warning message. Returns <code>:ok</code>.</p>
+  <div class="docstring"><p>Prints a warning message. Colorized as yellow. Returns <code>:ok</code>.</p>
 
 <p><code>str</code> must be a binary containing the message.</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L54" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/logger.ex#L55" target="_blank" class="view_source">Source</a>
   
 </div>
         </div>

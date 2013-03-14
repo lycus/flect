@@ -34,11 +34,11 @@
 <p><code>type</code> is an atom indicating the kind of node. <code>location</code> is a
 <code>Flect.Compiler.Syntax.Location</code> indicating the node&#39;s location in
 the source code document. <code>tokens</code> is a list of the
-<code>Flect.Compiler.Syntax.Token</code>s that make up this node. <code>named_children</code>
-is a keyword list containing all uniquely named children. <code>children</code> is
-a list of all children. <code>data</code> is an arbitrary term associated with the
-node - it can have different meanings depending on which compiler stage
-the node is being used in.</p>
+<code>Flect.Compiler.Syntax.Token</code>s that make up this node. <code>children</code> is
+a list of all children. <code>comments</code> contains a list of comment tokens
+that belong to this node. <code>data</code> is an arbitrary term associated with
+the node - it can have different meanings depending on which compiler
+stage the node is being used in.</p>
 
         </div>
       
@@ -83,6 +83,12 @@ the node is being used in.</p>
           
             <li>
               <span class="summary_signature">
+                <strong>comments:</strong> []
+              </span>
+            </li>
+          
+            <li>
+              <span class="summary_signature">
                 <strong>data:</strong> nil
               </span>
             </li>
@@ -119,7 +125,7 @@ Returns the resulting binary.</p>
 <p><code>self</code> is the node record.</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/node.ex#L34" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/node.ex#L35" target="_blank" class="view_source">Source</a>
   
 </div>
         </div>

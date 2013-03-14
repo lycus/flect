@@ -81,7 +81,7 @@ argument must be a binary containing the file name (used to report
 syntax errors).</p>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L168" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L187" target="_blank" class="view_source">Source</a>
   
 </div><div class="detail">
   <p class="signature" id="target_defines/0">
@@ -148,14 +148,23 @@ mutually exclusive):</p>
 <li><code>&quot;Flect_ABI_MIPS_N64&quot;</code>: The MIPS N64 ABI.</li>
 <li><code>&quot;Flect_ABI_MIPS_EABI32&quot;</code>: The 32-bit MIPS EABI.</li>
 <li><code>&quot;Flect_ABI_MIPS_EABI64&quot;</code>: The 64-bit MIPS EABI.</li>
+<li><code>&quot;Flect_ABI_PARISC_PA32&quot;</code>: The 32-bit PA-RISC architecture.</li>
+<li><code>&quot;Flect_ABI_PARISC_PA64&quot;</code>: The 64-bit PA-RISC architecture.</li>
 <li><code>&quot;Flect_ABI_PowerPC_SoftFP&quot;</code>: The <code>softfp</code> ABI on PowerPC.</li>
 <li><code>&quot;Flect_ABI_PowerPC_HardFP&quot;</code>: The <code>hardfp</code> ABI on PowerPC.</li>
 <li><code>&quot;Flect_ABI_PowerPC_PPC64&quot;</code>: The 64-bit PowerPC architecture.</li>
 <li><code>&quot;Flect_ABI_X86_Microsoft32&quot;</code>: The 32-bit Microsoft ABI on x86.</li>
-<li><code>&quot;Flect_ABI_X86_SystemV64&quot;</code>: The 64-bit System V ABI on x86.</li>
+<li><code>&quot;Flect_ABI_X86_SystemV32&quot;</code>: The 32-bit System V ABI on x86.</li>
 <li><code>&quot;Flect_ABI_X86_Microsoft64&quot;</code>: The 64-bit Microsoft ABI on x86.</li>
 <li><code>&quot;Flect_ABI_X86_SystemV64&quot;</code>: The 64-bit System V ABI on x64.</li>
 <li><code>&quot;Flect_ABI_X86_X32&quot;</code>: The x32 ABI on x86.</li>
+</ul>
+
+<p>Possible endianness identifiers (all mutually exclusive):</p>
+
+<ul>
+<li><code>&quot;Flect_Endianness_Big&quot;</code>: Byte order is big endian.</li>
+<li><code>&quot;Flect_Endianness_Little&quot;</code>: Byte order is little endian.</li>
 </ul>
 
 <p>Possible pointer size identifiers (all mutually exclusive):</p>
@@ -179,7 +188,7 @@ mutually exclusive):</p>
 </ul>
 </div>
   
-    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L85" target="_blank" class="view_source">Source</a>
+    <a href="https://github.com/lycus/flect/blob/master/lib/compiler/syntax/preprocessor.ex#L98" target="_blank" class="view_source">Source</a>
   
 </div>
         </div>
