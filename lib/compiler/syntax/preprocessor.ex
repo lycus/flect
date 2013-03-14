@@ -192,7 +192,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         lc node inlist nodes, do: node.tokens()[:token]
     end
 
-    @spec evaluate_section(ast_node(), [String.t()]) :: {token(), String.t()}
+    @spec evaluate_section(ast_node(), [String.t()]) :: {[token()], [String.t()]}
     defp evaluate_section(section, defs) do
         {toks, defs} = Enum.map_reduce(section.children(), defs, fn({type, child}, defs) ->
             if type in [:if, :define, :undef, :error] do
@@ -205,7 +205,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         {List.flatten(toks), defs}
     end
 
-    @spec evaluate_directive(ast_node(), [String.t()]) :: {token(), String.t()}
+    @spec evaluate_directive(ast_node(), [String.t()]) :: {[token()], [String.t()]}
     defp evaluate_directive(directive, defs) do
         case directive.type() do
             :if_stmt ->
