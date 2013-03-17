@@ -21,6 +21,7 @@ re = fn(re) -> Regex.match?(re, target) end
     re.(%r/^i\d86-\w*-darwin/) -> {"x86", "darwin", "x86-sysv32", "little"}
     re.(%r/^x86_64-\w*-darwin/) -> {"x86", "darwin", "x86-sysv64", "little"}
 
+    re.(%r/^arm-\w*-linux-gnueabi$/) -> {"arm", "linux", "arm-softfp", "little")
     re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-hardfp", "little"}
 
     true -> {"", "", "", "little"}
