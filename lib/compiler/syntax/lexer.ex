@@ -422,12 +422,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     raise_error(loc, "Expected base-#{base} integer literal")
                 end
 
-                if spec do
-                    {type, rest, loc} = lex_literal_type(text, loc, false)
-                    {type, acc, rest, oloc, loc}
-                else
-                    {nil, acc, text, oloc, loc}
-                end
+                {(if spec, do: :integer, else: nil), acc, text, oloc, loc}
         end
     end
 
