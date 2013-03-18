@@ -1,0 +1,1 @@
+Flect.Compiler.Syntax.Token[type: :identifier, value: "foo", location: Flect.Compiler.Syntax.Location[file: "identifier_no_nl.fl", line: 1, column: 1]]

@@ -1,0 +1,1 @@
+Flect.Compiler.Syntax.Token[type: :integer, value: "1000", location: Flect.Compiler.Syntax.Location[file: "num_dec_eof.fl", line: 1, column: 1]]

@@ -1,0 +1,2 @@
+Flect.Compiler.Syntax.Token[type: :float, value: "123.45e+6", location: Flect.Compiler.Syntax.Location[file: "float_pos_neg_exp.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :float, value: "123.45E-7", location: Flect.Compiler.Syntax.Location[file: "float_pos_neg_exp.fl", line: 2, column: 1]]
