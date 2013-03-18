@@ -58,7 +58,6 @@ ebin/flect.app: $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*
 
 clean:
 	@$(MIX) clean --all
-	$(RM) flect
 	$(RM) erl_crash.dump
 
 distclean: clean

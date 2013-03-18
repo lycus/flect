@@ -13,6 +13,18 @@ files = :file.list_dir(path) |>
         Enum.map(fn(x) -> list_to_binary(x) end) |>
         Enum.sort()
 
+otp = :erlang.system_info(:otp_release)
+
+if otp >= 'R16B' && System.get_env("FLECT_COVER") == "1" do
+    Mix.loadpaths()
+
+    :cover.compile_beam_directory(Mix.project()[:compile_path] |> to_char_list())
+
+    dir = Path.join(Mix.project()[:compile_path], "cover")
+
+    :cover.import(Path.join(dir, "flect.coverdata") |> to_char_list())
+end
+
 File.cd!(path)
 
 results = Enum.map(passes, fn(pass) ->
@@ -124,4 +136,14 @@ IO.puts(IO.ANSI.escape_fragment("  %{yellow, bright}#{tests}%{reset} test passes
                                 "%{red, bright}#{test_failures}%{reset} failed"))
 IO.puts("")
 
-System.halt(if test_failures > 0, do: 1, else: 0)
+code = if test_failures > 0, do: 1, else: 0
+
+if otp >= 'R16B' && System.get_env("FLECT_COVER") == "1" && code == 0 do
+    :cover.export(Path.join(dir, "flect.coverdata") |> to_char_list())
+
+    Enum.each(:cover.modules(), fn(x) ->
+        :cover.analyse_to_file(x, Path.join(dir, "#{x}.html") |> to_char_list(), [:html])
+    end)
+end
+
+System.halt(code)
