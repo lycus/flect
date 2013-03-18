@@ -139,6 +139,8 @@ IO.puts("")
 code = if test_failures > 0, do: 1, else: 0
 
 if otp >= 'R16B' && System.get_env("FLECT_COVER") == "1" && code == 0 do
+    File.mkdir_p!(dir)
+
     :cover.export(Path.join(dir, "flect.coverdata") |> to_char_list())
 
     Enum.each(:cover.modules(), fn(x) ->
