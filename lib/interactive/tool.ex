@@ -5,6 +5,8 @@ defmodule Flect.Interactive.Tool do
 
     @spec repl() :: :ok
     defp repl() do
+        file = "<repl>"
+
         case IO.gets("flect> ") do
             :eof ->
                 Flect.Logger.info("")
@@ -20,37 +22,53 @@ defmodule Flect.Interactive.Tool do
                     <<"/help", _ :: binary()>> ->
                         Flect.Logger.info("/quit - Exit the REPL.")
                         Flect.Logger.info("/lex <input> - Lexically analyze the given input and show the tokens.")
+                        Flect.Logger.info("/pp <input> - Preprocess the given input for the current target and show the remaining tokens.")
                         Flect.Logger.info("/parse <input> - Parse the given input and show the AST.")
 
                         repl()
                     <<"/lex", rest :: binary()>> ->
-                        input = String.strip(rest)
-
                         try do
-                            tokens = Flect.Compiler.Syntax.Lexer.lex(input, "<repl>")
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
 
                             Enum.each(tokens, fn(token) -> Flect.Logger.info(inspect(token)) end)
                         rescue
-                            ex ->
-                                Flect.Logger.error(ex.message())
+                            ex -> Flect.Logger.error(ex.message())
+                        end
+
+                        repl()
+                    <<"/pp", rest :: binary()>> ->
+                        try do
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
+                            tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+
+                            Enum.each(tokens, fn(token) -> Flect.Logger.info(inspect(token)) end)
+                        rescue
+                            ex -> Flect.Logger.error(ex.message())
                         end
 
                         repl()
                     <<"/parse", rest :: binary()>> ->
-                        input = String.strip(rest)
-
                         try do
-                            tokens = Flect.Compiler.Syntax.Lexer.lex(input, "<repl>")
-                            ast = Flect.Compiler.Syntax.Parser.parse(tokens, "<repl>")
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
+                            tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+                            ast = Flect.Compiler.Syntax.Parser.parse(tokens, file)
 
                             Enum.each(ast, fn(node) -> Flect.Logger.info(node.format()) end)
                         rescue
-                            ex ->
-                                Flect.Logger.error(ex.message())
+                            ex -> Flect.Logger.error(ex.message())
                         end
 
                         repl()
-                    _ ->
+                    text ->
+                        try do
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(text, file)
+                            _ = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+
+                            # TODO: Parse stuff.
+                        rescue
+                            ex -> Flect.Logger.error(ex.message())
+                        end
+
                         repl()
                 end
         end
