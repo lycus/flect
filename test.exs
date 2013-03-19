@@ -1,4 +1,4 @@
-path = Enum.at!(System.argv(), 0)
+path = hd(System.argv())
 
 passes = :file.list_dir(path) |>
          elem(1) |>
@@ -69,7 +69,7 @@ results = Enum.map(passes, fn(pass) ->
 
             {opts, rest} = Flect.Application.parse(args)
 
-            cfg = Flect.Config[tool: binary_to_atom(Enum.at!(rest, 0)),
+            cfg = Flect.Config[tool: binary_to_atom(hd(rest)),
                                options: opts,
                                arguments: Enum.drop(rest, 1)]
 

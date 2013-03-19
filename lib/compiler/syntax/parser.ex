@@ -52,7 +52,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ ->
                 names = [{:name, name} | names] |> Enum.reverse()
                 seps = seps |> Enum.map(fn(x) -> {:separator, x} end) |> Enum.reverse()
-                {new_node(:qualified_name, elem(Enum.at!(names, 0), 1).location(), seps, names), state}
+                {new_node(:qualified_name, elem(hd(names), 1).location(), seps, names), state}
         end
     end
 

@@ -190,7 +190,7 @@ defmodule Flect.Application do
 
         start()
 
-        tool = Enum.at!(rest, 0)
+        tool = hd(rest)
 
         if !Enum.find(tools, fn(x) -> elem(x, 0) == tool end) do
             Flect.Logger.error("Unknown tool: #{tool}")
