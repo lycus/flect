@@ -134,14 +134,13 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                                 {"b", rest, iloc} -> lex_number("0b", rest, loc, iloc, 2, false, true)
                                                 {"o", rest, iloc} -> lex_number("0o", rest, loc, iloc, 8, false, true)
                                                 {"x", rest, iloc} -> lex_number("0x", rest, loc, iloc, 16, false, true)
-                                                {_, _, _} -> lex_number(cp, rest, loc, loc, 10, true, true)
-                                                :eof -> raise_error(loc, "Encountered incomplete number literal")
+                                                _ -> lex_number(cp, rest, loc, loc, 10, true, true)
                                             end
                                         else
                                             lex_number(cp, rest, loc, loc, 10, true, true)
                                         end
                                     # Otherwise, we don't know what we're dealing with, so bail.
-                                    true -> raise_error(loc, "Encountered unknown code point: #{cp}")
+                                    true -> raise_error(loc, "Encountered unknown code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
                                 end
                         end
 
@@ -327,7 +326,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {^ecp, rest, loc} -> {type, acc <> ecp, rest, oloc, loc}
             {cp, rest, loc} -> lex_comment(type, acc <> cp, rest, oloc, loc, ecp, eol)
             :eof when eol -> {type, acc, text, oloc, loc}
-            :eof -> raise_error(loc, "Unexpected end of input in comment")
+            :eof -> raise_error(oloc, "Unexpected end of input in comment")
         end
     end
 
@@ -363,15 +362,16 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\\", rest, loc} ->
                 case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
+                    {cp, _, loc} -> raise_error(loc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
                 end
             {cp, rest, loc} when cp != "'" -> {cp, rest, loc}
-            _ -> raise_error(loc, "Expected UTF-8 code point for character literal")
+            {_, _, loc} -> raise_error(loc, "Terminating single quote encountered with no previous character literal code point")
+            :eof -> raise_error(oloc, "Unexpected end of input in character literal")
         end
 
         case next_code_point(rest, loc) do
             {icp, rest, loc} when icp == "'" -> {:character, acc <> cp <> icp, rest, oloc, loc}
-            _ -> raise_error(loc, "Expected terminating single quote for character literal")
+            _ -> raise_error(oloc, "Missing terminating single quote for character literal")
         end
     end
 
@@ -382,12 +382,12 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {"\\", rest, loc} ->
                 {esc, rest, loc} = case next_code_point(rest, loc) do
                     {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, _} -> raise_error(loc, "Unknown escape sequence code point: #{cp}")
+                    {cp, _, loc} -> raise_error(loc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
                 end
 
                 lex_string(acc <> esc, rest, oloc, loc)
             {cp, rest, loc} -> lex_string(acc <> cp, rest, oloc, loc)
-            :eof -> raise_error(loc, "Expected UTF-8 code point(s) for string literal")
+            :eof -> raise_error(oloc, "Unexpected end of input in string literal")
         end
     end
 
@@ -408,7 +408,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     lex_number(acc <> cp, irest, oloc, iloc, base, float, spec)
                 else
                     if base != 10 && String.length(acc) == 2 do
-                        raise_error(iloc, "Expected base-#{base} integer literal")
+                        raise_error(oloc, "Missing base-#{base} integer literal digits")
                     end
 
                     if spec do
@@ -420,7 +420,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                 end
             :eof ->
                 if base != 10 && String.length(acc) == 2 do
-                    raise_error(loc, "Expected base-#{base} integer literal")
+                    raise_error(oloc, "Missing base-#{base} integer literal digits")
                 end
 
                 {(if spec, do: :integer, else: nil), acc, text, oloc, loc}
@@ -432,7 +432,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         case next_code_point(text, loc) do
             {cp, rest, loc} ->
                 if !decimal_digit?(cp) do
-                    raise_error(loc, "Expected fractional part of floating point literal")
+                    raise_error(oloc, "Missing fractional part of floating point literal")
                 end
 
                 {nil, dec, rest, _, loc} = lex_number(cp, rest, oloc, loc, 10, true, false)
@@ -450,19 +450,19 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         case next_code_point(irest, iloc) do
                             {cp, irest, iloc} ->
                                 if !decimal_digit?(cp) do
-                                    raise_error(iloc, "Expected exponent part of floating point literal")
+                                    raise_error(oloc, "Missing exponent part of floating point literal")
                                 end
 
                                 {nil, dec, irest, _, iloc} = lex_number(cp, irest, oloc, iloc, 10, true, false)
                                 {type, irest, iloc} = lex_literal_type(irest, iloc, true)
                                 {type, acc <> dec, irest, oloc, iloc}
-                            :eof -> raise_error(iloc, "Expected exponent part of floating point literal")
+                            :eof -> raise_error(oloc, "Missing exponent part of floating point literal")
                         end
                     _ ->
                         {type, rest, loc} = lex_literal_type(rest, loc, true)
                         {type, acc, rest, oloc, loc}
                 end
-            :eof -> raise_error(loc, "Expected fractional part of floating point literal")
+            :eof -> raise_error(oloc, "Missing fractional part of floating point literal")
         end
     end
 
