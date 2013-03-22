@@ -71,7 +71,6 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:ref`
     * `:glob`
     * `:tls`
-    * `:const`
     * `:mut`
     * `:imm`
     * `:let`
@@ -85,7 +84,6 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:for`
     * `:break`
     * `:goto`
-    * `:tail`
     * `:return`
     * `:safe`
     * `:unsafe`
