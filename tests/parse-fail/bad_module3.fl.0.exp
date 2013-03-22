@@ -1,1 +1,5 @@
-Error: bad_module3.fl(1,1): Expected module declaration, but got 'mod'
+Error: bad_module3.fl(1,1): Expected module declaration, but got 'mod' 
+mod foo {
+^         
+}
+
