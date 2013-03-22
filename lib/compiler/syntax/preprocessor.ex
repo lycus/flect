@@ -227,7 +227,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 ident = directive.tokens()[:identifier]
 
                 if List.member?(defs, ident.value()) do
-                    raise_error(directive.location(), "'#{ident.value()}' is already defined")
+                    raise_error(ident.location(), "'#{ident.value()}' is already defined")
                 end
 
                 {[], [ident.value() | defs]}
@@ -235,7 +235,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 ident = directive.tokens()[:identifier]
 
                 if !List.member?(defs, ident.value()) do
-                    raise_error(directive.location(), "'#{ident.value()}' is not defined")
+                    raise_error(ident.location(), "'#{ident.value()}' is not defined")
                 end
 
                 {[], List.delete(defs, ident.value())}
