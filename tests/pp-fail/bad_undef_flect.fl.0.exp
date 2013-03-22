@@ -1,1 +1,3 @@
-Error: bad_undef_flect.fl(1,8): Definition identifiers cannot start with 'Flect_'
+Error: bad_undef_flect.fl(1,8): Definition identifiers cannot start with 'Flect_' 
+\undef Flect_Foo
+       ^         

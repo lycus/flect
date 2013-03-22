@@ -1,1 +1,7 @@
-Error: bad_elif2.fl(3,1): Unexpected \elif directive
+Error: bad_elif2.fl(3,1): Unexpected \elif directive 
+\if true
+\else
+\elif true
+^          
+\endif
+

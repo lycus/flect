@@ -1,1 +1,4 @@
-Error: duplicate_def.fl(2,1): 'Def' is already defined
+Error: duplicate_def.fl(2,9): 'Def' is already defined 
+\define Def
+\define Def
+        ^   

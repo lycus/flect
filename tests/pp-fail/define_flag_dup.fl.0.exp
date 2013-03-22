@@ -1,1 +1,3 @@
-Error: define_flag_dup.fl(1,1): 'Foo' is already defined
+Error: define_flag_dup.fl(1,9): 'Foo' is already defined 
+\define Foo
+        ^   

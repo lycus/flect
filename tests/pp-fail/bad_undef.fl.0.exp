@@ -1,1 +1,3 @@
-Error: bad_undef.fl(1,1): 'Nonexistent' is not defined
+Error: bad_undef.fl(1,8): 'Nonexistent' is not defined 
+\undef Nonexistent
+       ^           

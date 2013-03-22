@@ -1,1 +1,3 @@
-Error: bad_parenthesis.fl(1,11): Expected closing parenthesis, but got 'dasfas'
+Error: bad_parenthesis.fl(1,11): Expected closing parenthesis, but got 'dasfas' 
+\if (true dasfas
+          ^      
