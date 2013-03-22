@@ -1,1 +1,3 @@
-Error: bad_exp_float2.fl(1,6): Expected exponent part of floating point literal
+Error: bad_exp_float2.fl(1,1): Missing exponent part of floating point literal 
+10.0ea
+^      

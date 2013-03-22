@@ -1,1 +1,3 @@
-Error: bad_bin_lit.fl(2,0): Expected base-2 integer literal
+Error: bad_bin_lit.fl(1,1): Missing base-2 integer literal digits 
+0b
+^  

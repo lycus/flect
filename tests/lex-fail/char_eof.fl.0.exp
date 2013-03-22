@@ -1,1 +1,3 @@
-Error: char_eof.fl(1,1): Expected UTF-8 code point for character literal
+Error: char_eof.fl(1,1): Unexpected end of input in character literal 
+'
+^ 

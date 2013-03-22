@@ -1,1 +1,3 @@
-Error: num_bin_eof.fl(1,2): Expected base-2 integer literal
+Error: num_bin_eof.fl(1,1): Missing base-2 integer literal digits 
+0b
+^  

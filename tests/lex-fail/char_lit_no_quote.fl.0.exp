@@ -1,1 +1,3 @@
-Error: char_lit_no_quote.fl(1,2): Expected terminating single quote for character literal
+Error: char_lit_no_quote.fl(1,1): Missing terminating single quote for character literal 
+'a
+^  
