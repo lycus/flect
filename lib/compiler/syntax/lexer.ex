@@ -218,6 +218,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "goto",
                "tail",
                "return",
+               "safe",
                "unsafe",
                "asm",
                "true",

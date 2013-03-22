@@ -87,6 +87,7 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:goto`
     * `:tail`
     * `:return`
+    * `:safe`
     * `:unsafe`
     * `:asm`
     * `:true`
