@@ -24,6 +24,15 @@ defmodule Flect.Logger do
             {:ok, pid} -> pid <- {:flect_stdout, str <> "\n"}
             :undefined -> IO.puts(str)
         end
+
+        :ok
+    end
+
+    @spec output_diag(Flect.Compiler.Syntax.Location.t()) :: :ok
+    defp output_diag(loc) do
+        if loc && (diag = diagnostic(loc)) do
+            output(diag)
+        end
     end
 
     @doc """
@@ -44,10 +53,7 @@ defmodule Flect.Logger do
     @spec note(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
     def note(str, loc // nil) do
         output(colorize("Note", "green") <> colorize(str, "white", ""))
-
-        if loc != nil do
-            output(diagnostic(loc))
-        end
+        output_diag(loc)
     end
 
     @doc """
@@ -60,10 +66,7 @@ defmodule Flect.Logger do
     @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
     def warn(str, loc // nil) do
         output(colorize("Warning", "yellow") <> colorize(str, "white", ""))
-
-        if loc != nil do
-            output(diagnostic(loc))
-        end
+        output_diag(loc)
     end
 
     @doc """
@@ -76,10 +79,7 @@ defmodule Flect.Logger do
     @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
     def error(str, loc // nil) do
         output(colorize("Error", "red") <> colorize(str, "white", ""))
-
-        if loc != nil do
-            output(diagnostic(loc))
-        end
+        output_diag(loc)
     end
 
     @doc """
@@ -107,7 +107,7 @@ defmodule Flect.Logger do
         end
     end
 
-    @spec diagnostic(Flect.Compiler.Syntax.Location.t()) :: String.t()
+    @spec diagnostic(Flect.Compiler.Syntax.Location.t()) :: String.t() | nil
     defp diagnostic(loc) do
         loc_line = loc.line() - 1
 
@@ -126,20 +126,25 @@ defmodule Flect.Logger do
                 Enum.map(fn(x, i) -> {x, classify.(i)} end) |>
                 Enum.filter(fn({_, t}) -> t != nil end)
 
-        prev = lines |> Enum.filter(fn({_, t}) -> t == :prev end) |> Enum.map(fn({x, _}) -> x end)
-        line = lines |> Enum.filter(fn({_, t}) -> t == true end) |> Enum.first() |> elem(0)
-        next = lines |> Enum.filter(fn({_, t}) -> t == :next end) |> Enum.map(fn({x, _}) -> x end)
+        # If any of the lines contain non-printable characters, bail and don't print anything.
+        if Enum.any?(lines, fn({x, _}) -> !String.printable?(x) end) do
+            nil
+        else
+            prev = lines |> Enum.filter(fn({_, t}) -> t == :prev end) |> Enum.map(fn({x, _}) -> x end)
+            line = lines |> Enum.filter(fn({_, t}) -> t == true end) |> Enum.first() |> elem(0)
+            next = lines |> Enum.filter(fn({_, t}) -> t == :next end) |> Enum.map(fn({x, _}) -> x end)
 
-        # If the leading and/or following lines are just white space, don't output them.
-        if Enum.all?(prev, fn(x) -> String.strip(x) == "" end), do: prev = []
-        if Enum.all?(next, fn(x) -> String.strip(x) == "" end), do: next = []
+            # If the leading and/or following lines are just white space, don't output them.
+            if Enum.all?(prev, fn(x) -> String.strip(x) == "" end), do: prev = []
+            if Enum.all?(next, fn(x) -> String.strip(x) == "" end), do: next = []
 
-        marker = generate_marker(line, loc.column() - 1, 0, "")
+            marker = generate_marker(line, loc.column() - 1, 0, "")
 
-        result = prev ++ [line] ++ [marker] ++ next
-        length = length(result)
+            result = prev ++ [line] ++ [marker] ++ next
+            length = length(result)
 
-        Enum.map(result, fn(x, i) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
+            Enum.map(result, fn(x, i) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
+        end
     end
 
     @spec generate_marker(String.t(), non_neg_integer(), non_neg_integer(), String.t()) :: String.t()
