@@ -32,7 +32,7 @@ defmodule Flect.Interactive.Tool do
 
                             Enum.each(tokens, fn(token) -> Flect.Logger.info(inspect(token)) end)
                         rescue
-                            ex -> Flect.Logger.error(ex.message())
+                            ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
                         repl()
@@ -43,7 +43,7 @@ defmodule Flect.Interactive.Tool do
 
                             Enum.each(tokens, fn(token) -> Flect.Logger.info(inspect(token)) end)
                         rescue
-                            ex -> Flect.Logger.error(ex.message())
+                            ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
                         repl()
@@ -55,7 +55,7 @@ defmodule Flect.Interactive.Tool do
 
                             Enum.each(ast, fn(node) -> Flect.Logger.info(node.format()) end)
                         rescue
-                            ex -> Flect.Logger.error(ex.message())
+                            ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
                         repl()
@@ -66,7 +66,7 @@ defmodule Flect.Interactive.Tool do
 
                             # TODO: Parse stuff.
                         rescue
-                            ex -> Flect.Logger.error(ex.message())
+                            ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
                         repl()
