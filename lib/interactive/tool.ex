@@ -66,6 +66,7 @@ defmodule Flect.Interactive.Tool do
                             _ = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
 
                             # TODO: Parse stuff.
+                            :ok
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                             ex in [Flect.Compiler.Syntax.PreprocessorError] -> Flect.Logger.error(ex.error(), ex.location(), ex.notes())

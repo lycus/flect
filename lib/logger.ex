@@ -24,7 +24,7 @@ defmodule Flect.Logger do
 
     @spec output(String.t()) :: :ok
     defp output(str) do
-        case :application.get_env(:flect, :flect_event_pid) do
+        _ = case :application.get_env(:flect, :flect_event_pid) do
             {:ok, pid} -> pid <- {:flect_stdout, str <> "\n"}
             :undefined -> IO.puts(str)
         end
@@ -32,7 +32,7 @@ defmodule Flect.Logger do
         :ok
     end
 
-    @spec output_diag(Flect.Compiler.Syntax.Location.t()) :: :ok
+    @spec output_diag(Flect.Compiler.Syntax.Location.t() | nil) :: :ok
     defp output_diag(loc) do
         if loc && System.get_env("FLECT_DIAGS") != "0" && (diag = diagnostic(loc)) do
             output(diag)

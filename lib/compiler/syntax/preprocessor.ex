@@ -239,12 +239,12 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 ident = directive.tokens()[:identifier]
 
                 case Enum.find(defs, fn({defn, _}) -> defn == ident.value() end) do
-                    nil -> raise_sema_error(ident.location(), "'#{ident.value()}' is not defined")
+                    nil -> raise_sema_error(ident.location(), "'#{ident.value()}' is not defined", [])
                     tup -> {[], List.delete(defs, tup)}
                 end
             :error_stmt ->
                 str = Flect.String.expand_escapes(Flect.String.strip_quotes(directive.tokens()[:string].value()), :string)
-                raise_sema_error(directive.location(), "\\error: #{if String.printable?(str), do: str, else: "<non-printable string>"}")
+                raise_sema_error(directive.location(), "\\error: #{if String.printable?(str), do: str, else: "<non-printable string>"}", [])
         end
     end
 
@@ -466,7 +466,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     end
 
     @spec raise_sema_error(location(), String.t(), [{String.t(), Flect.Compiler.Syntax.Location.t()}]) :: no_return()
-    defp raise_sema_error(loc, msg, notes // []) do
+    defp raise_sema_error(loc, msg, notes) do
         raise(Flect.Compiler.Syntax.PreprocessorError[error: msg, location: loc, notes: notes])
     end
 end
