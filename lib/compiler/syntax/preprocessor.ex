@@ -8,7 +8,8 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @typep location() :: Flect.Compiler.Syntax.Location.t()
     @typep token() :: Flect.Compiler.Syntax.Token.t()
     @typep ast_node() :: Flect.Compiler.Syntax.Node.t()
-    @typep state() :: {[token()], [String.t()], location()}
+    @typep state() :: {[token()], location()}
+    @typep pp_define() :: {String.t(), location() | nil}
     @typep return_n() :: {ast_node(), state()}
 
     @doc """
@@ -187,13 +188,13 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def preprocess(tokens, defs, file) do
         loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
-        {section, _} = parse_section_stmt({tokens, defs, loc})
+        {section, _} = parse_section_stmt({tokens, loc})
 
-        {nodes, _} = evaluate_section(section, defs)
+        {nodes, _} = evaluate_section(section, lc defn inlist defs, do: {defn, nil})
         lc node inlist nodes, do: node.tokens()[:token]
     end
 
-    @spec evaluate_section(ast_node(), [String.t()]) :: {[token()], [String.t()]}
+    @spec evaluate_section(ast_node(), [pp_define()]) :: {[token()], [pp_define()]}
     defp evaluate_section(section, defs) do
         {toks, defs} = Enum.map_reduce(section.children(), defs, fn({type, child}, defs) ->
             if type in [:if, :define, :undef, :error] do
@@ -206,7 +207,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         {List.flatten(toks), defs}
     end
 
-    @spec evaluate_directive(ast_node(), [String.t()]) :: {[token()], [String.t()]}
+    @spec evaluate_directive(ast_node(), [pp_define()]) :: {[token()], [pp_define()]}
     defp evaluate_directive(directive, defs) do
         case directive.type() do
             :if_stmt ->
@@ -227,30 +228,31 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             :define_stmt ->
                 ident = directive.tokens()[:identifier]
 
-                if List.member?(defs, ident.value()) do
-                    raise_error(ident.location(), "'#{ident.value()}' is already defined")
-                end
+                case Enum.find(defs, fn({defn, _}) -> defn == ident.value() end) do
+                    nil -> {[], [{ident.value(), ident.location()} | defs]}
+                    {_, loc} ->
+                        note = if loc, do: [{"Previously defined here", loc}], else: []
 
-                {[], [ident.value() | defs]}
+                        raise_sema_error(ident.location(), "'#{ident.value()}' is already defined", note)
+                end
             :undef_stmt ->
                 ident = directive.tokens()[:identifier]
 
-                if !List.member?(defs, ident.value()) do
-                    raise_error(ident.location(), "'#{ident.value()}' is not defined")
+                case Enum.find(defs, fn({defn, _}) -> defn == ident.value() end) do
+                    nil -> raise_sema_error(ident.location(), "'#{ident.value()}' is not defined")
+                    tup -> {[], List.delete(defs, tup)}
                 end
-
-                {[], List.delete(defs, ident.value())}
             :error_stmt ->
                 str = Flect.String.expand_escapes(Flect.String.strip_quotes(directive.tokens()[:string].value()), :string)
-                raise_error(directive.location(), "\\error: #{if String.printable?(str), do: str, else: "<non-printable string>"}")
+                raise_sema_error(directive.location(), "\\error: #{if String.printable?(str), do: str, else: "<non-printable string>"}")
         end
     end
 
-    @spec evaluate_expr(ast_node(), [String.t()]) :: boolean()
+    @spec evaluate_expr(ast_node(), [pp_define()]) :: boolean()
     defp evaluate_expr(expr, defs) do
         case expr.type() do
             :parenthesized_expr -> evaluate_expr(expr.children()[:expression], defs)
-            :identifier_expr -> List.member?(defs, expr.tokens()[:identifier].value())
+            :identifier_expr -> Enum.any?(defs, fn({defn, _}) -> defn == expr.tokens()[:identifier].value() end)
             :false_expr -> false
             :true_expr -> true
             :unary_expr -> !evaluate_expr(expr.children()[:expression], defs)
@@ -260,7 +262,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     end
 
     @spec parse_section_stmt(state(), [String.t()], [{atom(), ast_node()}]) :: return_n()
-    defp parse_section_stmt(state = {_, _, loc}, terms // [], nodes // []) do
+    defp parse_section_stmt(state = {_, loc}, terms // [], nodes // []) do
         case next_token(state, terms == []) do
             {:directive, t, _} ->
                 case t.value() do
@@ -431,9 +433,9 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     end
 
     @spec next_token(state(), boolean()) :: {atom(), token(), state()} | :eof
-    defp next_token({tokens, defs, loc}, eof // false) do
+    defp next_token({tokens, loc}, eof // false) do
         case tokens do
-            [h | t] -> {h.type(), h, {t, defs, h.location()}}
+            [h | t] -> {h.type(), h, {t, h.location()}}
             [] when eof -> :eof
             _ -> raise_error(loc, "Unexpected end of token stream")
         end

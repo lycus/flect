@@ -2,3 +2,8 @@ Error: duplicate_def.fl(2,9): 'Def' is already defined
 \define Def
 \define Def
         ^   
+Note: duplicate_def.fl(1,9): Previously defined here 
+\define Def
+        ^   
+\define Def
+
