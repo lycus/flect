@@ -241,7 +241,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                 {[], List.delete(defs, ident.value())}
             :error_stmt ->
                 str = Flect.String.expand_escapes(Flect.String.strip_quotes(directive.tokens()[:string].value()), :string)
-                raise_error(directive.location(), "\\error: #{str}")
+                raise_error(directive.location(), "\\error: #{if String.printable?(str), do: str, else: "<non-printable string>"}")
         end
     end
 
