@@ -50,17 +50,6 @@ defmodule Flect.Logger do
     end
 
     @doc """
-    Prints a notification message. Colorized as green and white. Returns `:ok`.
-
-    `str` must be a binary containing the message.
-    """
-    @spec note(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
-    def note(str, loc // nil, locs // []) do
-        output(colorize("Note", "green") <> colorize(str, "white", ""))
-        output_diag(loc)
-    end
-
-    @doc """
     Prints a warning message. Colorized as yellow and white. Returns `:ok`.
 
     `str` must be a binary containing the message. `loc` should be either `nil`
