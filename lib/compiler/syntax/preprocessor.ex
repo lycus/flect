@@ -186,7 +186,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     """
     @spec preprocess([Flect.Compiler.Syntax.Token.t()], [String.t()], String.t()) :: [Flect.Compiler.Syntax.Token.t()]
     def preprocess(tokens, defs, file) do
-        loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location.new(file: file)
+        loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
         {section, _} = parse_section_stmt({tokens, defs, loc})
 
         {nodes, _} = evaluate_section(section, defs)

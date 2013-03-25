@@ -22,7 +22,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     """
     @spec parse([Flect.Compiler.Syntax.Token.t()], String.t()) :: [Flect.Compiler.Syntax.Node.t()]
     def parse(tokens, file) do
-        loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location.new(file: file)
+        loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
         do_parse({tokens, loc})
     end
 
