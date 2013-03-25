@@ -145,7 +145,7 @@ defmodule Flect.Logger do
         case String.next_codepoint(line) do
             {cp, rest} ->
                 if ccol == col do
-                    c = colorize("^", "blue", "")
+                    c = colorize("^", "green", "")
                 else
                     c = if cp == "\t", do: "\t", else: " "
                 end
@@ -155,7 +155,7 @@ defmodule Flect.Logger do
                 if acc != "" do
                     acc
                 else
-                    colorize("^", "blue", "")
+                    colorize("^", "green", "")
                 end
         end
     end
