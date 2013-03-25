@@ -13,4 +13,9 @@ defrecord Flect.Compiler.Syntax.Location, file: "",
     record_type(file: String.t(),
                 line: pos_integer(),
                 column: non_neg_integer())
+
+    @spec stringize(t()) :: String.t()
+    def stringize(self) do
+        "#{self.file()}(#{self.line()},#{self.column()})"
+    end
 end

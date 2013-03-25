@@ -17,8 +17,8 @@ defexception Flect.Compiler.Syntax.SyntaxError, error: "",
 
     `self` is the exception record.
     """
-    @spec message(Flect.Compiler.Syntax.SyntaxError.t()) :: String.t()
+    @spec message(t()) :: String.t()
     def message(self) do
-        "#{self.location().file()}(#{self.location().line()},#{self.location().column()}): #{self.error()}"
+        "#{self.location().stringize()}: #{self.error()}"
     end
 end

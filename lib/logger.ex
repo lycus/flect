@@ -39,6 +39,23 @@ defmodule Flect.Logger do
         end
     end
 
+    @spec output_diags([{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
+    defp output_diags(notes) do
+        Enum.each(notes, fn({msg, loc}) ->
+            output(colorize("Note", "blue") <> stringize_loc(loc) <> colorize(msg, "white", ""))
+            output_diag(loc)
+        end)
+    end
+
+    @spec stringize_loc(Flect.Compiler.Syntax.Location.t() | nil) :: String.t()
+    defp stringize_loc(loc) do
+        if loc do
+            "#{loc.stringize()}: "
+        else
+            ""
+        end
+    end
+
     @doc """
     Prints an informational message. Returns `:ok`.
 
@@ -54,12 +71,13 @@ defmodule Flect.Logger do
 
     `str` must be a binary containing the message. `loc` should be either `nil`
     or a `Flect.Compiler.Syntax.Location` if printing annotated source code
-    is desirable.
+    is desirable. `notes` is a list of extra locations to print notes at.
     """
-    @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
-    def warn(str, loc // nil, locs // []) do
-        output(colorize("Warning", "yellow") <> colorize(str, "white", ""))
+    @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
+    def warn(str, loc // nil, notes // []) do
+        output(colorize("Warning", "yellow") <> stringize_loc(loc) <> colorize(str, "white", ""))
         output_diag(loc)
+        output_diags(notes)
     end
 
     @doc """
@@ -67,12 +85,13 @@ defmodule Flect.Logger do
 
     `str` must be a binary containing the message. `loc` should be either `nil`
     or a `Flect.Compiler.Syntax.Location` if printing annotated source code
-    is desirable.
+    is desirable. `notes` is a list of extra locations to print notes at.
     """
-    @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
-    def error(str, loc // nil, locs // []) do
-        output(colorize("Error", "red") <> colorize(str, "white", ""))
+    @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
+    def error(str, loc // nil, notes // []) do
+        output(colorize("Error", "red") <> stringize_loc(loc) <> colorize(str, "white", ""))
         output_diag(loc)
+        output_diags(notes)
     end
 
     @doc """

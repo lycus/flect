@@ -313,7 +313,7 @@ defmodule Flect.Compiler.Tool do
                 :ok
         rescue
             ex in [Flect.Compiler.Syntax.SyntaxError] ->
-                Flect.Logger.error(ex.message(), ex.location())
+                Flect.Logger.error(ex.error(), ex.location())
                 throw 1
         end
     end
