@@ -38,7 +38,7 @@ defmodule Flect.Server.Tool do
                             Flect.Logger.debug("Preprocessing successful; sending result")
                             from <- {:flect, {:pp, :ok, file, tokens}}
                         rescue
-                            ex in [Flect.Compiler.Syntax.SyntaxError] ->
+                            ex in [Flect.Compiler.Syntax.SyntaxError, Flect.Compiler.Syntax.PreprocessorError] ->
                                 Flect.Logger.debug("Preprocessing failed; sending exception")
                                 from <- {:flect, {:pp, :error, file, ex}}
                         end

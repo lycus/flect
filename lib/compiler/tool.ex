@@ -315,6 +315,9 @@ defmodule Flect.Compiler.Tool do
             ex in [Flect.Compiler.Syntax.SyntaxError] ->
                 Flect.Logger.error(ex.error(), ex.location())
                 throw 1
+            ex in [Flect.Compiler.Syntax.PreprocessorError] ->
+                Flect.Logger.error(ex.error(), ex.location(), ex.notes())
+                throw 1
         end
     end
 end

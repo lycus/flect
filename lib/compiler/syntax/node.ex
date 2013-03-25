@@ -1,7 +1,6 @@
 defrecord Flect.Compiler.Syntax.Node, type: nil,
                                       location: nil,
                                       tokens: [],
-                                      named_children: [],
                                       children: [],
                                       comments: [],
                                       data: nil do

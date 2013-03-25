@@ -5,7 +5,7 @@ defexception Flect.Compiler.Syntax.SyntaxError, error: "",
     when the source code is malformed.
 
     `error` is a binary containing the full error description. `location`
-    is `Flect.Compiler.Syntax.Location` indicating where the error
+    is a `Flect.Compiler.Syntax.Location` indicating where the error
     occurred.
     """
 

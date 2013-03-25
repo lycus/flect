@@ -172,9 +172,10 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
 
     @doc """
     Preprocesses the given token stream according to the specified
-    preprocessor definitions. Returns the filtered token stream or
-    raises a `Flect.Compiler.Syntax.SyntaxError` if a preprocessor
-    directive is malformed.
+    preprocessor definitions. Returns the filtered token stream.
+    Raises a `Flect.Compiler.Syntax.SyntaxError` if a preprocessor
+    directive is malformed, or a `Flect.Compiler.Syntax.PreprocessorError`
+    if a preprocessor directive is semantically invalid.
 
     The `tokens` argument must be a list of `Flect.Compiler.Syntax.Token`
     instances (presumably obtained from lexing). The `defs` argument must
@@ -454,14 +455,16 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
 
     @spec new_node(atom(), location(), [{atom(), token()}], [{atom(), ast_node()}]) :: ast_node()
     defp new_node(type, loc, tokens, children // []) do
-        Flect.Compiler.Syntax.Node[type: type,
-                                   location: loc,
-                                   tokens: tokens,
-                                   children: children]
+        Flect.Compiler.Syntax.Node[type: type, location: loc, tokens: tokens, children: children]
     end
 
     @spec raise_error(location(), String.t()) :: no_return()
     defp raise_error(loc, msg) do
         raise(Flect.Compiler.Syntax.SyntaxError[error: msg, location: loc])
+    end
+
+    @spec raise_sema_error(location(), String.t(), [{String.t(), Flect.Compiler.Syntax.Location.t()}]) :: no_return()
+    defp raise_sema_error(loc, msg, notes // []) do
+        raise(Flect.Compiler.Syntax.PreprocessorError[error: msg, location: loc, notes: notes])
     end
 end
