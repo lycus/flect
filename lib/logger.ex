@@ -10,6 +10,10 @@ defmodule Flect.Logger do
     Note also that if `:flect_event_pid` is set, the current terminal is
     not ANSI-compatible, or the `FLECT_COLORS` environment variable is set to
     `0`, colored output will be disabled.
+
+    If the `FLECT_DIAGS` environment variable is not set to `0`, the various
+    functions in this module will output caret diagnostics when a source
+    location is provided.
     """
 
     @spec colorize(String.t(), String.t()) :: String.t()
@@ -30,7 +34,7 @@ defmodule Flect.Logger do
 
     @spec output_diag(Flect.Compiler.Syntax.Location.t()) :: :ok
     defp output_diag(loc) do
-        if loc && (diag = diagnostic(loc)) do
+        if loc && System.get_env("FLECT_DIAGS") != "0" && (diag = diagnostic(loc)) do
             output(diag)
         end
     end
@@ -50,8 +54,8 @@ defmodule Flect.Logger do
 
     `str` must be a binary containing the message.
     """
-    @spec note(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
-    def note(str, loc // nil) do
+    @spec note(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
+    def note(str, loc // nil, locs // []) do
         output(colorize("Note", "green") <> colorize(str, "white", ""))
         output_diag(loc)
     end
@@ -63,8 +67,8 @@ defmodule Flect.Logger do
     or a `Flect.Compiler.Syntax.Location` if printing annotated source code
     is desirable.
     """
-    @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
-    def warn(str, loc // nil) do
+    @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
+    def warn(str, loc // nil, locs // []) do
         output(colorize("Warning", "yellow") <> colorize(str, "white", ""))
         output_diag(loc)
     end
@@ -76,8 +80,8 @@ defmodule Flect.Logger do
     or a `Flect.Compiler.Syntax.Location` if printing annotated source code
     is desirable.
     """
-    @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil) :: :ok
-    def error(str, loc // nil) do
+    @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [Flect.Compiler.Syntax.Location.t()]) :: :ok
+    def error(str, loc // nil, locs // []) do
         output(colorize("Error", "red") <> colorize(str, "white", ""))
         output_diag(loc)
     end
