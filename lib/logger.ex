@@ -132,30 +132,33 @@ defmodule Flect.Logger do
             end
         end
 
-        # We assume that the source file (still) exists.
-        lines = File.read!(loc.file()) |>
-                String.split("\n") |>
-                Enum.map(fn(x, i) -> {x, classify.(i)} end) |>
-                Enum.filter(fn({_, t}) -> t != nil end)
+        case File.read(loc.file()) do
+            {:ok, data} ->
+                lines = data |>
+                        String.split("\n") |>
+                        Enum.map(fn(x, i) -> {x, classify.(i)} end) |>
+                        Enum.filter(fn({_, t}) -> t != nil end)
 
-        # If any of the lines contain non-printable characters, bail and don't print anything.
-        if Enum.any?(lines, fn({x, _}) -> !String.printable?(x) end) do
-            nil
-        else
-            prev = lines |> Enum.filter(fn({_, t}) -> t == :prev end) |> Enum.map(fn({x, _}) -> x end)
-            line = lines |> Enum.filter(fn({_, t}) -> t == true end) |> Enum.first() |> elem(0)
-            next = lines |> Enum.filter(fn({_, t}) -> t == :next end) |> Enum.map(fn({x, _}) -> x end)
+                # If any of the lines contain non-printable characters, bail and don't print anything.
+                if Enum.any?(lines, fn({x, _}) -> !String.printable?(x) end) do
+                    nil
+                else
+                    prev = lines |> Enum.filter(fn({_, t}) -> t == :prev end) |> Enum.map(fn({x, _}) -> x end)
+                    line = lines |> Enum.filter(fn({_, t}) -> t == true end) |> Enum.first() |> elem(0)
+                    next = lines |> Enum.filter(fn({_, t}) -> t == :next end) |> Enum.map(fn({x, _}) -> x end)
 
-            # If the leading and/or following lines are just white space, don't output them.
-            if Enum.all?(prev, fn(x) -> String.strip(x) == "" end), do: prev = []
-            if Enum.all?(next, fn(x) -> String.strip(x) == "" end), do: next = []
+                    # If the leading and/or following lines are just white space, don't output them.
+                    if Enum.all?(prev, fn(x) -> String.strip(x) == "" end), do: prev = []
+                    if Enum.all?(next, fn(x) -> String.strip(x) == "" end), do: next = []
 
-            marker = generate_marker(line, loc.column() - 1, 0, "")
+                    marker = generate_marker(line, loc.column() - 1, 0, "")
 
-            result = prev ++ [line] ++ [marker] ++ next
-            length = length(result)
+                    result = prev ++ [line] ++ [marker] ++ next
+                    length = length(result)
 
-            Enum.map(result, fn(x, i) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
+                    Enum.map(result, fn(x, i) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
+                end
+            {:error, _} -> nil
         end
     end
 
