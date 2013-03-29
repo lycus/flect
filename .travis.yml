@@ -3,6 +3,8 @@ otp_release:
     - R15B
     - R15B01
     - R15B02
+    - R15B03
+    - R16B
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq clang time
