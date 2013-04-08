@@ -14,7 +14,7 @@ TESTS = test-lex-pass \
 	test-parse-pass \
 	test-parse-fail
 
-.PHONY: all docs escript ebin update clean distclean test dialyze install uninstall $(TESTS)
+.PHONY: all docs escript ebin clean distclean test dialyze install uninstall $(TESTS)
 
 all: ebin/flect
 
@@ -58,7 +58,7 @@ ebin/flect.app: $(wildcard lib/*.ex) $(wildcard lib/*/*.ex) $(wildcard lib/*/*/*
 
 clean:
 	@$(MIX) clean --all
-	$(RM) erl_crash.dump
+	$(RM) *.dump
 
 distclean: clean
 	$(RM) config.mak
