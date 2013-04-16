@@ -3,6 +3,7 @@
 export FLECT_ARCH       ?= x86
 export FLECT_OS         ?= darwin
 export FLECT_ABI        ?= x86-sysv64
+export FLECT_FPABI      ?= x86-sse
 export FLECT_ENDIAN     ?= little
 export FLECT_CROSS      ?= false
 
