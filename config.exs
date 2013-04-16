@@ -24,6 +24,8 @@ re = fn(re) -> Regex.match?(re, target) end
     re.(%r/^arm-\w*-linux-gnueabi$/) -> {"arm", "linux", "arm-softfp", "little"}
     re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-hardfp", "little"}
 
+    re.(%r/^powerpc-\w*-linux-gnu$/) -> {"ppc", "linux", "ppc-ppc64", "big"}
+
     true -> {"", "", "", "little"}
 end
 
