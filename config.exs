@@ -15,18 +15,19 @@ IO.puts("")
 
 re = fn(re) -> Regex.match?(re, target) end
 
-{arch, os, abi, endian} = cond do
-    re.(%r/^i\d86-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv32", "little"}
-    re.(%r/^x86_64-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv64", "little"}
-    re.(%r/^i\d86-\w*-darwin/) -> {"x86", "darwin", "x86-sysv32", "little"}
-    re.(%r/^x86_64-\w*-darwin/) -> {"x86", "darwin", "x86-sysv64", "little"}
+{arch, os, abi, fpabi, endian} = cond do
+    re.(%r/^arm-\w*-linux-gnueabi$/) -> {"arm", "linux", "arm-aapcs", "arm-soft", "little"}
+    re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-aapcs", "arm-hardfp", "little"}
 
-    re.(%r/^arm-\w*-linux-gnueabi$/) -> {"arm", "linux", "arm-softfp", "little"}
-    re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-hardfp", "little"}
+    re.(%r/^powerpc-\w*-linux-gnu$/) -> {"ppc", "linux", "ppc-ppc64", "ppc-hardfp", "big"}
 
-    re.(%r/^powerpc-\w*-linux-gnu$/) -> {"ppc", "linux", "ppc-ppc64", "big"}
+    re.(%r/^i\d86-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv32", "x86-x87", "little"}
+    re.(%r/^x86_64-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv64", "x86-sse", "little"}
 
-    true -> {"", "", "", "little"}
+    re.(%r/^i\d86-\w*-darwin/) -> {"x86", "darwin", "x86-sysv32", "x86-x87", "little"}
+    re.(%r/^x86_64-\w*-darwin/) -> {"x86", "darwin", "x86-sysv64", "x86-sse", "little"}
+
+    true -> {"", "", "", "", ""}
 end
 
 IO.puts("Guesstimated values:")
@@ -34,6 +35,7 @@ IO.puts("")
 IO.puts("    FLECT_ARCH       = #{arch}")
 IO.puts("    FLECT_OS         = #{os}")
 IO.puts("    FLECT_ABI        = #{abi}")
+IO.puts("    FLECT_FPABI      = #{fpabi}")
 IO.puts("    FLECT_ENDIAN     = #{endian}")
 IO.puts("")
 
@@ -65,25 +67,27 @@ end
 arch = get.("FLECT_ARCH", arch, false)
 os = get.("FLECT_OS", os, false)
 abi = get.("FLECT_ABI", abi, false)
+fpabi = get.("FLECT_FPABI", fpabi, false)
 endian = get.("FLECT_ENDIAN", endian, false)
 
-unless os in ["none", "aix", "android", "darwin", "dragonflybsd", "freebsd", "hurd", "haiku", "ios", "linux", "openbsd", "solaris", "windows"] do
+unless os in ["none", "aix", "android", "darwin", "dragonflybsd", "freebsd", "haiku", "hpux", "hurd", "ios", "linux", "openbsd", "solaris", "windows"] do
     IO.puts("Error: Invalid operating system #{os} (FLECT_OS)")
     System.halt(1)
 end
 
 arch_valid = case os do
-    "none" -> arch in ["arm", "ia64", "mips", "hppa", "ppc", "x86"]
+    "none" -> arch in ["arm", "ia64", "mips", "ppc", "x86"]
     "aix" -> arch in ["ppc"]
     "android" -> arch in ["arm", "mips", "x86"]
+    "darwin" -> arch in ["ppc", "x86"]
     "dragonflybsd" -> arch in ["x86"]
     "freebsd" -> arch in ["arm", "ia64", "mips", "ppc", "x86"]
-    "hurd" -> arch in ["x86"]
     "haiku" -> arch in ["x86"]
+    "hpux" -> arch in ["ia64"]
+    "hurd" -> arch in ["x86"]
     "ios" -> arch in ["arm"]
-    "linux" -> arch in ["arm", "ia64", "mips", "hppa", "ppc", "x86"]
-    "darwin" -> arch in ["ppc", "x86"]
-    "openbsd" -> arch in ["arm", "mips", "hppa", "ppc", "x86"]
+    "linux" -> arch in ["arm", "ia64", "mips", "ppc", "x86"]
+    "openbsd" -> arch in ["arm", "mips", "ppc", "x86"]
     "solaris" -> arch in ["x86"]
     "windows" -> arch in ["ia64", "x86"]
 end
@@ -94,11 +98,10 @@ unless arch_valid do
 end
 
 abi_valid = case arch do
-    "arm" -> abi in ["arm-thumb", "arm-soft", "arm-softfp", "arm-hardfp", "arm-aarch64"]
-    "ia64" -> abi in ["ia64-psabi"]
+    "arm" -> abi in ["arm-thumb", "arm-thumb2", "arm-aapcs", "arm-aarch64"]
+    "ia64" -> abi in ["ia64-ilp32", "ia64-lp64"]
     "mips" -> abi in ["mips-o32", "mips-n32", "mips-o64", "mips-n64", "mips-eabi32", "mips-eabi64"]
-    "hppa" -> abi in ["hppa-pa32", "hppa-pa64"]
-    "ppc" -> abi in ["ppc-softfp", "ppc-hardfp", "ppc-ppc64"]
+    "ppc" -> abi in ["ppc-ppc32", "ppc-ppc64"]
     "x86" -> abi in ["x86-ms32", "x86-sysv32", "x86-ms64", "x86-sysv64", "x86-x32"]
 end
 
@@ -107,11 +110,23 @@ unless abi_valid do
     System.halt(1)
 end
 
+fpabi_valid = case arch do
+    "arm" -> fpabi in ["arm-soft", "arm-softfp", "arm-hardfp"]
+    "ia64" -> fpabi in ["ia64-hardfp"]
+    "mips" -> fpabi in ["mips-softfp", "mips-hardfp"]
+    "ppc" -> fpabi in ["ppc-softfp", "ppc-hardfp"]
+    "x86" -> fpabi in ["x86-softfp", "x86-x87", "x86-sse"]
+end
+
+unless fpabi_valid do
+    IO.puts("Error: Invalid floating point ABI #{fpabi} for architecture #{arch} (FLECT_FPABI)")
+    System.halt(1)
+end
+
 endian_valid = case arch do
     "arm" -> endian in ["big", "little"]
     "ia64" -> endian in ["big", "little"]
     "mips" -> endian in ["big", "little"]
-    "hppa" -> endian in ["big"]
     "ppc" -> endian in ["big", "little"]
     "x86" -> endian in ["little"]
 end
@@ -165,6 +180,7 @@ IO.puts("")
 IO.puts("    FLECT_ARCH       = #{arch}")
 IO.puts("    FLECT_OS         = #{os}")
 IO.puts("    FLECT_ABI        = #{abi}")
+IO.puts("    FLECT_FPABI      = #{fpabi}")
 IO.puts("    FLECT_ENDIAN     = #{endian}")
 IO.puts("    FLECT_CROSS      = #{cross}")
 IO.puts("")
@@ -190,6 +206,7 @@ cfg = "# Generated by config.exs on #{inspect(:erlang.localtime())}.
 export FLECT_ARCH       ?= #{arch}
 export FLECT_OS         ?= #{os}
 export FLECT_ABI        ?= #{abi}
+export FLECT_FPABI      ?= #{fpabi}
 export FLECT_ENDIAN     ?= #{endian}
 export FLECT_CROSS      ?= #{cross}
 

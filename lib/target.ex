@@ -116,6 +116,14 @@ defmodule Flect.Target do
     end
 
     @doc """
+    Returns the target floating point application binary interface (`FLECT_FPABI`).
+    """
+    @spec get_fpabi() :: String.t()
+    def :get_fpabi, [], [] do
+        System.get_env("FLECT_FPABI")
+    end
+
+    @doc """
     Returns the target endianness (`FLECT_ENDIAN`).
     """
     @spec get_endian() :: String.t()

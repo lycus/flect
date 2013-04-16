@@ -33,8 +33,9 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     * `"Flect_OS_Darwin"`: The target OS is Mac OS X.
     * `"Flect_OS_DragonFlyBSD"`: The target OS is DragonFlyBSD.
     * `"Flect_OS_FreeBSD"`: The target OS is FreeBSD.
-    * `"Flect_OS_Hurd"`: The target OS is GNU Hurd.
     * `"Flect_OS_Haiku"`: The target OS is Haiku.
+    * `"Flect_OS_HP_UX"`: The target OS is Haiku.
+    * `"Flect_OS_Hurd"`: The target OS is GNU Hurd.
     * `"Flect_OS_IOS"`: The target OS is iOS.
     * `"Flect_OS_Linux"`: The target OS is Linux.
     * `"Flect_OS_OpenBSD"`: The target OS is OpenBSD.
@@ -46,7 +47,6 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     * `"Flect_CPU_ARM"`: The target CPU is ARM.
     * `"Flect_CPU_Itanium"`: The target CPU is Itanium.
     * `"Flect_CPU_MIPS"`: The target CPU is MIPS.
-    * `"Flect_CPU_PARISC"`: The target CPU is PA-RISC.
     * `"Flect_CPU_PowerPC"`: The target CPU is PowerPC.
     * `"Flect_CPU_X86"`: The target CPU is x86.
 
@@ -54,27 +54,40 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
     mutually exclusive):
 
     * `"Flect_ABI_ARM_Thumb"`: The Thumb instruction set on ARM.
-    * `"Flect_ABI_ARM_Soft"`: The `soft` ABI on ARM.
-    * `"Flect_ABI_ARM_SoftFP"`: The `softfp` ABI on ARM.
-    * `"Flect_ABI_ARM_HardFP"`: The `hardfp` ABI on ARM.
+    * `"Flect_ABI_ARM_Thumb2"`: The Thumb 2 instruction set on ARM.
+    * `"Flect_ABI_ARM_AAPCS"`: The AAPCS on ARM.
     * `"Flect_ABI_ARM_AArch64"`: The AArch64 instruction set on ARM.
-    * `"Flect_ABI_Itanium_PSABI"`: The Itanium processor-specific ABI.
+    * `"Flect_ABI_Itanium_ILP32"`: The Itanium 32-bit ABI.
+    * `"Flect_ABI_Itanium_LP64"`: The Itanium 64-bit ABI.
     * `"Flect_ABI_MIPS_O32"`: The MIPS O32 ABI.
     * `"Flect_ABI_MIPS_N32"`: The MIPS N32 ABI.
     * `"Flect_ABI_MIPS_O64"`: The MIPS O64 ABI.
     * `"Flect_ABI_MIPS_N64"`: The MIPS N64 ABI.
     * `"Flect_ABI_MIPS_EABI32"`: The 32-bit MIPS EABI.
     * `"Flect_ABI_MIPS_EABI64"`: The 64-bit MIPS EABI.
-    * `"Flect_ABI_PARISC_PA32"`: The 32-bit PA-RISC architecture.
-    * `"Flect_ABI_PARISC_PA64"`: The 64-bit PA-RISC architecture.
-    * `"Flect_ABI_PowerPC_SoftFP"`: The `softfp` ABI on PowerPC.
-    * `"Flect_ABI_PowerPC_HardFP"`: The `hardfp` ABI on PowerPC.
+    * `"Flect_ABI_PowerPC_PPC32"`: The 32-bit PowerPC architecture.
     * `"Flect_ABI_PowerPC_PPC64"`: The 64-bit PowerPC architecture.
     * `"Flect_ABI_X86_Microsoft32"`: The 32-bit Microsoft ABI on x86.
     * `"Flect_ABI_X86_SystemV32"`: The 32-bit System V ABI on x86.
     * `"Flect_ABI_X86_Microsoft64"`: The 64-bit Microsoft ABI on x86.
     * `"Flect_ABI_X86_SystemV64"`: The 64-bit System V ABI on x64.
     * `"Flect_ABI_X86_X32"`: The x32 ABI on x86.
+
+    Possible target floating point application binary interface
+    identifiers (all mutually exclusive):
+
+    * `"Flect_FPABI_ARM_Soft"`: Software floating point on ARM.
+    * `"Flect_FPABI_ARM_SoftFP"`: VFP with software conventions on ARM.
+    * `"Flect_FPABI_ARM_HardFP"`: VFP with hardware conventions on ARM.
+    * `"Flect_FPABI_Itanium_SoftFP"`: Software floating point on Itanium.
+    * `"Flect_FPABI_Itanium_HardFP"`: Hardware floating point on Itanium.
+    * `"Flect_FPABI_MIPS_SoftFP"`: Software floating point on MIPS.
+    * `"Flect_FPABI_MIPS_HardFP"`: Hardware floating point on MIPS.
+    * `"Flect_FPABI_PowerPC_SoftFP"`: Software floating point on PowerPC.
+    * `"Flect_FPABI_PowerPC_HardFP"`: Hardware floating point on PowerPC.
+    * `"Flect_FPABI_X86_SoftFP"`: Software floating point on x86.
+    * `"Flect_FPABI_X86_X87"`: x87 FPU on x86.
+    * `"Flect_FPABI_X86_SSE"`: Streaming SIMD Extensions on x86.
 
     Possible endianness identifiers (all mutually exclusive):
 
@@ -112,8 +125,9 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "darwin" -> "Darwin"
             "dragonflybsd" -> "DragonFlyBSD"
             "freebsd" -> "FreeBSD"
-            "hurd" -> "Hurd"
             "haiku" -> "Haiku"
+            "hpux" -> "HP_UX"
+            "hurd" -> "Hurd"
             "ios" -> "IOS"
             "linux" -> "Linux"
             "openbsd" -> "OpenBSD"
@@ -125,32 +139,45 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "arm" -> "ARM"
             "ia64" -> "Itanium"
             "mips" -> "MIPS"
-            "hppa" -> "PARISC"
             "ppc" -> "PowerPC"
             "x86" -> "X86"
         end
 
         {abi, ptr_size, word_size} = case Flect.Target.get_abi() do
             "arm-thumb" -> {"ARM_Thumb", "32", "32"}
-            "arm-soft" -> {"ARM_Soft", "32", "32"}
-            "arm-softfp" -> {"ARM_SoftFP", "32", "32"}
-            "arm-hardfp" -> {"ARM_HardFP", "32", "32"}
+            "arm-thumb2" -> {"ARM_Thumb2", "32", "32"}
+            "arm-aapcs" -> {"ARM_AAPCS", "32", "32"}
             "arm-aarch64" -> {"ARM_AArch64", "64", "64"}
-            "ia64-psabi" -> {"Itanium_PSABI", "64", "64"}
+            "ia64-ilp32" -> {"Itanium_ILP64", "32", "32"}
+            "ia64-lp64" -> {"Itanium_LP64", "64", "64"}
             "mips-o32" -> {"MIPS_O32", "32", "32"}
             "mips-n32" -> {"MIPS_N32", "32", "64"}
             "mips-o64" -> {"MIPS_O64", "64", "32"}
             "mips-n64" -> {"MIPS_N64", "64", "64"}
             "mips-eabi32" -> {"MIPS_EABI32", "32", "32"}
             "mips-eabi64" -> {"MIPS_EABI64", "64", "64"}
-            "ppc-softfp" -> {"PowerPC_SoftFP", "32", "32"}
-            "ppc-hardfp" -> {"PowerPC_HardFP", "32", "32"}
+            "ppc-ppc32" -> {"PowerPC_PPC32", "32", "32"}
             "ppc-ppc64" -> {"PowerPC_PPC64", "64", "64"}
             "x86-ms32" -> {"X86_Microsoft32", "32", "32"}
             "x86-sysv32" -> {"X86_SystemV32", "32", "32"}
             "x86-ms64" -> {"X86_Microsoft64", "64", "64"}
             "x86-sysv64" -> {"X86_SystemV64", "64", "64"}
             "x86-x32" -> {"X86_X32", "32", "64"}
+        end
+
+        fpabi = case Flect.Target.get_fpabi() do
+            "arm-soft" -> "ARM_Soft"
+            "arm-softfp" -> "ARM_SoftFP"
+            "arm-hardfp" -> "ARM_HardFP"
+            "ia64-softfp" -> "Itanium_SoftFP"
+            "ia64-hardfp" -> "Itanium_HardFP"
+            "mips-softfp" -> "MIPS_SoftFP"
+            "mips-hardfp" -> "MIPS_HardFP"
+            "ppc-softfp" -> "PowerPC_SoftFP"
+            "ppc-hardfp" -> "PowerPC_HardFP"
+            "x86-softfp" -> "X86_SoftFP"
+            "x86-x87" -> "X86_X87"
+            "x86-sse" -> "X86_SSE"
         end
 
         endian = case Flect.Target.get_endian() do
@@ -165,6 +192,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
          "Flect_OS_" <> os,
          "Flect_CPU_" <> arch,
          "Flect_ABI_" <> abi,
+         "Flect_FPABI_" <> fpabi,
          "Flect_Endianness_" <> endian,
          "Flect_PointerSize_" <> ptr_size,
          "Flect_WordSize_" <> word_size

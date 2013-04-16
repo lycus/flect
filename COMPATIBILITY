@@ -44,6 +44,7 @@ Operating systems (FLECT_OS) supported:
     * FreeBSD (freebsd)
     * GNU Hurd (hurd)
     * Haiku (haiku)
+    * HP-UX (hpux)
     * iOS (ios)
     * Linux (linux)
     * Mac OS X (darwin)
@@ -56,23 +57,22 @@ Architectures (FLECT_ARCH) supported:
     * ARM (arm)
     * Itanium (ia64)
     * MIPS (mips)
-    * PA-RISC (hppa)
     * PowerPC (ppc)
     * x86 (x86)
 
-Note that certain architecture and ABI combinations don't make sense, so you
-may get configuration errors if you configure these values incorrectly.
+Note that certain architecture and operating system combinations don't make
+sense, so you may get configuration errors if you configure these values
+incorrectly.
 
 ABIs (FLECT_ABI) supported:
 
     * ARM
      - 32-bit ARM w/ Thumb (arm-thumb)
-     - 32-bit ARM Soft (arm-soft)
-     - 32-bit ARM SoftFP (arm-softfp)
-     - 32-bit ARM HardFP (arm-hardfp)
+     - 32-bit ARM w/ Thumb 2 (arm-thumb2)
      - 64-bit ARM (arm-aarch64)
     * Itanium
-     - 64-bit Itanium (ia64-psabi)
+     - 32-bit Itanium (ia64-ilp32)
+     - 64-bit Itanium (ia64-lp64)
     * MIPS
      - 32-bit MIPS O32 (mips-o32)
      - 32-bit MIPS N32 (mips-n32)
@@ -80,12 +80,8 @@ ABIs (FLECT_ABI) supported:
      - 64-bit MIPS O64 (mips-o64)
      - 64-bit MIPS N64 (mips-n64)
      - 64-bit MIPS EABI (mips-eabi64)
-    * PA-RISC
-     - 32-bit PA-RISC (hppa-pa32)
-     - 64-bit PA-RISC (hppa-pa64)
     * PowerPC
-     - 32-bit PowerPC SoftFP (ppc-softfp)
-     - 32-bit PowerPC HardFP (ppc-hardfp)
+     - 32-bit PowerPC (ppc-ppc32)
      - 64-bit PowerPC (ppc-ppc64)
     * x86
      - 32-bit x86 Microsoft (x86-ms32)
@@ -93,6 +89,26 @@ ABIs (FLECT_ABI) supported:
      - 64-bit x86 Microsoft (x86-ms64)
      - 64-bit x86 System V (x86-sysv64)
      - 64-bit x86 w/ x32 (x86-x32)
+
+Floating point ABIs (FLECT_FPABI) supported:
+
+    * ARM
+     - Software floating point (arm-soft)
+     - VFP with software conventions (arm-softfp)
+     - VFP with hardware conventions (arm-hardfp)
+    * Itanium
+     - Software floating point (ia64-softfp)
+     - Hardware floating point (ia64-hardfp)
+    * MIPS
+     - Software floating point (mips-softfp)
+     - Hardware floating point (mips-hardfp)
+    * PowerPC
+     - Software floating point (ppc-softfp)
+     - Hardware floating point (ppc-hardfp)
+    * x86
+     - Software floating point (x86-softfp)
+     - x87 FPU (x86-x87)
+     - Streaming SIMD Extensions (x86-sse)
 
 Endiannesses (FLECT_ENDIAN) supported:
 

@@ -15,8 +15,10 @@ provides=("flect")
 
 if [ $CARCH == "x86_64" ]; then
     _abi="x86-sysv64"
+    _fpabi="x86-sse"
 elif [ $CARCH == "i686" ]; then
     _abi="x86-sysv32"
+    _fpabi="x86-x87"
 fi
 
 _git="https://github.com/lycus/flect.git"
@@ -46,6 +48,7 @@ build() {
 export FLECT_ARCH       ?= x86
 export FLECT_OS         ?= linux
 export FLECT_ABI        ?= $_abi
+export FLECT_FPABI      ?= $_fpabi
 export FLECT_CROSS      ?= false
 
 export FLECT_CC         ?= clang
