@@ -17,6 +17,7 @@ re = fn(re) -> Regex.match?(re, target) end
 
 {arch, os, abi, fpabi, endian} = cond do
     re.(%r/^arm-\w*-linux-gnueabi$/) -> {"arm", "linux", "arm-aapcs", "arm-soft", "little"}
+    re.(%r/^arm-\w*-linux-gnueabihf$/) -> {"arm", "linux", "arm-aapcs", "arm-hardfp", "little"}
     re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-aapcs", "arm-hardfp", "little"}
 
     re.(%r/^powerpc-\w*-linux-gnu$/) -> {"ppc", "linux", "ppc-ppc64", "ppc-hardfp", "big"}
