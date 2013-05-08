@@ -308,7 +308,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
                         parse_section_stmt(state, terms, [{:error, node} | nodes])
                     v ->
                         cond do
-                            List.member?(terms, v) -> {new_node(:section_stmt, loc, [], Enum.reverse(nodes)), state}
+                            Enum.member?(terms, v) -> {new_node(:section_stmt, loc, [], Enum.reverse(nodes)), state}
                             v in ["\\else", "\\elif", "\\endif"] -> raise_error(t.location(), "Unexpected #{v} directive")
                             true -> raise_error(t.location(), "Unknown preprocessor directive: '#{v}'")
                         end
