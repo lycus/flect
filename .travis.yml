@@ -13,8 +13,8 @@ before_install:
     - cd elixir
     - make
     - cd ..
-    - git clone http://github.com/elixir-lang/exdoc
-    - cd exdoc
+    - git clone http://github.com/elixir-lang/ex_doc
+    - cd ex_doc
     - make
     - mix compile
     - cd ..
