@@ -13,8 +13,6 @@ defmodule Flect.Application do
     """
     @spec main([char_list()]) :: no_return()
     def main(args) do
-        args = lc arg inlist args, do: list_to_binary(arg)
-
         {opts, rest} = parse(args)
 
         have_tool = !Enum.empty?(rest)
