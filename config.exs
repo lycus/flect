@@ -8,7 +8,7 @@ IO.puts("")
 IO.puts("Press Enter to start configuring Flect.")
 IO.readline()
 
-target = list_to_binary(:erlang.system_info(:system_architecture))
+target = :unicode.characters_to_binary(:erlang.system_info(:system_architecture))
 
 IO.puts("Guesstimated target triple is: #{target}")
 IO.puts("")
@@ -45,7 +45,7 @@ IO.puts("")
 
 get = fn(var, def, empty) ->
     cond do
-        (s = String.strip(list_to_binary(IO.gets("Please enter a value for #{var} [#{def}]: ")))) != "" -> s
+        (s = String.strip(:unicode.characters_to_binary(IO.gets("Please enter a value for #{var} [#{def}]: ")))) != "" -> s
         def != "" -> def
         empty -> ""
         true ->

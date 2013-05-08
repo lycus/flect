@@ -10,7 +10,7 @@ passes = :file.list_dir(path) |>
 files = :file.list_dir(path) |>
         elem(1) |>
         Enum.filter(fn(x) -> Path.extname(x) == '.fl' end) |>
-        Enum.map(fn(x) -> list_to_binary(x) end) |>
+        Enum.map(fn(x) -> :unicode.characters_to_binary(x) end) |>
         Enum.sort()
 
 otp = :erlang.system_info(:otp_release)
@@ -53,14 +53,14 @@ results = Enum.map(passes, fn(pass) ->
         end
 
         extra_args = case :file.consult(file <> "." <> pass[:pass] <> ".arg") do
-            {:ok, [list]} -> Enum.map(list, fn(arg) -> list_to_binary(arg) end)
+            {:ok, [list]} -> Enum.map(list, fn(arg) -> :unicode.characters_to_binary(arg) end)
             {:error, :enoent} -> []
         end
 
         if is_list(pass[:command]) do
             args = Enum.map(pass[:command], fn(arg) ->
                 arg |>
-                list_to_binary() |>
+                :unicode.characters_to_binary() |>
                 String.replace("<file>", file) |>
                 String.replace("<name>", Path.rootname(file))
             end) ++ extra_args
@@ -93,7 +93,7 @@ results = Enum.map(passes, fn(pass) ->
             check.(file, pass, text, code)
         else
             cmd = pass[:command] |>
-                  list_to_binary() |>
+                  :unicode.characters_to_binary() |>
                   String.replace("<file>", file) |>
                   String.replace("<name>", Path.rootname(file))
 
@@ -103,10 +103,10 @@ results = Enum.map(passes, fn(pass) ->
 
             IO.write("    #{cmd} ... ")
 
-            port = Port.open({:spawn, binary_to_list(cmd)}, [:stream,
-                                                             :binary,
-                                                             :exit_status,
-                                                             :hide])
+            port = Port.open({:spawn, :unicode.characters_to_list(cmd)}, [:stream,
+                                                                          :binary,
+                                                                          :exit_status,
+                                                                          :hide])
 
             recv = fn(recv, port, acc) ->
                 receive do

@@ -72,7 +72,7 @@ defmodule Flect.Timer do
 
             ftime = "#{secs}s #{msecs}ms #{time}us"
 
-            list_to_binary(:io_lib.format("        ~-22s ~-7.1f ~w", [ftime, perc, name]))
+            :unicode.characters_to_binary(:io_lib.format("        ~-22s ~-7.1f ~w", [ftime, perc, name]))
         end
 
         "\n" <> sep <> "\n" <> head <> "\n" <> sep <> "\n\n" <> head2 <> "\n" <> sep2 <> "\n" <> Enum.join(Enum.reverse(passes), "\n") <> "\n"
