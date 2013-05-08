@@ -14,9 +14,7 @@ defmodule Flect.Interactive.Tool do
             {:error, reason} ->
                 Flect.Logger.error("Error reading stdin: #{reason}")
                 :ok
-            data ->
-                text = String.strip(:unicode.characters_to_binary(data))
-
+            text ->
                 case text do
                     <<"/quit", _ :: binary()>> -> :ok
                     <<"/help", _ :: binary()>> ->

@@ -45,7 +45,7 @@ IO.puts("")
 
 get = fn(var, def, empty) ->
     cond do
-        (s = String.strip(:unicode.characters_to_binary(IO.gets("Please enter a value for #{var} [#{def}]: ")))) != "" -> s
+        (s = String.strip(IO.gets("Please enter a value for #{var} [#{def}]: "))) != "" -> s
         def != "" -> def
         empty -> ""
         true ->
