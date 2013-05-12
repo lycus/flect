@@ -1,0 +1,3 @@
+pub mod Bar {
+    pub @ [ enum (label = 'f', type = 2:u16) ]
+}

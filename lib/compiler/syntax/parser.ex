@@ -124,8 +124,8 @@ defmodule Flect.Compiler.Syntax.Parser do
 
                 parse_decls(state, [{:declaration, decl} | decls])
             {v, token, state} when v in [:pub, :priv] ->
-                {decl, state} = case expect_token(state, [:fn, :struct, :union, :enum, :type, :trait,
-                                                          :impl, :glob, :tls, :macro], "declaration") do
+                {decl, state} = case expect_token(state, [:fn, :struct, :union, :enum, :trait,
+                                                          :impl, :glob, :tls, :macro, :at], "declaration") do
                     {:fn, _, _} -> parse_fn_decl(state, token)
                     {:struct, _, _} -> parse_struct_decl(state, token)
                     {:union, _, _} -> parse_union_decl(state, token)
@@ -136,6 +136,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                     {:glob, _, _} -> parse_glob_decl(state, token)
                     {:tls, _, _} -> parse_tls_decl(state, token)
                     {:macro, _, _} -> parse_macro_decl(state, token)
+                    {:at, _, _} -> parse_attribute(state, token)
                 end
 
                 parse_decls(state, [{:declaration, decl} | decls])
@@ -1832,6 +1833,115 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
 
         {new_node(:identifier_expr, name.location(), [], [{:name, name} | ty_args]), state}
+    end
+
+    @spec parse_attribute(state(), token()) :: return_n()
+    defp parse_attribute(state, visibility) do
+        {_, tok_at, state} = expect_token(state, :at, "at")
+        {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
+        {name, state} = parse_attribute_name(state)
+
+        {attr_args, state} = case next_token(state) do
+            {:paren_open, _, _} ->
+                {attr_args, state} = parse_attribute_arguments(state)
+                {[arguments: attr_args], state}
+            _ -> {[], state}
+        end
+        {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
+
+        {new_node(:attribute, name.location(), [at_symbol: tok_at] ++ [opening_bracket: tok_open] ++
+                    [closing_bracket: tok_close], [name: name] ++ attr_args), state}
+    end
+
+    @spec parse_attribute_name(state()) :: return_n()
+    defp parse_attribute_name(state) do
+        case next_token(state) do
+            {v, tok, state} when v == :identifier ->
+                {new_node(:attribute_name, tok.location(), [name: tok]), state}
+
+            {_, tok, state} ->
+                if Flect.Compiler.Syntax.Lexer.keyword?(atom_to_binary(tok.type())) do
+                    {new_node(:attribute_name, tok.location(), [name: tok]), state}
+
+                else
+                    raise_error(tok.location(), "Expected keyword or identifier")
+                end
+        end
+    end
+
+    @spec parse_attribute_arguments(state()) :: return_n()
+    defp parse_attribute_arguments(state) do
+        {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
+        {attrs, toks, state} = parse_attribute_argument_list(state, [])
+        {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+
+        attrs = Enum.reverse(attrs)
+        attrs = lc attr inlist attrs, do: {:attribute_argument, attr}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:attribute_arguments, tok_open.location(),
+                  [opening_parenthesis: tok_open] ++ toks ++ [closing_parenthesis: tok_close], attrs), state}
+    end
+
+    @spec parse_attribute_argument_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_attribute_argument_list(state, attrs, tokens // []) do
+        {attr, state} = parse_attribute_argument(state)
+
+        case next_token(state) do
+            {:comma, tok, state} -> parse_attribute_argument_list(state, [attr | attrs], [tok | tokens])
+            _ -> {[attr | attrs], tokens, state}
+        end
+    end
+
+    @spec parse_attribute_argument(state()) :: return_n()
+    defp parse_attribute_argument(state) do
+        {name, state} = parse_attribute_name(state)
+
+        {attr, state} = case next_token(state) do
+            {:assign, _, _} ->
+                {attr_val, state} = parse_attribute_value(state)
+                {[attribute_value: attr_val], state}
+            _ ->
+                {[], state}
+        end
+
+        {new_node(:attribute_argument, name.location(), [], [name: name] ++ attr), state}
+    end
+
+    @spec parse_attribute_value(state()) :: return_n()
+    defp parse_attribute_value(state) do
+        {_, tok_assign, state} = expect_token(state, :assign, "assign")
+
+        {attr_val, state} = case next_token(state) do
+            {v, token, state} when v == :paren_open ->
+                {attr_args, state} = parse_attribute_arguments(state)
+                {[attribute_argument: attr_args], state}
+            _ ->
+                {attr_lit, state} = parse_attribute_literal(state)
+                {[attribute_argument: attr_lit], state}
+        end
+
+        {new_node(:attribute_value, tok_assign.location(), [assign: tok_assign], attr_val), state}
+    end
+
+    @spec parse_attribute_literal(state()) :: return_n()
+    defp parse_attribute_literal(state) do
+        case next_token(state) do
+            {v, tok, state} when v in [:u8, :u16, :u32, :u64, :i8, :i16, :i32, :i64] ->
+                {new_node(:attribute_typed_int_literal, tok.location(), [name: tok]), state}
+
+            {w, tok, state} when w in [:f32, :f64] ->
+                {new_node(:attribute_typed_float_literal, tok.location(), [name: tok]), state}
+
+            {x, tok, state} when x == :character ->
+                {new_node(:attribute_char_literal, tok.location(), [name: tok]), state}
+
+            {y, tok, state} when y == :string ->
+                {new_node(:attribute_string_literal, tok.location(), [name: tok]), state}
+
+            {_, tok, state} ->
+                raise_error(tok.location(), "Expected typed int literal, typed float literal, character or string")
+        end
     end
 
     @spec next_token(state(), boolean()) :: {atom(), token(), state()} | :eof
