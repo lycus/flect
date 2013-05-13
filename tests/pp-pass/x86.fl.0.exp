@@ -1,0 +1,1 @@
+Flect.Compiler.Syntax.Token[type: :string, value: "\"x86\"", location: Flect.Compiler.Syntax.Location[file: "x86.fl", line: 2, column: 1]]

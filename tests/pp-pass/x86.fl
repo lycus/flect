@@ -1,0 +1,5 @@
+\if Flect_CPU_X86
+"x86"
+\else
+"something else"
+\endif
