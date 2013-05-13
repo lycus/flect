@@ -124,7 +124,7 @@ test_failures = Enum.count(results, fn(x) -> x == false end)
 tests = test_passes + test_failures
 
 IO.puts("")
-IO.puts(IO.ANSI.escape_fragment("  %{yellow, bright}#{tests}%{reset} test passes executed, " <>
+IO.puts(IO.ANSI.escape_fragment("  %{yellow, bright}#{tests}%{reset} total tests, " <>
                                 "%{blue, bright}#{test_skips}%{reset} skipped, " <>
                                 "%{green, bright}#{test_passes}%{reset} successful, " <>
                                 "%{red, bright}#{test_failures}%{reset} failed"))
