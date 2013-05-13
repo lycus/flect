@@ -2,7 +2,7 @@
 
 export FLECT_ARCH       ?= arm
 export FLECT_OS         ?= linux
-export FLECT_ABI        ?= arm-hardfp
+export FLECT_ABI        ?= arm-aapcs
 export FLECT_FPABI      ?= arm-softfp
 export FLECT_ENDIAN     ?= little
 export FLECT_CROSS      ?= false
