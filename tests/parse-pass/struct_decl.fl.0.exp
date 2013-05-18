@@ -11,10 +11,19 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (5,1) ]
         simple_name (2,16) [ "bar" (2,16) ]
         {
         }
-        field_declaration (3,13) [ "pub" (3,9), ";" (3,17) ]
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,17), ";" (3,22) ]
         {
             simple_name (3,13) [ "baz" (3,13) ]
             {
+            }
+            nominal_type (3,19) [  ]
+            {
+                qualified_name (3,19) [  ]
+                {
+                    simple_name (3,19) [ "u32" (3,19) ]
+                    {
+                    }
+                }
             }
         }
     }
