@@ -9,7 +9,6 @@ defmodule Flect.Compiler.Syntax.Parser do
     @typep state() :: {[token()], location()}
     @typep return_n() :: {ast_node(), state()}
     @typep return_m() :: {[ast_node()], state()}
-    @typep return_nt() :: {ast_node(), [token()], state()}
     @typep return_mt() :: {[ast_node()], [token()], state()}
 
     @doc """
@@ -79,7 +78,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         case next_token(state) do
             {v, token, state} when v in [:pub, :priv] ->
                 {decl, state} = case expect_token(state, [:fn, :struct, :union, :enum, :type, :trait,
-                                                          :impl, :glob, :tls, :const, :macro], "declaration") do
+                                                          :impl, :glob, :tls, :macro], "declaration") do
                     {:fn, _, _} -> parse_fn_decl(state, token)
                     {:struct, _, _} -> parse_struct_decl(state, token)
                     {:union, _, _} -> parse_union_decl(state, token)
@@ -89,7 +88,6 @@ defmodule Flect.Compiler.Syntax.Parser do
                     {:impl, _, _} -> parse_impl_decl(state, token)
                     {:glob, _, _} -> parse_glob_decl(state, token)
                     {:tls, _, _} -> parse_tls_decl(state, token)
-                    {:const, _, _} -> parse_const_decl(state, token)
                     {:macro, _, _} -> parse_macro_decl(state, token)
                 end
 
@@ -178,11 +176,6 @@ defmodule Flect.Compiler.Syntax.Parser do
         exit(:todo)
     end
 
-    @spec parse_const_decl(state(), token()) :: return_n()
-    defp parse_const_decl(state, visibility) do
-        exit(:todo)
-    end
-
     @spec parse_macro_decl(state(), token()) :: return_n()
     defp parse_macro_decl(state, visibility) do
         exit(:todo)
@@ -190,12 +183,13 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_type(state()) :: return_n()
     defp parse_type(state) do
-        case expect_token(state, [:identifier, :paren_open, :fn, :bracket_open, :at, :star, :ampersand], "type signature") do
+        case expect_token(state, [:identifier, :paren_open, :fn, :brace_open,
+                                  :at, :star, :ampersand], "type signature") do
             {:identifier, _, _} -> parse_nominal_type(state)
             {:paren_open, _, _} -> parse_tuple_type(state)
             {:fn, _, _} -> parse_function_type(state)
-            {:bracket_open, _, _} -> parse_vector_type(state)
-            {v, _, _} when v in [:at, :star, :ampersand] -> parse_general_pointer_types(state)
+            {:brace_open, _, _} -> parse_vector_type(state)
+            _ -> parse_pointer_type(state)
         end
     end
 
@@ -210,7 +204,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ -> {[], state}
         end
 
-        {new_node(:nominal_type, name.location(), [], [name: name] ++ ty_args), state}
+        {new_node(:nominal_type, name.location(), [], [{:name, name} | ty_args]), state}
     end
 
     @spec parse_type_arguments(state()) :: return_n()
@@ -222,8 +216,8 @@ defmodule Flect.Compiler.Syntax.Parser do
         types = lc type inlist types, do: {:argument, type}
         toks = lc tok inlist toks, do: {:comma, tok}
 
-        {new_node(:type_arguments, tok_open.location(), 
-                  [opening_bracket: tok_open] ++ toks ++ [closing_bracket: tok_close], types), state}
+        {new_node(:type_arguments, tok_open.location(),
+                  [{:opening_bracket, tok_open} | toks] ++ [closing_bracket: tok_close], types), state}
     end
 
     @spec parse_type_list(state(), [ast_node()], [token()]) :: return_mt()
@@ -232,7 +226,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         case next_token(state) do
             {:comma, tok, state} -> parse_type_list(state, [type | types], [tok | tokens])
-            _ -> {[type | types], tokens, state}
+            _ -> {Enum.reverse([type | types]), Enum.reverse(tokens), state}
         end
     end
 
@@ -240,55 +234,54 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_tuple_type(state) do
         {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
         {type, state} = parse_type(state)
-        {_, tok_comma, state} = expect_token(state, :comma, "comma")
-        {types, toks, state} = parse_type_list(state, [type])
+        {_, comma, state} = expect_token(state, :comma, "comma")
+        {types, toks, state} = parse_type_list(state, [])
         {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
 
-        types = lc typ inlist types, do: {:element, typ}
-        toks = lc tok inlist toks, do: {:comma, tok}
+        types = lc typ inlist [type | types], do: {:element, typ}
+        toks = lc tok inlist [comma | toks], do: {:comma, tok}
 
         {new_node(:tuple_type, tok_open.location(),
-                  [opening_parenthesis: tok_open] ++ toks ++ [closing_parenthesis: tok_close], types), state}
+                  [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], types), state}
     end
 
     @spec parse_function_type(state()) :: return_n()
     defp parse_function_type(state) do
-        {_, _, state} = expect_token(state, :fn, "fn keyword")
+        {_, fn_tok, state} = expect_token(state, :fn, "'fn' keyword")
 
-        case expect_token(state, [:at, :paren_open, :ext], "function type") do
-            {:at, _, _} -> parse_closure_pointer_type(state)
-            {v, _, _} when v in [:ext, :paren_open] -> parse_function_pointer_type(state)
+        case expect_token(state, [:at, :paren_open, :ext], "function type parameter list") do
+            {:at, _, _} -> parse_closure_pointer_type(state, fn_tok)
+            _ -> parse_function_pointer_type(state, fn_tok)
         end
     end
 
-    @spec parse_function_pointer_type(state()) :: return_n()
-    defp parse_function_pointer_type(state) do
-        case expect_token(state, [:paren_open, :ext], "function pointer type") do
-            {:ext, _, _} -> parse_external_function_pointer_type(state)
-            # just adding a comment here so we remember to change
-            {:paren_open, _, _} -> parse_function_type_parameters(state)
+    @spec parse_function_pointer_type(state(), token()) :: return_n()
+    defp parse_function_pointer_type(state, fn_kw) do
+        {ext_abi, state} = case next_token(state) do
+            {:ext, ext, state} ->
+                case expect_token(state, :string, "function ABI string") do
+                    {_, abi, state} -> {[ext_keyword: ext, abi: abi], state}
+                end
+            _ -> {[], state}
         end
-    end
 
-    @spec parse_external_function_pointer_type(state()) :: return_n()
-    defp parse_external_function_pointer_type(state) do
-        {_, _, state} = expect_token(state, :ext, "ext")
-        {_, tok_abi, state} = expect_token(state, :string, "function ABI string")
-        {list, state} = parse_function_type_parameters(state)
-
-        {new_node(:ext, tok_abi.location(), [abi: tok_abi], [list: list]), state}
-    end
-
-    @spec parse_closure_pointer_type(state()) :: return_n()
-    defp parse_closure_pointer_type(state) do
-        {_, tok_fn, state} = expect_token(state, :fn, "fn keyword")
-        {_, tok_closure, state} = expect_token(state, :at, "@")
-        {type_param, state} = parse_function_type_parameters(state)
+        {params, state} = parse_function_type_parameters(state)
         {_, tok_arrow, state} = expect_token(state, :minus_angle_close, "return type arrow")
         {return_type, state} = parse_return_type(state)
 
-        {new_node(:closure_pointer_type, tok_fn.location(),
-                  [at: tok_closure] ++ [arrow: tok_arrow], [type: type_param, type: return_type]), state}
+        {new_node(:function_pointer_type, fn_kw.location(),
+                  [fn_keyword: fn_kw] ++ ext_abi ++ [arrow: tok_arrow], [parameters: params, return_type: return_type]), state}
+    end
+
+    @spec parse_closure_pointer_type(state(), token()) :: return_n()
+    defp parse_closure_pointer_type(state, fn_kw) do
+        {_, tok_closure, state} = expect_token(state, :at, "'@' symbol")
+        {params, state} = parse_function_type_parameters(state)
+        {_, tok_arrow, state} = expect_token(state, :minus_angle_close, "return type arrow")
+        {return_type, state} = parse_return_type(state)
+
+        {new_node(:closure_pointer_type, fn_kw.location(),
+                  [fn_keyword: fn_kw, at: tok_closure, arrow: tok_arrow], [parameters: params, return_type: return_type]), state}
     end
 
     @spec parse_function_type_parameters(state()) :: return_n()
@@ -297,96 +290,96 @@ defmodule Flect.Compiler.Syntax.Parser do
         {type_params, toks, state} = parse_function_type_parameter_list(state, [])
         {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
 
-        types = lc type inlist type_params, do: {:function_type_parameter, type}
+        types = lc type inlist type_params, do: {:parameter, type}
         toks = lc tok inlist toks, do: {:comma, tok}
 
-        {new_node(:function_type_parameters, tok_open.location(), 
-                  [paren_open: tok_open] ++ toks ++ [paren_close: tok_close], types), state}
+        {new_node(:function_type_parameters, tok_open.location(),
+                  [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], types), state}
     end
 
     @spec parse_function_type_parameter_list(state(), [ast_node()], [token()]) :: return_mt()
-    defp parse_function_type_parameter_list(state, types, tokens // []) do
-        {type, state} = parse_function_type_parameter(state)
-
+    defp parse_function_type_parameter_list(state, params, tokens // []) do
         case next_token(state) do
-            {:comma, tok, state} -> parse_function_type_parameter_list(state, [type | types], [tok | tokens])
-            _ -> {Enum.reverse([type | types]), tokens, state}
+            {:paren_close, _, _} -> {Enum.reverse(params), Enum.reverse(tokens), state}
+            {:comma, tok, state} when params != [] ->
+                {param, state} = parse_function_type_parameter(state)
+                parse_function_type_parameter_list(state, [param | params], [tok | tokens])
+            _ when params == [] ->
+                {param, state} = parse_function_type_parameter(state)
+                parse_function_type_parameter_list(state, [param | params], tokens)
         end
     end
 
     @spec parse_function_type_parameter(state()) :: return_n()
     defp parse_function_type_parameter(state) do
-        case next_token(state) do
-            {v, token, state} when v in [:mut, :ref] ->
-                {param_type, state} = parse_type(state)
-                {new_node(:func_type_param, param_type.location(), [name: token], [type: param_type]), state}
-
-            _ ->
-                {param_type, state} = parse_type(state)
-                {new_node(:func_type_param, param_type.location(), [], [type: param_type]), state}
+        {mut, state} = case next_token(state) do
+            {:mut, mut, state} -> {[mut_keyword: mut], state}
+            _ -> {[], state}
         end
-    end
 
-    @spec parse_vector_type(state()) :: return_n()
-    defp parse_vector_type(state) do
-        {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
-        {type, state} = parse_type(state)
-        {_, tok_period_period, state} = expect_token(state, :period_period, "ellipsis")
-        {_, tok_int, state} = expect_token(state, :integer, "integer")
-        {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
-
-        {new_node(:vector_type, tok_open.location(),
-                  [opening_bracket: tok_open] ++ [ellipsis: tok_period_period] ++ [size: tok_int] ++
-                  [closing_bracket: tok_close], [type: type]), state}
-    end
-
-    @spec parse_general_pointer_types(state()) :: return_n()
-    defp parse_general_pointer_types(state) do
-        {_, pointer_type, state} = expect_token(state, [:at, :star, :ampersand], "pointer type")
-            {ty_arg, state} = case next_token(state) do
-                {w, token, state} when w in [:mut, :imm] ->
-                    {type, state} = parse_pointer_types(state)
-                    {[arguments: type], state}
-                _ ->
-                    {type, state} = parse_pointer_types(state)
-                    {[arguments: type], state}
-            end
-
-        {new_node(:pointer_types, pointer_type.location(), [name: pointer_type], ty_arg), state}
-    end
-
-    @spec parse_pointer_types(state()) :: return_n()
-    defp parse_pointer_types(state) do
-        case next_token(state) do
-            {:bracket_open, _, _} -> parse_array_type(state)
-            _ -> parse_pointer_type(state)
+        {ref, state} = case next_token(state) do
+            {:ref, ref, state} -> {[ref_keyword: ref], state}
+            _ -> {[], state}
         end
-    end
 
-    @spec parse_array_type(state()) :: return_n()
-    defp parse_array_type(state) do
-        {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
-        {type, state} = parse_type(state)
-        {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
-
-        {new_node(:array_type, tok_open.location(),
-                  [opening_bracket: tok_open] ++ [closing_bracket: tok_close], [type: type]), state}
-    end
-
-    @spec parse_pointer_type(state()) :: return_n()
-    defp parse_pointer_type(state) do
         {type, state} = parse_type(state)
 
-        {new_node(:pointer_type, type.location(), [], [type: type]), state}
+        {new_node(:function_type_parameter, type.location(), mut ++ ref, [type: type]), state}
     end
 
     @spec parse_return_type(state()) :: return_n()
     defp parse_return_type(state) do
         case next_token(state) do
-            {:exclamation, toks, _} ->
-                {_, tok_exclam, state} = expect_token(state, :exclamation, "exclamation mark (bottom type)")
-                {new_node(:bottom_type, tok_exclam.location(), [exclamation: tok_exclam], []), state}
+            {:exclamation, tok_exclam, state} -> {new_node(:bottom_type, tok_exclam.location(), [exclamation: tok_exclam], []), state}
             _ -> parse_type(state)
+        end
+    end
+
+    @spec parse_vector_type(state()) :: return_n()
+    defp parse_vector_type(state) do
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {type, state} = parse_type(state)
+        {_, tok_period_period, state} = expect_token(state, :period_period, "type/size-separating ellipsis")
+        {_, tok_int, state} = expect_token(state, :integer, "vector size integer")
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        {new_node(:vector_type, tok_open.location(),
+                  [opening_brace: tok_open, ellipsis: tok_period_period, size: tok_int, closing_brace: tok_close], [element: type]), state}
+    end
+
+    @spec parse_pointer_type(state()) :: return_n()
+    defp parse_pointer_type(state) do
+        {p_type, tok, state} = case expect_token(state, [:at, :star, :ampersand], "'@', '*', or '&'") do
+            {:at, tok, state} -> {:managed_pointer_type, [at: tok], state}
+            {:star, tok, state} -> {:unsafe_pointer_type, [star: tok], state}
+            {:ampersand, tok, state} -> {:general_pointer_type, [ampersand: tok], state}
+        end
+
+        {mut_imm, state} = case next_token(state) do
+            {:mut, mut, state} -> {[mut_keyword: mut], state}
+            {:imm, imm, state} -> {[imm_keyword: imm], state}
+            _ -> {[], state}
+        end
+
+        loc = elem(Enum.at!(tok, 0), 1).location()
+
+        case next_token(state) do
+            {:bracket_open, _, _} ->
+                a_type = case p_type do
+                    :managed_pointer_type -> :managed_array_type
+                    :unsafe_pointer_type -> :unsafe_array_type
+                    :general_pointer_type -> :general_array_type
+                end
+
+                {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
+                {type, state} = parse_type(state)
+                {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
+
+                {new_node(a_type, loc, tok ++ mut_imm ++ [opening_bracket: tok_open, closing_bracket: tok_close], [element: type]), state}
+            _ ->
+                {type, state} = parse_type(state)
+
+                {new_node(p_type, loc, tok ++ mut_imm, [pointee: type]), state}
         end
     end
 
