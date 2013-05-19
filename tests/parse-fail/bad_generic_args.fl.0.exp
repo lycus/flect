@@ -1,0 +1,7 @@
+Error: bad_generic_args.fl(3,24): Expected closing bracket, but got ';' 
+pub mod bad_generic_args {
+    pub struct BadGenericArgs {
+        pub a : foo[bar;
+                       ^ 
+    }
+}

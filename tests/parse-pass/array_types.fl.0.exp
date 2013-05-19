@@ -1,0 +1,117 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "array_types" (1,9) ]
+        {
+        }
+    }
+    struct_declaration (2,9) [ "pub" (2,5), "struct" (2,9), "{" (2,27), "}" (8,5) ]
+    {
+        simple_name (2,16) [ "ArrayTypes" (2,16) ]
+        {
+        }
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,15), ";" (3,23) ]
+        {
+            simple_name (3,13) [ "a" (3,13) ]
+            {
+            }
+            managed_array_type (3,17) [ "@" (3,17), "[" (3,18), "]" (3,22) ]
+            {
+                nominal_type (3,19) [  ]
+                {
+                    qualified_name (3,19) [  ]
+                    {
+                        simple_name (3,19) [ "foo" (3,19) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (4,13) [ "pub" (4,9), ":" (4,15), ";" (4,23) ]
+        {
+            simple_name (4,13) [ "b" (4,13) ]
+            {
+            }
+            unsafe_array_type (4,17) [ "*" (4,17), "[" (4,18), "]" (4,22) ]
+            {
+                nominal_type (4,19) [  ]
+                {
+                    qualified_name (4,19) [  ]
+                    {
+                        simple_name (4,19) [ "bar" (4,19) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (5,13) [ "pub" (5,9), ":" (5,15), ";" (5,23) ]
+        {
+            simple_name (5,13) [ "c" (5,13) ]
+            {
+            }
+            general_array_type (5,17) [ "&" (5,17), "[" (5,18), "]" (5,22) ]
+            {
+                nominal_type (5,19) [  ]
+                {
+                    qualified_name (5,19) [  ]
+                    {
+                        simple_name (5,19) [ "baz" (5,19) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (6,13) [ "pub" (6,9), ":" (6,15), ";" (6,27) ]
+        {
+            simple_name (6,13) [ "d" (6,13) ]
+            {
+            }
+            managed_array_type (6,17) [ "@" (6,17), "mut" (6,18), "[" (6,22), "]" (6,26) ]
+            {
+                nominal_type (6,23) [  ]
+                {
+                    qualified_name (6,23) [  ]
+                    {
+                        simple_name (6,23) [ "foo" (6,23) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (7,13) [ "pub" (7,9), ":" (7,15), ";" (7,34) ]
+        {
+            simple_name (7,13) [ "e" (7,13) ]
+            {
+            }
+            general_array_type (7,17) [ "&" (7,17), "imm" (7,18), "[" (7,22), "]" (7,33) ]
+            {
+                tuple_type (7,23) [ "(" (7,23), "," (7,27), ")" (7,32) ]
+                {
+                    nominal_type (7,24) [  ]
+                    {
+                        qualified_name (7,24) [  ]
+                        {
+                            simple_name (7,24) [ "bar" (7,24) ]
+                            {
+                            }
+                        }
+                    }
+                    nominal_type (7,29) [  ]
+                    {
+                        qualified_name (7,29) [  ]
+                        {
+                            simple_name (7,29) [ "baz" (7,29) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

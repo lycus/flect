@@ -1,0 +1,7 @@
+Error: fn_missing_abi.fl(3,23): Expected function ABI string, but got '(' 
+pub mod fn_missing_abi {
+    pub struct FnMissingAbi {
+        pub a : fn ext() -> unit;
+                      ^           
+    }
+}

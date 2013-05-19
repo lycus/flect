@@ -1,0 +1,120 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (7,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "tuple_types" (1,9) ]
+        {
+        }
+    }
+    struct_declaration (2,9) [ "pub" (2,5), "struct" (2,9), "{" (2,27), "}" (6,5) ]
+    {
+        simple_name (2,16) [ "TupleTypes" (2,16) ]
+        {
+        }
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,15), ";" (3,26) ]
+        {
+            simple_name (3,13) [ "a" (3,13) ]
+            {
+            }
+            tuple_type (3,17) [ "(" (3,17), "," (3,19), "," (3,22), ")" (3,25) ]
+            {
+                nominal_type (3,18) [  ]
+                {
+                    qualified_name (3,18) [  ]
+                    {
+                        simple_name (3,18) [ "a" (3,18) ]
+                        {
+                        }
+                    }
+                }
+                nominal_type (3,21) [  ]
+                {
+                    qualified_name (3,21) [  ]
+                    {
+                        simple_name (3,21) [ "b" (3,21) ]
+                        {
+                        }
+                    }
+                }
+                nominal_type (3,24) [  ]
+                {
+                    qualified_name (3,24) [  ]
+                    {
+                        simple_name (3,24) [ "c" (3,24) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (4,13) [ "pub" (4,9), ":" (4,15), ";" (4,23) ]
+        {
+            simple_name (4,13) [ "b" (4,13) ]
+            {
+            }
+            tuple_type (4,17) [ "(" (4,17), "," (4,19), ")" (4,22) ]
+            {
+                nominal_type (4,18) [  ]
+                {
+                    qualified_name (4,18) [  ]
+                    {
+                        simple_name (4,18) [ "a" (4,18) ]
+                        {
+                        }
+                    }
+                }
+                nominal_type (4,21) [  ]
+                {
+                    qualified_name (4,21) [  ]
+                    {
+                        simple_name (4,21) [ "b" (4,21) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (5,13) [ "pub" (5,9), ":" (5,15), ";" (5,35) ]
+        {
+            simple_name (5,13) [ "c" (5,13) ]
+            {
+            }
+            tuple_type (5,17) [ "(" (5,17), "," (5,22), ")" (5,34) ]
+            {
+                managed_pointer_type (5,18) [ "@" (5,18) ]
+                {
+                    nominal_type (5,19) [  ]
+                    {
+                        qualified_name (5,19) [  ]
+                        {
+                            simple_name (5,19) [ "int" (5,19) ]
+                            {
+                            }
+                        }
+                    }
+                }
+                tuple_type (5,24) [ "(" (5,24), "," (5,28), ")" (5,33) ]
+                {
+                    nominal_type (5,25) [  ]
+                    {
+                        qualified_name (5,25) [  ]
+                        {
+                            simple_name (5,25) [ "f32" (5,25) ]
+                            {
+                            }
+                        }
+                    }
+                    nominal_type (5,30) [  ]
+                    {
+                        qualified_name (5,30) [  ]
+                        {
+                            simple_name (5,30) [ "f64" (5,30) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

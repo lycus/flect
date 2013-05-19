@@ -1,0 +1,5 @@
+pub mod bad_generic_args {
+    pub struct BadGenericArgs {
+        pub a : foo[bar;
+    }
+}

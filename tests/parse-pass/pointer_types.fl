@@ -1,0 +1,10 @@
+pub mod pointer_types {
+    pub struct PointerTypes {
+        pub a : *foo;
+        pub b : ***bar;
+        pub c : @a[@b];
+        pub d : &(foo, bar, &baz);
+        pub e : @imm int;
+        pub f : @mut self;
+    }
+}

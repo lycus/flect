@@ -1,0 +1,7 @@
+Error: vec_no_ellipsis.fl(3,22): Expected type/size-separating ellipsis, but got '10' 
+pub mod vec_no_ellipsis {
+    pub struct VecNoEllipsis {
+        pub v : {int 10};
+                     ^    
+    }
+}

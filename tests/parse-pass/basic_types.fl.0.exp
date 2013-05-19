@@ -1,0 +1,75 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (8,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "basic_types" (1,9) ]
+        {
+        }
+    }
+    struct_declaration (2,9) [ "pub" (2,5), "struct" (2,9), "{" (2,27), "}" (7,5) ]
+    {
+        simple_name (2,16) [ "BasicTypes" (2,16) ]
+        {
+        }
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,15), ";" (3,19) ]
+        {
+            simple_name (3,13) [ "a" (3,13) ]
+            {
+            }
+            nominal_type (3,17) [  ]
+            {
+                qualified_name (3,17) [  ]
+                {
+                    simple_name (3,17) [ "i8" (3,17) ]
+                    {
+                    }
+                }
+            }
+        }
+        field_declaration (4,13) [ "pub" (4,9), ":" (4,15), ";" (4,20) ]
+        {
+            simple_name (4,13) [ "b" (4,13) ]
+            {
+            }
+            nominal_type (4,17) [  ]
+            {
+                qualified_name (4,17) [  ]
+                {
+                    simple_name (4,17) [ "f32" (4,17) ]
+                    {
+                    }
+                }
+            }
+        }
+        field_declaration (5,13) [ "pub" (5,9), ":" (5,15), ";" (5,21) ]
+        {
+            simple_name (5,13) [ "c" (5,13) ]
+            {
+            }
+            nominal_type (5,17) [  ]
+            {
+                qualified_name (5,17) [  ]
+                {
+                    simple_name (5,17) [ "self" (5,17) ]
+                    {
+                    }
+                }
+            }
+        }
+        field_declaration (6,13) [ "pub" (6,9), ":" (6,15), ";" (6,20) ]
+        {
+            simple_name (6,13) [ "d" (6,13) ]
+            {
+            }
+            nominal_type (6,17) [  ]
+            {
+                qualified_name (6,17) [  ]
+                {
+                    simple_name (6,17) [ "foo" (6,17) ]
+                    {
+                    }
+                }
+            }
+        }
+    }
+}

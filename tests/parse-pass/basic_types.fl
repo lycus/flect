@@ -1,0 +1,8 @@
+pub mod basic_types {
+    pub struct BasicTypes {
+        pub a : i8;
+        pub b : f32;
+        pub c : self;
+        pub d : foo;
+    }
+}

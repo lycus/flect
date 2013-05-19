@@ -1,0 +1,441 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,24), "}" (20,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "function_types" (1,9) ]
+        {
+        }
+    }
+    struct_declaration (2,9) [ "pub" (2,5), "struct" (2,9), "{" (2,30), "}" (19,5) ]
+    {
+        simple_name (2,16) [ "FunctionTypes" (2,16) ]
+        {
+        }
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,16), ";" (3,30) ]
+        {
+            simple_name (3,13) [ "a1" (3,13) ]
+            {
+            }
+            function_pointer_type (3,18) [ "fn" (3,18), "->" (3,23) ]
+            {
+                function_type_parameters (3,20) [ "(" (3,20), ")" (3,21) ]
+                {
+                }
+                nominal_type (3,26) [  ]
+                {
+                    qualified_name (3,26) [  ]
+                    {
+                        simple_name (3,26) [ "unit" (3,26) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (4,13) [ "pub" (4,9), ":" (4,16), ";" (4,31) ]
+        {
+            simple_name (4,13) [ "a2" (4,13) ]
+            {
+            }
+            closure_pointer_type (4,18) [ "fn" (4,18), "@" (4,20), "->" (4,24) ]
+            {
+                function_type_parameters (4,21) [ "(" (4,21), ")" (4,22) ]
+                {
+                }
+                nominal_type (4,27) [  ]
+                {
+                    qualified_name (4,27) [  ]
+                    {
+                        simple_name (4,27) [ "unit" (4,27) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (5,13) [ "pub" (5,9), ":" (5,16), ";" (5,27) ]
+        {
+            simple_name (5,13) [ "a3" (5,13) ]
+            {
+            }
+            function_pointer_type (5,18) [ "fn" (5,18), "->" (5,23) ]
+            {
+                function_type_parameters (5,20) [ "(" (5,20), ")" (5,21) ]
+                {
+                }
+                bottom_type (5,26) [ "!" (5,26) ]
+                {
+                }
+            }
+        }
+        field_declaration (6,13) [ "pub" (6,9), ":" (6,16), ";" (6,28) ]
+        {
+            simple_name (6,13) [ "a4" (6,13) ]
+            {
+            }
+            closure_pointer_type (6,18) [ "fn" (6,18), "@" (6,20), "->" (6,24) ]
+            {
+                function_type_parameters (6,21) [ "(" (6,21), ")" (6,22) ]
+                {
+                }
+                bottom_type (6,27) [ "!" (6,27) ]
+                {
+                }
+            }
+        }
+        field_declaration (8,13) [ "pub" (8,9), ":" (8,16), ";" (8,31) ]
+        {
+            simple_name (8,13) [ "b1" (8,13) ]
+            {
+            }
+            function_pointer_type (8,18) [ "fn" (8,18), "->" (8,24) ]
+            {
+                function_type_parameters (8,20) [ "(" (8,20), ")" (8,22) ]
+                {
+                    function_type_parameter (8,21) [  ]
+                    {
+                        nominal_type (8,21) [  ]
+                        {
+                            qualified_name (8,21) [  ]
+                            {
+                                simple_name (8,21) [ "a" (8,21) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                nominal_type (8,27) [  ]
+                {
+                    qualified_name (8,27) [  ]
+                    {
+                        simple_name (8,27) [ "unit" (8,27) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (9,13) [ "pub" (9,9), ":" (9,16), ";" (9,34) ]
+        {
+            simple_name (9,13) [ "b2" (9,13) ]
+            {
+            }
+            function_pointer_type (9,18) [ "fn" (9,18), "->" (9,27) ]
+            {
+                function_type_parameters (9,20) [ "(" (9,20), "," (9,22), ")" (9,25) ]
+                {
+                    function_type_parameter (9,21) [  ]
+                    {
+                        nominal_type (9,21) [  ]
+                        {
+                            qualified_name (9,21) [  ]
+                            {
+                                simple_name (9,21) [ "a" (9,21) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (9,24) [  ]
+                    {
+                        nominal_type (9,24) [  ]
+                        {
+                            qualified_name (9,24) [  ]
+                            {
+                                simple_name (9,24) [ "b" (9,24) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                nominal_type (9,30) [  ]
+                {
+                    qualified_name (9,30) [  ]
+                    {
+                        simple_name (9,30) [ "unit" (9,30) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (10,13) [ "pub" (10,9), ":" (10,16), ";" (10,32) ]
+        {
+            simple_name (10,13) [ "b3" (10,13) ]
+            {
+            }
+            closure_pointer_type (10,18) [ "fn" (10,18), "@" (10,20), "->" (10,25) ]
+            {
+                function_type_parameters (10,21) [ "(" (10,21), ")" (10,23) ]
+                {
+                    function_type_parameter (10,22) [  ]
+                    {
+                        nominal_type (10,22) [  ]
+                        {
+                            qualified_name (10,22) [  ]
+                            {
+                                simple_name (10,22) [ "a" (10,22) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                nominal_type (10,28) [  ]
+                {
+                    qualified_name (10,28) [  ]
+                    {
+                        simple_name (10,28) [ "unit" (10,28) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (11,13) [ "pub" (11,9), ":" (11,16), ";" (11,35) ]
+        {
+            simple_name (11,13) [ "b4" (11,13) ]
+            {
+            }
+            closure_pointer_type (11,18) [ "fn" (11,18), "@" (11,20), "->" (11,28) ]
+            {
+                function_type_parameters (11,21) [ "(" (11,21), "," (11,23), ")" (11,26) ]
+                {
+                    function_type_parameter (11,22) [  ]
+                    {
+                        nominal_type (11,22) [  ]
+                        {
+                            qualified_name (11,22) [  ]
+                            {
+                                simple_name (11,22) [ "a" (11,22) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (11,25) [  ]
+                    {
+                        nominal_type (11,25) [  ]
+                        {
+                            qualified_name (11,25) [  ]
+                            {
+                                simple_name (11,25) [ "b" (11,25) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                nominal_type (11,31) [  ]
+                {
+                    qualified_name (11,31) [  ]
+                    {
+                        simple_name (11,31) [ "unit" (11,31) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (13,13) [ "pub" (13,9), ":" (13,16), ";" (13,39) ]
+        {
+            simple_name (13,13) [ "c1" (13,13) ]
+            {
+            }
+            function_pointer_type (13,18) [ "fn" (13,18), "ext" (13,21), ""cdecl"" (13,25), "->" (13,35) ]
+            {
+                function_type_parameters (13,32) [ "(" (13,32), ")" (13,33) ]
+                {
+                }
+                bottom_type (13,38) [ "!" (13,38) ]
+                {
+                }
+            }
+        }
+        field_declaration (14,13) [ "pub" (14,9), ":" (14,16), ";" (14,53) ]
+        {
+            simple_name (14,13) [ "c2" (14,13) ]
+            {
+            }
+            function_pointer_type (14,18) [ "fn" (14,18), "ext" (14,21), ""stdcall"" (14,25), "->" (14,45) ]
+            {
+                function_type_parameters (14,34) [ "(" (14,34), "," (14,36), "," (14,39), ")" (14,43) ]
+                {
+                    function_type_parameter (14,35) [  ]
+                    {
+                        nominal_type (14,35) [  ]
+                        {
+                            qualified_name (14,35) [  ]
+                            {
+                                simple_name (14,35) [ "a" (14,35) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (14,38) [  ]
+                    {
+                        nominal_type (14,38) [  ]
+                        {
+                            qualified_name (14,38) [  ]
+                            {
+                                simple_name (14,38) [ "b" (14,38) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (14,41) [  ]
+                    {
+                        unsafe_pointer_type (14,41) [ "*" (14,41) ]
+                        {
+                            nominal_type (14,42) [  ]
+                            {
+                                qualified_name (14,42) [  ]
+                                {
+                                    simple_name (14,42) [ "c" (14,42) ]
+                                    {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                managed_pointer_type (14,48) [ "@" (14,48) ]
+                {
+                    nominal_type (14,49) [  ]
+                    {
+                        qualified_name (14,49) [  ]
+                        {
+                            simple_name (14,49) [ "unit" (14,49) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (16,13) [ "pub" (16,9), ":" (16,16), ";" (16,35) ]
+        {
+            simple_name (16,13) [ "d1" (16,13) ]
+            {
+            }
+            function_pointer_type (16,18) [ "fn" (16,18), "->" (16,28) ]
+            {
+                function_type_parameters (16,20) [ "(" (16,20), ")" (16,26) ]
+                {
+                    function_type_parameter (16,25) [ "ref" (16,21) ]
+                    {
+                        nominal_type (16,25) [  ]
+                        {
+                            qualified_name (16,25) [  ]
+                            {
+                                simple_name (16,25) [ "a" (16,25) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                nominal_type (16,31) [  ]
+                {
+                    qualified_name (16,31) [  ]
+                    {
+                        simple_name (16,31) [ "unit" (16,31) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        field_declaration (17,13) [ "pub" (17,9), ":" (17,16), ";" (17,39) ]
+        {
+            simple_name (17,13) [ "d2" (17,13) ]
+            {
+            }
+            function_pointer_type (17,18) [ "fn" (17,18), "->" (17,35) ]
+            {
+                function_type_parameters (17,20) [ "(" (17,20), "," (17,26), ")" (17,33) ]
+                {
+                    function_type_parameter (17,25) [ "mut" (17,21) ]
+                    {
+                        nominal_type (17,25) [  ]
+                        {
+                            qualified_name (17,25) [  ]
+                            {
+                                simple_name (17,25) [ "b" (17,25) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (17,32) [ "ref" (17,28) ]
+                    {
+                        nominal_type (17,32) [  ]
+                        {
+                            qualified_name (17,32) [  ]
+                            {
+                                simple_name (17,32) [ "c" (17,32) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                bottom_type (17,38) [ "!" (17,38) ]
+                {
+                }
+            }
+        }
+        field_declaration (18,13) [ "pub" (18,9), ":" (18,16), ";" (18,50) ]
+        {
+            simple_name (18,13) [ "d3" (18,13) ]
+            {
+            }
+            function_pointer_type (18,18) [ "fn" (18,18), "->" (18,43) ]
+            {
+                function_type_parameters (18,20) [ "(" (18,20), "," (18,30), ")" (18,41) ]
+                {
+                    function_type_parameter (18,29) [ "mut" (18,21), "ref" (18,25) ]
+                    {
+                        nominal_type (18,29) [  ]
+                        {
+                            qualified_name (18,29) [  ]
+                            {
+                                simple_name (18,29) [ "a" (18,29) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                    function_type_parameter (18,40) [ "mut" (18,32), "ref" (18,36) ]
+                    {
+                        nominal_type (18,40) [  ]
+                        {
+                            qualified_name (18,40) [  ]
+                            {
+                                simple_name (18,40) [ "b" (18,40) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+                managed_pointer_type (18,46) [ "@" (18,46) ]
+                {
+                    nominal_type (18,47) [  ]
+                    {
+                        qualified_name (18,47) [  ]
+                        {
+                            simple_name (18,47) [ "int" (18,47) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

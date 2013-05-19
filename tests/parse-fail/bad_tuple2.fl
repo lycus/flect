@@ -1,0 +1,5 @@
+pub mod bad_tuple2 {
+    pub struct BadTuple2 {
+        pub t : (a);
+    }
+}

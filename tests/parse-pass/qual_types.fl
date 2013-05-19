@@ -1,0 +1,8 @@
+pub mod qual_types {
+    pub struct QualTypes {
+        pub a : foo;
+        pub b : foo::bar;
+        pub c : foo::baz::baz;
+        pub d : foo::bar[baz::qux];
+    }
+}

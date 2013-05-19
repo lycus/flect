@@ -1,0 +1,7 @@
+pub mod tuple_types {
+    pub struct TupleTypes {
+        pub a : (a, b, c);
+        pub b : (a, b);
+        pub c : (@int, (f32, f64));
+    }
+}

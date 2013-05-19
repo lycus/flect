@@ -1,0 +1,8 @@
+pub mod generic_types {
+    pub struct GenericTypes {
+        pub a : foo[bar];
+        pub b : foo[bar, baz];
+        pub c : foo[*i32, @self];
+        pub d : foo[(a, b, c)];
+    }
+}

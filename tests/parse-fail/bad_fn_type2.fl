@@ -1,0 +1,5 @@
+pub mod bad_fn_type2 {
+    pub struct BadFnType2 {
+        pub f : fn -> unit;
+    }
+}

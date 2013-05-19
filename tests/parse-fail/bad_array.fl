@@ -1,0 +1,5 @@
+pub mod bad_array {
+    pub struct BadArray {
+        pub a : @[int;
+    }
+}

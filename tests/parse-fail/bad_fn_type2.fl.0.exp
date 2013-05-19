@@ -1,0 +1,7 @@
+Error: bad_fn_type2.fl(3,20): Expected function type parameter list, but got '->' 
+pub mod bad_fn_type2 {
+    pub struct BadFnType2 {
+        pub f : fn -> unit;
+                   ^        
+    }
+}

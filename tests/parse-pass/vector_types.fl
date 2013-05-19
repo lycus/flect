@@ -1,0 +1,7 @@
+pub mod vector_types {
+    pub struct VectorTypes {
+        pub a : {int .. 32};
+        pub b : {foo .. 123456789};
+        pub c : {(foo, bar) .. 4};
+    }
+}

@@ -1,0 +1,5 @@
+pub mod fn_missing_abi {
+    pub struct FnMissingAbi {
+        pub a : fn ext() -> unit;
+    }
+}

@@ -1,0 +1,20 @@
+pub mod function_types {
+    pub struct FunctionTypes {
+        pub a1 : fn() -> unit;
+        pub a2 : fn@() -> unit;
+        pub a3 : fn() -> !;
+        pub a4 : fn@() -> !;
+
+        pub b1 : fn(a) -> unit;
+        pub b2 : fn(a, b) -> unit;
+        pub b3 : fn@(a) -> unit;
+        pub b4 : fn@(a, b) -> unit;
+
+        pub c1 : fn ext "cdecl"() -> !;
+        pub c2 : fn ext "stdcall"(a, b, *c) -> @unit;
+
+        pub d1 : fn(ref a) -> unit;
+        pub d2 : fn(mut b, ref c) -> !;
+        pub d3 : fn(mut ref a, mut ref b) -> @int;
+    }
+}

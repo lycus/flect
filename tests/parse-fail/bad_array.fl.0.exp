@@ -1,0 +1,7 @@
+Error: bad_array.fl(3,22): Expected closing bracket, but got ';' 
+pub mod bad_array {
+    pub struct BadArray {
+        pub a : @[int;
+                     ^ 
+    }
+}

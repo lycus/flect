@@ -1,0 +1,7 @@
+Error: pointer_missing_pointee.fl(3,18): Expected type signature, but got ';' 
+pub mod pointer_missing_pointee {
+    pub struct PointerMissingPointee {
+        pub a : *;
+                 ^ 
+    }
+}

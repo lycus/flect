@@ -1,0 +1,9 @@
+pub mod array_types {
+    pub struct ArrayTypes {
+        pub a : @[foo];
+        pub b : *[bar];
+        pub c : &[baz];
+        pub d : @mut [foo];
+        pub e : &imm [(bar, baz)];
+    }
+}

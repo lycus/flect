@@ -1,0 +1,5 @@
+pub mod vec_no_ellipsis {
+    pub struct VecNoEllipsis {
+        pub v : {int 10};
+    }
+}

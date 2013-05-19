@@ -1,0 +1,7 @@
+Error: bad_generic_args2.fl(3,21): Expected type signature, but got ']' 
+pub mod bad_generic_args2 {
+    pub struct BadGenericArgs2 {
+        pub a : foo[];
+                    ^  
+    }
+}

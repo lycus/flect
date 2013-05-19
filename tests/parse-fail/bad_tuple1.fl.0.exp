@@ -1,0 +1,7 @@
+Error: bad_tuple1.fl(3,21): Expected type signature, but got ')' 
+pub mod bad_tuple1 {
+    pub struct BadTuple1 {
+        pub t : (a, );
+                    ^  
+    }
+}
