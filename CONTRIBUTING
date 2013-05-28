@@ -2,13 +2,6 @@
 
                 -- Contributing --
 
-Code should be contributed via the Arcanist tool. The user guide is here:
-http://www.phabricator.com/docs/phabricator/article/Arcanist_User_Guide.html
-
-Please do not use GitHub pull requests for anything but very small,
-obvious fixes and corrections. GitHub pull requests do not integrate
-very well with Phabricator.
-
 Contributed code is expected to follow the established code style. See
 the STYLE file and the Flect style guide which is available on the wiki:
 https://github.com/lycus/flect/wiki/Style
@@ -16,7 +9,7 @@ https://github.com/lycus/flect/wiki/Style
 A test case for a change should almost always be included unless it is
 problematic to test. In such cases, please explain why in a commit
 message. You are also expected to run the test suite and verify that no
-regressions have been caused by your changes  before submitting them.
+regressions have been caused by your changes before submitting them.
 
 Please avoid sending unrelated patches in the same review/patch series.
 
