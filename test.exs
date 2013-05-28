@@ -24,9 +24,7 @@ vars = lc {a, s} inlist [arch: "ARCH",
     {a, System.get_env("FLECT_" <> s) |> String.replace("-", "_") |> binary_to_atom()}
 end
 
-otp = :erlang.system_info(:otp_release)
-
-if otp >= 'R16B' && System.get_env("FLECT_COVER") == "1" do
+if System.get_env("FLECT_COVER") == "1" do
     Mix.loadpaths()
 
     :cover.compile_beam_directory(Mix.project()[:compile_path] |> to_char_list())
@@ -132,7 +130,7 @@ IO.puts("")
 
 code = if test_failures > 0, do: 1, else: 0
 
-if otp >= 'R16B' && System.get_env("FLECT_COVER") == "1" && code == 0 do
+if System.get_env("FLECT_COVER") == "1" && code == 0 do
     File.mkdir_p!(dir)
 
     :cover.export(Path.join(dir, "flect.coverdata") |> to_char_list())
