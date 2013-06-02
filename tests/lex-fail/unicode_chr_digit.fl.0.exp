@@ -1,0 +1,3 @@
+Error: unicode_chr_digit.fl(1,3): Non-hexadecimal digit encountered in Unicode escape sequence 
+'\u0000000G'
+  ^          

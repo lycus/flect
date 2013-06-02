@@ -1,0 +1,2 @@
+Flect.Compiler.Syntax.Token[type: :character, value: "'\\u00000001'", location: Flect.Compiler.Syntax.Location[file: "unicode.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :string, value: "\"\\u00000001\"", location: Flect.Compiler.Syntax.Location[file: "unicode.fl", line: 2, column: 1]]

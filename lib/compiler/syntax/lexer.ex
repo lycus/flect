@@ -176,7 +176,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     end
 
     @spec next_code_points(String.t(), location(), pos_integer(), String.t(), non_neg_integer()) :: {String.t(), String.t(), location()} | :eof
-    defp next_code_points(text, loc, num, acc, num_acc) do
+    defp next_code_points(text, loc, num, acc, num_acc // 0) do
         if num_acc < num do
             case next_code_point(text, loc) do
                 {cp, rest, loc} -> next_code_points(rest, loc, num, acc <> cp, num_acc + 1)
@@ -360,8 +360,26 @@ defmodule Flect.Compiler.Syntax.Lexer do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 case next_code_point(rest, loc) do
-                    {cp, rest, loc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, loc} -> raise_error(loc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
+                    {cp, rest, iloc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, iloc}
+                    {cp, rest, iloc} when cp == "u" ->
+                        case next_code_points(rest, iloc, 8, "") do
+                            {code, rest, jloc} ->
+                                if String.codepoints(code) |> Enum.any?(fn(x) -> !hexadecimal_digit?(x) end) do
+                                    raise_error(iloc, "Non-hexadecimal digit encountered in Unicode escape sequence")
+                                end
+
+                                parsed = binary_to_integer(code, 16)
+
+                                try do
+                                    <<parsed :: utf8>>
+                                rescue
+                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
+                                end
+
+                                {"\\" <> cp <> code, rest, jloc}
+                            _ -> raise_error(iloc, "8 hexadecimal digits expected for Unicode escape sequence")
+                        end
+                    {cp, _, iloc} -> raise_error(iloc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
                 end
             {cp, rest, loc} when cp != "'" -> {cp, rest, loc}
             {_, _, loc} -> raise_error(loc, "Terminating single quote encountered with no previous character literal code point")
@@ -380,8 +398,26 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {cp, rest, loc} when cp == "\"" -> {:string, acc <> cp, rest, oloc, loc}
             {"\\", rest, loc} ->
                 {esc, rest, loc} = case next_code_point(rest, loc) do
-                    {cp, rest, loc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, loc}
-                    {cp, _, loc} -> raise_error(loc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
+                    {cp, rest, iloc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, iloc}
+                    {cp, rest, iloc} when cp == "u" ->
+                        case next_code_points(rest, loc, 8, "") do
+                            {code, rest, jloc} ->
+                                if String.codepoints(code) |> Enum.any?(fn(x) -> !hexadecimal_digit?(x) end) do
+                                    raise_error(iloc, "Non-hexadecimal digit encountered in Unicode escape sequence")
+                                end
+
+                                parsed = binary_to_integer(code, 16)
+
+                                try do
+                                    <<parsed :: utf8>>
+                                rescue
+                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
+                                end
+
+                                {"\\" <> cp <> code, rest, jloc}
+                            _ -> raise_error(iloc, "8 hexadecimal digits expected for Unicode escape sequence")
+                        end
+                    {cp, _, iloc} -> raise_error(iloc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
                 end
 
                 lex_string(acc <> esc, rest, oloc, loc)
@@ -470,15 +506,15 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                           String.t(), location()}
     defp lex_literal_type(text, loc, float) do
         if float do
-            case next_code_points(text, loc, 4, "", 0) do
+            case next_code_points(text, loc, 4, "") do
                 {val, rest, loc} when val in [":f32", ":f64"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                 _ -> {:float, text, loc}
             end
         else
-            spec = case next_code_points(text, loc, 3, "", 0) do
+            spec = case next_code_points(text, loc, 3, "") do
                 {val, rest, loc} when val in [":i8", ":u8"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                 {_, _, _} ->
-                    case next_code_points(text, loc, 4, "", 0) do
+                    case next_code_points(text, loc, 4, "") do
                         {val, rest, loc} when val in [":i16", ":u16", ":i32", ":u32", ":i64", ":u64"] ->
                             {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                         _ -> nil
@@ -489,7 +525,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             case spec do
                 {type, rest, loc} -> {type, rest, loc}
                 nil ->
-                    case next_code_points(text, loc, 2, "", 0) do
+                    case next_code_points(text, loc, 2, "") do
                         {val, rest, loc} when val in [":i", ":u"] -> {binary_to_atom(String.lstrip(val, ?:)), rest, loc}
                         _ -> {:integer, text, loc}
                     end
