@@ -24,6 +24,13 @@ defmodule Flect.String do
     """
     @spec expand_escapes(String.t(), :string | :character) :: String.t()
     def expand_escapes(str, type) do
+        captures = Regex.scan(%r/\\u[0-9a-fA-F]{8}/, str)
+
+        str = Enum.reduce(captures, str, fn(cap, str) ->
+            cp = <<binary_to_integer(String.slice(cap, 2, 10), 16) :: utf8>>
+            String.replace(str, cap, cp, [global: false])
+        end)
+
         str = str |>
               String.replace("\\0", "\0") |>
               String.replace("\\a", "\a") |>
