@@ -89,6 +89,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                     {:glob, _, _} -> parse_glob_decl(state, token)
                     {:tls, _, _} -> parse_tls_decl(state, token)
                     {:macro, _, _} -> parse_macro_decl(state, token)
+                    {:test, _, _} -> parse_test_decl(state, token)
                 end
 
                 parse_decls(state, [{:declaration, decl} | decls])
@@ -217,6 +218,19 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_macro_decl(state(), token()) :: return_n()
     defp parse_macro_decl(state, visibility) do
         exit(:todo)
+    end
+
+    @spec parse_test_decl(state(), token()) :: return_n()
+    defp parse_test_decl(state, visibility) do
+        {_, tok_test, state} = expect_token(state, :test, "test declaration")
+        {_, name_str, state} = expect_token(state, :string, "test name string")
+
+        # TODO: Parse block.
+
+        tokens = [test_keyword: tok_test,
+                  test_name: name_str]
+
+        {new_node(:test_declaration, tok_test.location(), tokens, []), state}
     end
 
     @spec parse_type(state()) :: return_n()
