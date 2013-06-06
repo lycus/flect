@@ -1,0 +1,78 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (11,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "foo" (1,9) ]
+        {
+        }
+    }
+    union_declaration (2,9) [ "pub" (2,5), "union" (2,9), "{" (2,19), "}" (10,5) ]
+    {
+        simple_name (2,15) [ "Foo" (2,15) ]
+        {
+        }
+        case_declaration (3,9) [ "{" (3,13), "}" (6,9) ]
+        {
+            simple_name (3,9) [ "Bar" (3,9) ]
+            {
+            }
+            field_declaration (4,17) [ "pub" (4,13), ":" (4,19), ";" (4,24) ]
+            {
+                simple_name (4,17) [ "x" (4,17) ]
+                {
+                }
+                nominal_type (4,21) [  ]
+                {
+                    qualified_name (4,21) [  ]
+                    {
+                        simple_name (4,21) [ "int" (4,21) ]
+                        {
+                        }
+                    }
+                }
+            }
+            field_declaration (5,18) [ "priv" (5,13), ":" (5,20), ";" (5,25) ]
+            {
+                simple_name (5,18) [ "y" (5,18) ]
+                {
+                }
+                nominal_type (5,22) [  ]
+                {
+                    qualified_name (5,22) [  ]
+                    {
+                        simple_name (5,22) [ "f32" (5,22) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        case_declaration (7,9) [ "{" (7,13), "}" (9,9) ]
+        {
+            simple_name (7,9) [ "Baz" (7,9) ]
+            {
+            }
+            field_declaration (8,17) [ "pub" (8,13), ":" (8,19), ";" (8,26) ]
+            {
+                simple_name (8,17) [ "z" (8,17) ]
+                {
+                }
+                unsafe_pointer_type (8,21) [ "*" (8,21) ]
+                {
+                    managed_pointer_type (8,22) [ "@" (8,22) ]
+                    {
+                        nominal_type (8,23) [  ]
+                        {
+                            qualified_name (8,23) [  ]
+                            {
+                                simple_name (8,23) [ "int" (8,23) ]
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

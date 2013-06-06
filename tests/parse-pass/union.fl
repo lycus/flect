@@ -1,0 +1,11 @@
+pub mod foo {
+    pub union Foo {
+        Bar {
+            pub x : int;
+            priv y : f32;
+        }
+        Baz {
+            pub z : *@int;
+        }
+    }
+}

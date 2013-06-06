@@ -143,7 +143,45 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_union_decl(state(), token()) :: return_n()
     defp parse_union_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_union, state} = expect_token(state, :union, "union declaration")
+        {name, state} = parse_simple_name(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {cases, state} = parse_cases(state)
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [visibility_keyword: visibility,
+                  union_keyword: tok_union,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        cases = lc c inlist cases, do: {:case, c}
+
+        {new_node(:union_declaration, tok_union.location(), tokens, [{:name, name} | cases]), state}
+    end
+
+    @spec parse_cases(state(), [ast_node()]) :: return_m()
+    defp parse_cases(state, cases // []) do
+        case next_token(state) do
+            {:identifier, _, _} ->
+                {c, state} = parse_case(state)
+                parse_cases(state, [c | cases])
+            _ -> {Enum.reverse(cases), state}
+        end
+    end
+
+    @spec parse_case(state()) :: return_n()
+    defp parse_case(state) do
+        {name, state} = parse_simple_name(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {fields, state} = parse_fields(state)
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        fields = lc field inlist fields, do: {:field, field}
+
+        {new_node(:case_declaration, name.location(), tokens, [{:name, name} | fields]), state}
     end
 
     @spec parse_enum_decl(state(), token()) :: return_n()
