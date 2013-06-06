@@ -19,7 +19,7 @@ defmodule Flect.Application do
 
         if opts[:version] do
             Flect.Logger.info("Flect Programming Language - 0.1")
-            Flect.Logger.info("Copyright (C) 2012 The Lycus Foundation")
+            Flect.Logger.info("Copyright (C) 2013 The Lycus Foundation")
             Flect.Logger.info("Available under the terms of the MIT License")
             Flect.Logger.info("")
         end
