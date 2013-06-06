@@ -136,10 +136,11 @@ defmodule Flect.Compiler.Syntax.Parser do
         {type, state} = parse_type(state)
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        {new_node(:field_declaration, name.location(), [visibility_keyword: visibility,
-                                                        colon: tok_colon,
-                                                        semicolon: tok_semicolon],
-                  [name: name, type: type]), state}
+        tokens = [visibility_keyword: visibility,
+                  colon: tok_colon,
+                  semicolon: tok_semicolon]
+
+        {new_node(:field_declaration, name.location(), tokens, [name: name, type: type]), state}
     end
 
     @spec parse_union_decl(state(), token()) :: return_n()
@@ -187,7 +188,48 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_enum_decl(state(), token()) :: return_n()
     defp parse_enum_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_enum, state} = expect_token(state, :enum, "enumeration declaration")
+        {name, state} = parse_simple_name(state)
+        {_, tok_colon, state} = expect_token(state, :colon, "colon")
+        {type, state} = parse_nominal_type(state, false)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {values, state} = parse_values(state)
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [visibility_keyword: visibility,
+                  enum_keyword: tok_enum,
+                  colon: tok_colon,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        values = lc value inlist values, do: {:value, value}
+
+        {new_node(:enum_declaration, tok_enum.location(), tokens, [name: name, backing_type: type] ++ values), state}
+    end
+
+    @spec parse_values(state(), [ast_node()]) :: return_m()
+    defp parse_values(state, values // []) do
+        case next_token(state) do
+            {:identifier, _, _} ->
+                {value, state} = parse_value(state)
+                parse_fields(state, [value | values])
+            _ -> {Enum.reverse(values), state}
+        end
+    end
+
+    @spec parse_value(state()) :: return_n()
+    defp parse_value(state) do
+        {name, state} = parse_simple_name(state)
+        {_, tok_equals, state} = expect_token(state, :assign, "equals sign")
+
+        # TODO: Parse expression.
+
+        {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
+
+        tokens = [equals: tok_equals,
+                  semicolon: tok_semicolon]
+
+        {new_node(:field_declaration, name.location(), tokens, [name: name]), state}
     end
 
     @spec parse_type_decl(state(), token()) :: return_n()
@@ -245,12 +287,12 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
     end
 
-    @spec parse_nominal_type(state()) :: return_n()
-    defp parse_nominal_type(state) do
+    @spec parse_nominal_type(state(), boolean()) :: return_n()
+    defp parse_nominal_type(state, generic // true) do
         {name, state} = parse_qualified_name(state)
 
         {ty_args, state} = case next_token(state) do
-            {:bracket_open, _, _} ->
+            {:bracket_open, _, _} when generic ->
                 {ty_args, state} = parse_type_arguments(state)
                 {[arguments: ty_args], state}
             _ -> {[], state}
