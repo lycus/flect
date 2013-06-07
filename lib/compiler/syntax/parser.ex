@@ -250,7 +250,25 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_type_decl(state(), token()) :: return_n()
     defp parse_type_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_type, state} = expect_token(state, :type, "type declaration")
+        {name, state} = parse_simple_name(state)
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
+        {_, tok_eq, state} = expect_token(state, :assign, "equals sign")
+        {type, state} = parse_type(state)
+        {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
+
+        tokens = [type_keyword: tok_type,
+                  equals: tok_eq,
+                  semicolon: tok_semicolon]
+
+        {new_node(:type_declaration, tok_type.location(), tokens, [name: name, type: type] ++ ty_par), state}
     end
 
     @spec parse_trait_decl(state(), token()) :: return_n()

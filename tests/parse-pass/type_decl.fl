@@ -1,0 +1,3 @@
+pub mod foo {
+    pub type new_int = int;
+}

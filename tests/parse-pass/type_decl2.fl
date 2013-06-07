@@ -1,0 +1,3 @@
+pub mod foo {
+    priv type magic_int[T : U & V] = int[T];
+}

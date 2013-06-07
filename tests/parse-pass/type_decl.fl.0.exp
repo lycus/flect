@@ -1,0 +1,24 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (3,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "foo" (1,9) ]
+        {
+        }
+    }
+    type_declaration (2,9) [ "type" (2,9), "=" (2,22), ";" (2,27) ]
+    {
+        simple_name (2,14) [ "new_int" (2,14) ]
+        {
+        }
+        nominal_type (2,24) [  ]
+        {
+            qualified_name (2,24) [  ]
+            {
+                simple_name (2,24) [ "int" (2,24) ]
+                {
+                }
+            }
+        }
+    }
+}
