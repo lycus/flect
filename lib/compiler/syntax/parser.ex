@@ -274,12 +274,57 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_trait_decl(state(), token()) :: return_n()
     defp parse_trait_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_trait, state} = expect_token(state, :trait, "trait declaration")
+        {name, state} = parse_simple_name(state)
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+
+        # TODO: Parse functions.
+
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [visibility_keyword: visibility,
+                  trait_keyword: tok_trait,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        {new_node(:trait_declaration, tok_trait.location(), tokens, [{:name, name} | ty_par]), state}
     end
 
     @spec parse_impl_decl(state(), token()) :: return_n()
     defp parse_impl_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_impl, state} = expect_token(state, :impl, "implementation declaration")
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
+        {trait, state} = parse_nominal_type(state)
+        {_, tok_for, state} = expect_token(state, :for, "'for' keyword")
+        {type, state} = parse_type(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+
+        # TODO: Parse functions.
+
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [visibility_keyword: visibility,
+                  impl_keyword: tok_impl,
+                  for_keyword: tok_for,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        {new_node(:impl_declaration, tok_impl.location(), tokens, ty_par ++ [trait: trait, type: type]), state}
     end
 
     @spec parse_glob_decl(state(), token()) :: return_n()
