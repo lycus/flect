@@ -370,7 +370,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
                                 parsed = binary_to_integer(code, 16)
 
-                                try do
+                                _ = try do
                                     <<parsed :: utf8>>
                                 rescue
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
@@ -408,7 +408,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
                                 parsed = binary_to_integer(code, 16)
 
-                                try do
+                                _ = try do
                                     <<parsed :: utf8>>
                                 rescue
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
