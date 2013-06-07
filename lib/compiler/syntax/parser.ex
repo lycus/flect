@@ -307,7 +307,8 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        tokens = [visibility_keyword: visibility, glob_keyword: tok_glob] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+        tokens = [visibility_keyword: visibility, glob_keyword: tok_glob] ++ ext ++ mut
+        tokens = tokens ++ [colon: tok_colon, equals: tok_equals, semicolon: tok_semicolon]
 
         {new_node(:global_declaration, tok_glob.location(), tokens, [name: name, type: type]), state}
     end
@@ -337,7 +338,8 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        tokens = [visibility_keyword: visibility, tls_keyword: tok_tls] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+        tokens = [visibility_keyword: visibility, tls_keyword: tok_tls] ++ ext ++ mut
+        tokens = tokens ++ [colon: tok_colon, equals: tok_equals, semicolon: tok_semicolon]
 
         {new_node(:tls_declaration, tok_tls.location(), tokens, [name: name, type: type]), state}
     end
