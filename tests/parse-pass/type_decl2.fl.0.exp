@@ -6,7 +6,7 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (3,1) ]
         {
         }
     }
-    type_declaration (2,10) [ "type" (2,10), "=" (2,36), ";" (2,44) ]
+    type_declaration (2,10) [ "priv" (2,5), "type" (2,10), "=" (2,36), ";" (2,44) ]
     {
         simple_name (2,15) [ "magic_int" (2,15) ]
         {

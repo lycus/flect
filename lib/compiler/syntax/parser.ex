@@ -264,7 +264,8 @@ defmodule Flect.Compiler.Syntax.Parser do
         {type, state} = parse_type(state)
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        tokens = [type_keyword: tok_type,
+        tokens = [visibility_keyword: visibility,
+                  type_keyword: tok_type,
                   equals: tok_eq,
                   semicolon: tok_semicolon]
 
@@ -306,7 +307,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        tokens = [glob_keyword: tok_glob] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+        tokens = [visibility_keyword: visibility, glob_keyword: tok_glob] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
 
         {new_node(:global_declaration, tok_glob.location(), tokens, [name: name, type: type]), state}
     end
@@ -336,7 +337,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
 
-        tokens = [tls_keyword: tok_tls] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+        tokens = [visibility_keyword: visibility, tls_keyword: tok_tls] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
 
         {new_node(:tls_declaration, tok_tls.location(), tokens, [name: name, type: type]), state}
     end
@@ -349,7 +350,10 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         # TODO: Parse block.
 
-        {new_node(:macro_declaration, tok_macro.location(), [macro_keyword: tok_macro], [name: name, parameters: params]), state}
+        tokens = [visibility_keyword: visibility,
+                  macro_keyword: tok_macro]
+
+        {new_node(:macro_declaration, tok_macro.location(), tokens, [name: name, parameters: params]), state}
     end
 
     @spec parse_macro_parameters(state()) :: return_n()
@@ -382,7 +386,8 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         # TODO: Parse block.
 
-        tokens = [test_keyword: tok_test,
+        tokens = [visibility_keyword: visibility,
+                  test_keyword: tok_test,
                   test_name: name_str]
 
         {new_node(:test_declaration, tok_test.location(), tokens, []), state}
