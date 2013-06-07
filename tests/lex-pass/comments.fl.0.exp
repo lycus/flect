@@ -1,2 +1,2 @@
-Flect.Compiler.Syntax.Token[type: :line_comment, value: "# asdf\n", location: Flect.Compiler.Syntax.Location[file: "comments.fl", line: 1, column: 1]]
-Flect.Compiler.Syntax.Token[type: :block_comment, value: "$ fd\n  sa $", location: Flect.Compiler.Syntax.Location[file: "comments.fl", line: 2, column: 1]]
+Flect.Compiler.Syntax.Token[type: :line_comment, value: "// asdf\n", location: Flect.Compiler.Syntax.Location[file: "comments.fl", line: 1, column: 1]]
+Flect.Compiler.Syntax.Token[type: :block_comment, value: "/* fd\n   sa */", location: Flect.Compiler.Syntax.Location[file: "comments.fl", line: 2, column: 1]]

@@ -32,9 +32,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                     String.strip(cp) == "" -> do_lex(rest, tokens, loc)
                     true ->
                         token = case cp do
-                            # Handle line comments and block comments.
-                            "#" -> lex_comment(:line_comment, cp, rest, loc, loc, "\n", true)
-                            "$" -> lex_comment(:block_comment, cp, rest, loc, loc, "$", false)
                             # Handle operators and separators.
                             "+" -> :plus
                             "-" ->
@@ -43,7 +40,15 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     _ -> :minus
                                 end
                             "*" -> :star
-                            "/" -> :slash
+                            "/" ->
+                                # Could be a line or block comment.
+                                case next_code_point(rest, loc) do
+                                    {icp, rest, iloc} when icp == "/" ->
+                                        lex_comment(:line_comment, cp <> icp, rest, loc, iloc, "\n", true)
+                                    {icp, rest, iloc} when icp == "*" ->
+                                        lex_comment(:block_comment, cp <> icp, rest, loc, iloc, "*/", false)
+                                    _ -> :slash
+                                end
                             "%" -> :percent
                             "&" ->
                                 case next_code_point(rest, loc) do
@@ -247,7 +252,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def keyword?(_), do: false
 
     Enum.each(?0 .. ?1, fn(x) ->
-        def :binary_digit?, [<<x>>], [], do: true
+        def :binary_digit?, [<<x :: utf8>>], [], do: true
     end)
 
     @doc """
@@ -258,7 +263,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def binary_digit?(_), do: false
 
     Enum.each(?0 .. ?7, fn(x) ->
-        def :octal_digit?, [<<x>>], [], do: true
+        def :octal_digit?, [<<x :: utf8>>], [], do: true
     end)
 
     @doc """
@@ -269,7 +274,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def octal_digit?(_), do: false
 
     Enum.each(?0 .. ?9, fn(x) ->
-        def :decimal_digit?, [<<x>>], [], do: true
+        def :decimal_digit?, [<<x :: utf8>>], [], do: true
     end)
 
     @doc """
@@ -281,7 +286,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :hexadecimal_digit?, [<<x>>], [], do: true
+            def :hexadecimal_digit?, [<<x :: utf8>>], [], do: true
         end)
     end)
 
@@ -294,7 +299,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :identifier_start_char?, [<<x>>], [], do: true
+            def :identifier_start_char?, [<<x :: utf8>>], [], do: true
         end)
     end)
 
@@ -307,7 +312,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :identifier_char?, [<<x>>], [], do: true
+            def :identifier_char?, [<<x :: utf8>>], [], do: true
         end)
     end)
 
@@ -318,14 +323,17 @@ defmodule Flect.Compiler.Syntax.Lexer do
     @spec identifier_char?(String.codepoint()) :: boolean()
     def identifier_char?(_), do: false
 
-    @spec lex_comment(:line_comment | :block_comment, String.t(), String.t(), location(), location(), String.codepoint(),
+    @spec lex_comment(:line_comment | :block_comment, String.t(), String.t(), location(), location(), String.t(),
                       boolean()) :: return(:line_comment | :block_comment)
-    defp lex_comment(type, acc, text, oloc, loc, ecp, eol) do
-        case next_code_point(text, loc) do
-            {^ecp, rest, loc} -> {type, acc <> ecp, rest, oloc, loc}
-            {cp, rest, loc} -> lex_comment(type, acc <> cp, rest, oloc, loc, ecp, eol)
-            :eof when eol -> {type, acc, text, oloc, loc}
-            :eof -> raise_error(oloc, "Unexpected end of input in comment")
+    defp lex_comment(type, acc, text, oloc, loc, estr, eol) do
+        case next_code_points(text, loc, String.length(estr), "") do
+            {^estr, rest, loc} -> {type, acc <> estr, rest, oloc, loc}
+            _ ->
+                case next_code_point(text, loc) do
+                    {cp, rest, loc} -> lex_comment(type, acc <> cp, rest, oloc, loc, estr, eol)
+                    :eof when eol -> {type, acc, text, oloc, loc}
+                    :eof -> raise_error(oloc, "Unexpected end of input in comment")
+                end
         end
     end
 
