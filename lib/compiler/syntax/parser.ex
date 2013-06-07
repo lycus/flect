@@ -249,12 +249,62 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_glob_decl(state(), token()) :: return_n()
     defp parse_glob_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_glob, state} = expect_token(state, :glob, "global variable declaration")
+
+        {ext, state} = case next_token(state) do
+            {:ext, tok, state} ->
+                {_, str, state} = expect_token(state, :string, "variable ABI string")
+                {[ext_keyword: tok, abi: str], state}
+            _ -> {[], state}
+        end
+
+        {mut, state} = case next_token(state) do
+            {:mut, tok, state} -> {[mut_keyword: tok], state}
+            _ -> {[], state}
+        end
+
+        {name, state} = parse_simple_name(state)
+        {_, tok_colon, state} = expect_token(state, :colon, "colon")
+        {type, state} = parse_type(state)
+        {_, tok_equals, state} = expect_token(state, :assign, "equals sign")
+
+        # TODO: Parse expression.
+
+        {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
+
+        tokens = [glob_keyword: tok_glob] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+
+        {new_node(:global_declaration, tokens, [name: name, type: type]), state}
     end
 
     @spec parse_tls_decl(state(), token()) :: return_n()
     defp parse_tls_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_tls, state} = expect_token(state, :tls, "TLS variable declaration")
+
+        {ext, state} = case next_token(state) do
+            {:ext, tok, state} ->
+                {_, str, state} = expect_token(state, :string, "variable ABI string")
+                {[ext_keyword: tok, abi: str], state}
+            _ -> {[], state}
+        end
+
+        {mut, state} = case next_token(state) do
+            {:mut, tok, state} -> {[mut_keyword: tok], state}
+            _ -> {[], state}
+        end
+
+        {name, state} = parse_simple_name(state)
+        {_, tok_colon, state} = expect_token(state, :colon, "colon")
+        {type, state} = parse_type(state)
+        {_, tok_equals, state} = expect_token(state, :assign, "equals sign")
+
+        # TODO: Parse expression.
+
+        {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
+
+        tokens = [tls_keyword: tok_tls] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
+
+        {new_node(:tls_declaration, tokens, [name: name, type: type]), state}
     end
 
     @spec parse_macro_decl(state(), token()) :: return_n()
