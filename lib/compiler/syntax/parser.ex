@@ -343,7 +343,36 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_macro_decl(state(), token()) :: return_n()
     defp parse_macro_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_macro, state} = expect_token(state, :macro, "macro declaration")
+        {name, state} = parse_simple_name(state)
+        {params, state} = parse_macro_parameters(state)
+
+        # TODO: Parse block.
+
+        {new_node(:macro_declaration, tok_macro.location(), [macro_keyword: tok_macro], [name: name, parameters: params]), state}
+    end
+
+    @spec parse_macro_parameters(state()) :: return_n()
+    defp parse_macro_parameters(state) do
+        {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
+        {params, toks, state} = parse_macro_parameters_list(state, [])
+        {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+
+        params = lc param inlist params, do: {:parameter, param}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:macro_parameters, tok_open.location(),
+                  [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], params), state}
+    end
+
+    @spec parse_macro_parameters_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_macro_parameters_list(state, params, tokens // []) do
+        {name, state} = parse_simple_name(state)
+
+        case next_token(state) do
+            {:comma, tok, state} -> parse_macro_parameters_list(state, [name | params], [tok | tokens])
+            _ -> {Enum.reverse([name | params]), Enum.reverse(tokens), state}
+        end
     end
 
     @spec parse_test_decl(state(), token()) :: return_n()
