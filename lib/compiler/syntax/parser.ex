@@ -109,6 +109,14 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
 
         {name, state} = parse_simple_name(state)
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
         {params, state} = parse_function_parameters(state)
         {_, tok_arrow, state} = expect_token(state, :minus_angle_close, "return type arrow")
         {ret_type, state} = parse_return_type(state)
@@ -125,7 +133,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         tokens = vis ++ [fn_keyword: tok_fn] ++ ext ++ [arrow: tok_arrow] ++ tail_tok
 
         {new_node(:function_declaration, tok_fn.location(), tokens,
-                  [name: name, parameters: params, return_type: ret_type] ++ tail_node), state}
+                  [{:name, name} | ty_par] ++ [parameters: params, return_type: ret_type] ++ tail_node), state}
     end
 
     @spec parse_function_parameters(state()) :: return_n()
