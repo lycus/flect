@@ -5,7 +5,7 @@ passes = :file.list_dir(path) |>
          Enum.filter(fn(x) -> Path.extname(x) == '.pass' end) |>
          Enum.sort() |>
          Enum.map(fn(x) -> Path.join(path, x) end) |>
-         Enum.map(fn(x) -> [pass: x |> Path.basename() |> Path.rootname()] ++ Enum.at!(elem(:file.consult(x), 1), 0) end)
+         Enum.map(fn(x) -> [pass: x |> Path.basename() |> Path.rootname()] ++ Enum.fetch!(elem(:file.consult(x), 1), 0) end)
 
 files = :file.list_dir(path) |>
         elem(1) |>
@@ -65,7 +65,7 @@ results = Enum.map(passes, fn(pass) ->
             {:ok, [args, expr]} ->
                 args = Enum.map(args, fn(arg) -> :unicode.characters_to_binary(arg) end)
                 expr = :unicode.characters_to_binary(expr)
-                condition = elem(Code.eval(expr, vars), 0)
+                condition = elem(Code.eval_string(expr, vars), 0)
 
                 {args, expr, condition}
             {:error, :enoent} -> {[], "", true}

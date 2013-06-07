@@ -455,7 +455,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ -> {[], state}
         end
 
-        loc = elem(Enum.at!(tok, 0), 1).location()
+        loc = elem(Enum.fetch!(tok, 0), 1).location()
 
         case next_token(state) do
             {:bracket_open, _, _} ->
