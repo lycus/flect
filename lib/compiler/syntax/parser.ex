@@ -99,7 +99,70 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_fn_decl(state(), token()) :: return_n()
     defp parse_fn_decl(state, visibility) do
-        exit(:todo)
+        {_, tok_fn, state} = expect_token(state, :fn, "function declaration")
+
+        {ext, state} = case next_token(state) do
+            {:ext, tok, state} ->
+                {_, str, state} = expect_token(state, :string, "function ABI string")
+                {[ext_keyword: tok, abi: str], state}
+            _ -> {[], state}
+        end
+
+        {name, state} = parse_simple_name(state)
+        {params, state} = parse_function_parameters(state)
+        {_, tok_arrow, state} = expect_token(state, :minus_angle_close, "return type arrow")
+        {ret_type, state} = parse_return_type(state)
+
+        # TODO: Parse block.
+
+        tokens = [visibility_keyword: visibility, fn_keyword: tok_fn] ++ ext ++ [arrow: tok_arrow]
+
+        {new_node(:function_declaration, tok_fn.location(), tokens, [name: name, parameters: params, return_type: ret_type]), state}
+    end
+
+    @spec parse_function_parameters(state()) :: return_n()
+    defp parse_function_parameters(state) do
+        {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
+        {params, toks, state} = parse_function_parameter_list(state, [])
+        {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+
+        params = lc param inlist params, do: {:parameter, param}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:function_parameters, tok_open.location(),
+                  [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], params), state}
+    end
+
+    @spec parse_function_parameter_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_function_parameter_list(state, params, tokens // []) do
+        case next_token(state) do
+            {:paren_close, _, _} -> {Enum.reverse(params), Enum.reverse(tokens), state}
+            {:comma, tok, state} when params != [] ->
+                {param, state} = parse_function_parameter(state)
+                parse_function_parameter_list(state, [param | params], [tok | tokens])
+            _ when params == [] ->
+                {param, state} = parse_function_parameter(state)
+                parse_function_parameter_list(state, [param | params], tokens)
+        end
+    end
+
+    @spec parse_function_parameter(state()) :: return_n()
+    defp parse_function_parameter(state) do
+        {mut, state} = case next_token(state) do
+            {:mut, mut, state} -> {[mut_keyword: mut], state}
+            _ -> {[], state}
+        end
+
+        {ref, state} = case next_token(state) do
+            {:ref, ref, state} -> {[ref_keyword: ref], state}
+            _ -> {[], state}
+        end
+
+        {name, state} = parse_simple_name(state)
+        {_, tok_colon, state} = expect_token(state, :colon, "colon")
+        {type, state} = parse_type(state)
+
+        {new_node(:function_parameter, type.location(), mut ++ ref ++ [colon: tok_colon], [name: name, type: type]), state}
     end
 
     defp parse_struct_decl(state, visibility) do
