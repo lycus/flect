@@ -1,0 +1,7 @@
+pub mod traits {
+    pub trait Foo {
+        fn my_fun() -> unit;
+
+        fn my_other_fun(i : int, j : f32) -> !;
+    }
+}

@@ -1,0 +1,81 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (6,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "foo" (1,9) ]
+        {
+        }
+    }
+    trait_declaration (2,9) [ "pub" (2,5), "trait" (2,9), "{" (2,19), "}" (5,5) ]
+    {
+        simple_name (2,15) [ "Foo" (2,15) ]
+        {
+        }
+        function_declaration (3,9) [ "fn" (3,9), "->" (3,34), ";" (3,41) ]
+        {
+            simple_name (3,12) [ "asdf" (3,12) ]
+            {
+            }
+            function_parameters (3,16) [ "(" (3,16), ")" (3,32) ]
+            {
+                function_parameter (3,28) [ "ref" (3,17), ":" (3,26) ]
+                {
+                    simple_name (3,21) [ "this" (3,21) ]
+                    {
+                    }
+                    nominal_type (3,28) [  ]
+                    {
+                        qualified_name (3,28) [  ]
+                        {
+                            simple_name (3,28) [ "self" (3,28) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+            nominal_type (3,37) [  ]
+            {
+                qualified_name (3,37) [  ]
+                {
+                    simple_name (3,37) [ "self" (3,37) ]
+                    {
+                    }
+                }
+            }
+        }
+        function_declaration (4,9) [ "fn" (4,9), "->" (4,38), ";" (4,45) ]
+        {
+            simple_name (4,12) [ "fdsa" (4,12) ]
+            {
+            }
+            function_parameters (4,16) [ "(" (4,16), ")" (4,36) ]
+            {
+                function_parameter (4,32) [ "mut" (4,17), "ref" (4,21), ":" (4,30) ]
+                {
+                    simple_name (4,25) [ "this" (4,25) ]
+                    {
+                    }
+                    nominal_type (4,32) [  ]
+                    {
+                        qualified_name (4,32) [  ]
+                        {
+                            simple_name (4,32) [ "self" (4,32) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+            nominal_type (4,41) [  ]
+            {
+                qualified_name (4,41) [  ]
+                {
+                    simple_name (4,41) [ "self" (4,41) ]
+                    {
+                    }
+                }
+            }
+        }
+    }
+}

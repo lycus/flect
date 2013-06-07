@@ -1,0 +1,75 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,16), "}" (7,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "traits" (1,9) ]
+        {
+        }
+    }
+    trait_declaration (2,9) [ "pub" (2,5), "trait" (2,9), "{" (2,19), "}" (6,5) ]
+    {
+        simple_name (2,15) [ "Foo" (2,15) ]
+        {
+        }
+        function_declaration (3,9) [ "fn" (3,9), "->" (3,21), ";" (3,28) ]
+        {
+            simple_name (3,12) [ "my_fun" (3,12) ]
+            {
+            }
+            function_parameters (3,18) [ "(" (3,18), ")" (3,19) ]
+            {
+            }
+            nominal_type (3,24) [  ]
+            {
+                qualified_name (3,24) [  ]
+                {
+                    simple_name (3,24) [ "unit" (3,24) ]
+                    {
+                    }
+                }
+            }
+        }
+        function_declaration (5,9) [ "fn" (5,9), "->" (5,43), ";" (5,47) ]
+        {
+            simple_name (5,12) [ "my_other_fun" (5,12) ]
+            {
+            }
+            function_parameters (5,24) [ "(" (5,24), "," (5,32), ")" (5,41) ]
+            {
+                function_parameter (5,29) [ ":" (5,27) ]
+                {
+                    simple_name (5,25) [ "i" (5,25) ]
+                    {
+                    }
+                    nominal_type (5,29) [  ]
+                    {
+                        qualified_name (5,29) [  ]
+                        {
+                            simple_name (5,29) [ "int" (5,29) ]
+                            {
+                            }
+                        }
+                    }
+                }
+                function_parameter (5,38) [ ":" (5,36) ]
+                {
+                    simple_name (5,34) [ "j" (5,34) ]
+                    {
+                    }
+                    nominal_type (5,38) [  ]
+                    {
+                        qualified_name (5,38) [  ]
+                        {
+                            simple_name (5,38) [ "f32" (5,38) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+            bottom_type (5,46) [ "!" (5,46) ]
+            {
+            }
+        }
+    }
+}

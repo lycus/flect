@@ -97,8 +97,8 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
     end
 
-    @spec parse_fn_decl(state(), token()) :: return_n()
-    defp parse_fn_decl(state, visibility) do
+    @spec parse_fn_decl(state(), token() | nil, boolean()) :: return_n()
+    defp parse_fn_decl(state, visibility, body // true) do
         {_, tok_fn, state} = expect_token(state, :fn, "function declaration")
 
         {ext, state} = case next_token(state) do
@@ -113,11 +113,19 @@ defmodule Flect.Compiler.Syntax.Parser do
         {_, tok_arrow, state} = expect_token(state, :minus_angle_close, "return type arrow")
         {ret_type, state} = parse_return_type(state)
 
-        # TODO: Parse block.
+        {tail_tok, tail_node, state} = if body do
+            # TODO: Parse block.
+            {[], [], state}
+        else
+            {_, tok_semicolon, state} = expect_token(state, :semicolon, "semicolon")
+            {[semicolon: tok_semicolon], [], state}
+        end
 
-        tokens = [visibility_keyword: visibility, fn_keyword: tok_fn] ++ ext ++ [arrow: tok_arrow]
+        vis = if visibility, do: [visibility_keyword: visibility], else: []
+        tokens = vis ++ [fn_keyword: tok_fn] ++ ext ++ [arrow: tok_arrow] ++ tail_tok
 
-        {new_node(:function_declaration, tok_fn.location(), tokens, [name: name, parameters: params, return_type: ret_type]), state}
+        {new_node(:function_declaration, tok_fn.location(), tokens,
+                  [name: name, parameters: params, return_type: ret_type] ++ tail_node), state}
     end
 
     @spec parse_function_parameters(state()) :: return_n()
@@ -348,9 +356,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
 
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
-
-        # TODO: Parse functions.
-
+        {fns, state} = parse_trait_functions(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
         tokens = [visibility_keyword: visibility,
@@ -358,7 +364,19 @@ defmodule Flect.Compiler.Syntax.Parser do
                   opening_brace: tok_open,
                   closing_brace: tok_close]
 
-        {new_node(:trait_declaration, tok_trait.location(), tokens, [{:name, name} | ty_par]), state}
+        fns = lc fun inlist fns, do: {:function, fun}
+
+        {new_node(:trait_declaration, tok_trait.location(), tokens, [{:name, name} | ty_par ++ fns]), state}
+    end
+
+    @spec parse_trait_functions(state(), [ast_node()]) :: return_m()
+    defp parse_trait_functions(state, fns // []) do
+        case next_token(state) do
+            {:fn, _, _} ->
+                {fun, state} = parse_fn_decl(state, nil, false)
+                parse_trait_functions(state, [fun | fns])
+            _ -> {Enum.reverse(fns), state}
+        end
     end
 
     @spec parse_impl_decl(state(), token()) :: return_n()
@@ -376,9 +394,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         {_, tok_for, state} = expect_token(state, :for, "'for' keyword")
         {type, state} = parse_type(state)
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
-
-        # TODO: Parse functions.
-
+        {fns, state} = parse_impl_functions(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
         tokens = [visibility_keyword: visibility,
@@ -387,7 +403,19 @@ defmodule Flect.Compiler.Syntax.Parser do
                   opening_brace: tok_open,
                   closing_brace: tok_close]
 
-        {new_node(:impl_declaration, tok_impl.location(), tokens, ty_par ++ [trait: trait, type: type]), state}
+        fns = lc fun inlist fns, do: {:function, fun}
+
+        {new_node(:impl_declaration, tok_impl.location(), tokens, ty_par ++ [trait: trait, type: type] ++ fns), state}
+    end
+
+    @spec parse_impl_functions(state(), [ast_node()]) :: return_m()
+    defp parse_impl_functions(state, fns // []) do
+        case next_token(state) do
+            {:fn, _, _} ->
+                {fun, state} = parse_fn_decl(state, nil)
+                parse_impl_functions(state, [fun | fns])
+            _ -> {Enum.reverse(fns), state}
+        end
     end
 
     @spec parse_glob_decl(state(), token()) :: return_n()

@@ -1,0 +1,105 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,16), "}" (5,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "traits" (1,9) ]
+        {
+        }
+    }
+    trait_declaration (2,9) [ "pub" (2,5), "trait" (2,9), "{" (2,36), "}" (4,5) ]
+    {
+        simple_name (2,15) [ "Foo" (2,15) ]
+        {
+        }
+        type_parameters (2,18) [ "[" (2,18), "," (2,20), "," (2,23), "]" (2,34) ]
+        {
+            type_parameter (2,19) [  ]
+            {
+                simple_name (2,19) [ "T" (2,19) ]
+                {
+                }
+            }
+            type_parameter (2,22) [  ]
+            {
+                simple_name (2,22) [ "V" (2,22) ]
+                {
+                }
+            }
+            type_parameter (2,25) [  ]
+            {
+                simple_name (2,25) [ "U" (2,25) ]
+                {
+                }
+                type_parameter_bounds (2,27) [ ":" (2,27), "&" (2,31) ]
+                {
+                    nominal_type (2,29) [  ]
+                    {
+                        qualified_name (2,29) [  ]
+                        {
+                            simple_name (2,29) [ "T" (2,29) ]
+                            {
+                            }
+                        }
+                    }
+                    nominal_type (2,33) [  ]
+                    {
+                        qualified_name (2,33) [  ]
+                        {
+                            simple_name (2,33) [ "V" (2,33) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function_declaration (3,9) [ "fn" (3,9), "->" (3,33), ";" (3,37) ]
+        {
+            simple_name (3,12) [ "my_fun" (3,12) ]
+            {
+            }
+            function_parameters (3,18) [ "(" (3,18), "," (3,24), ")" (3,31) ]
+            {
+                function_parameter (3,23) [ ":" (3,21) ]
+                {
+                    simple_name (3,19) [ "t" (3,19) ]
+                    {
+                    }
+                    nominal_type (3,23) [  ]
+                    {
+                        qualified_name (3,23) [  ]
+                        {
+                            simple_name (3,23) [ "T" (3,23) ]
+                            {
+                            }
+                        }
+                    }
+                }
+                function_parameter (3,30) [ ":" (3,28) ]
+                {
+                    simple_name (3,26) [ "v" (3,26) ]
+                    {
+                    }
+                    nominal_type (3,30) [  ]
+                    {
+                        qualified_name (3,30) [  ]
+                        {
+                            simple_name (3,30) [ "V" (3,30) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+            nominal_type (3,36) [  ]
+            {
+                qualified_name (3,36) [  ]
+                {
+                    simple_name (3,36) [ "U" (3,36) ]
+                    {
+                    }
+                }
+            }
+        }
+    }
+}

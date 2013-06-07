@@ -1,0 +1,5 @@
+pub mod traits {
+    pub trait Foo[T, V, U : T & V] {
+        fn my_fun(t : T, v : V) -> U;
+    }
+}

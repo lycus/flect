@@ -1,0 +1,6 @@
+pub mod foo {
+    pub trait Foo {
+        fn asdf(ref this : self) -> self;
+        fn fdsa(mut ref this : self) -> self;
+    }
+}
