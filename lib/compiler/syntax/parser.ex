@@ -105,6 +105,14 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_struct_decl(state, visibility) do
         {_, tok_struct, state} = expect_token(state, :struct, "structure declaration")
         {name, state} = parse_simple_name(state)
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
         {fields, state} = parse_fields(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
@@ -116,7 +124,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         fields = lc field inlist fields, do: {:field, field}
 
-        {new_node(:struct_declaration, tok_struct.location(), tokens, [{:name, name} | fields]), state}
+        {new_node(:struct_declaration, tok_struct.location(), tokens, [{:name, name} | ty_par] ++ fields), state}
     end
 
     @spec parse_fields(state(), [ast_node()]) :: return_m()
@@ -147,6 +155,14 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_union_decl(state, visibility) do
         {_, tok_union, state} = expect_token(state, :union, "union declaration")
         {name, state} = parse_simple_name(state)
+
+        {ty_par, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_par, state} = parse_type_parameters(state)
+                {[type_parameters: ty_par], state}
+            _ -> {[], state}
+        end
+
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
         {cases, state} = parse_cases(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
@@ -158,7 +174,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         cases = lc c inlist cases, do: {:case, c}
 
-        {new_node(:union_declaration, tok_union.location(), tokens, [{:name, name} | cases]), state}
+        {new_node(:union_declaration, tok_union.location(), tokens, [{:name, name} | ty_par] ++ cases), state}
     end
 
     @spec parse_cases(state(), [ast_node()]) :: return_m()
@@ -274,7 +290,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         tokens = [glob_keyword: tok_glob] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
 
-        {new_node(:global_declaration, tokens, [name: name, type: type]), state}
+        {new_node(:global_declaration, tok_glob.location(), tokens, [name: name, type: type]), state}
     end
 
     @spec parse_tls_decl(state(), token()) :: return_n()
@@ -304,7 +320,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         tokens = [tls_keyword: tok_tls] ++ ext ++ mut ++ [colon: tok_colon, equals: tok_equals]
 
-        {new_node(:tls_declaration, tokens, [name: name, type: type]), state}
+        {new_node(:tls_declaration, tok_tls.location(), tokens, [name: name, type: type]), state}
     end
 
     @spec parse_macro_decl(state(), token()) :: return_n()
@@ -323,6 +339,64 @@ defmodule Flect.Compiler.Syntax.Parser do
                   test_name: name_str]
 
         {new_node(:test_declaration, tok_test.location(), tokens, []), state}
+    end
+
+    @spec parse_type_parameters(state()) :: return_n()
+    defp parse_type_parameters(state) do
+        {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
+        {params, toks, state} = parse_type_parameter_list(state, [])
+        {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
+
+        params = lc param inlist params, do: {:parameter, param}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:type_parameters, tok_open.location(),
+                  [{:opening_bracket, tok_open} | toks] ++ [closing_bracket: tok_close], params), state}
+    end
+
+    @spec parse_type_parameter_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_type_parameter_list(state, params, tokens // []) do
+        {param, state} = parse_type_parameter(state)
+
+        case next_token(state) do
+            {:comma, tok, state} -> parse_type_parameter_list(state, [param | params], [tok | tokens])
+            _ -> {Enum.reverse([param | params]), Enum.reverse(tokens), state}
+        end
+    end
+
+    @spec parse_type_parameter(state()) :: return_n()
+    defp parse_type_parameter(state) do
+        {name, state} = parse_simple_name(state)
+
+        {bounds, state} = case next_token(state) do
+            {:colon, _, _} ->
+                {bounds, state} = parse_type_parameter_bounds(state)
+                {[bounds: bounds], state}
+            _ -> {[], state}
+        end
+
+        {new_node(:type_parameter, name.location(), [], [{:name, name} | bounds]), state}
+    end
+
+    @spec parse_type_parameter_bounds(state()) :: return_n()
+    defp parse_type_parameter_bounds(state) do
+        {_, tok_colon, state} = expect_token(state, :colon, "colon")
+        {bounds, toks, state} = parse_type_parameter_bounds_list(state, [])
+
+        bounds = lc bound inlist bounds, do: {:bound, bound}
+        toks = lc tok inlist toks, do: {:ampersand, tok}
+
+        {new_node(:type_parameter_bounds, tok_colon.location(), [colon: tok_colon] ++ toks, bounds), state}
+    end
+
+    @spec parse_type_parameter_bounds_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_type_parameter_bounds_list(state, bounds, tokens // []) do
+        {bound, state} = parse_nominal_type(state)
+
+        case next_token(state) do
+            {:ampersand, tok, state} -> parse_type_parameter_bounds_list(state, [bound | bounds], [tok | tokens])
+            _ -> {Enum.reverse([bound | bounds]), Enum.reverse(tokens), state}
+        end
     end
 
     @spec parse_type(state()) :: return_n()

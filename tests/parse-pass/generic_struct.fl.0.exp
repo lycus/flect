@@ -1,0 +1,39 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (5,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "foo" (1,9) ]
+        {
+        }
+    }
+    struct_declaration (2,9) [ "pub" (2,5), "struct" (2,9), "{" (2,23), "}" (4,5) ]
+    {
+        simple_name (2,16) [ "Gen" (2,16) ]
+        {
+        }
+        type_parameters (2,19) [ "[" (2,19), "]" (2,21) ]
+        {
+            type_parameter (2,20) [  ]
+            {
+                simple_name (2,20) [ "T" (2,20) ]
+                {
+                }
+            }
+        }
+        field_declaration (3,13) [ "pub" (3,9), ":" (3,15), ";" (3,18) ]
+        {
+            simple_name (3,13) [ "x" (3,13) ]
+            {
+            }
+            nominal_type (3,17) [  ]
+            {
+                qualified_name (3,17) [  ]
+                {
+                    simple_name (3,17) [ "T" (3,17) ]
+                    {
+                    }
+                }
+            }
+        }
+    }
+}

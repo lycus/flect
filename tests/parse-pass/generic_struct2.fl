@@ -1,0 +1,5 @@
+pub mod foo {
+    pub struct Gen[T : U & V] {
+        pub x : T;
+    }
+}

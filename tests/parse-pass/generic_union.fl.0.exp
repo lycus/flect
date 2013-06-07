@@ -1,0 +1,108 @@
+module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,13), "}" (10,1) ]
+{
+    qualified_name (1,9) [  ]
+    {
+        simple_name (1,9) [ "foo" (1,9) ]
+        {
+        }
+    }
+    union_declaration (2,9) [ "pub" (2,5), "union" (2,9), "{" (2,36), "}" (9,5) ]
+    {
+        simple_name (2,15) [ "Gen" (2,15) ]
+        {
+        }
+        type_parameters (2,18) [ "[" (2,18), "," (2,24), "]" (2,34) ]
+        {
+            type_parameter (2,19) [  ]
+            {
+                simple_name (2,19) [ "T" (2,19) ]
+                {
+                }
+                type_parameter_bounds (2,21) [ ":" (2,21) ]
+                {
+                    nominal_type (2,23) [  ]
+                    {
+                        qualified_name (2,23) [  ]
+                        {
+                            simple_name (2,23) [ "X" (2,23) ]
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+            type_parameter (2,26) [  ]
+            {
+                simple_name (2,26) [ "U" (2,26) ]
+                {
+                }
+                type_parameter_bounds (2,28) [ ":" (2,28) ]
+                {
+                    nominal_type (2,30) [  ]
+                    {
+                        qualified_name (2,30) [  ]
+                        {
+                            simple_name (2,30) [ "Y" (2,30) ]
+                            {
+                            }
+                        }
+                        type_arguments (2,31) [ "[" (2,31), "]" (2,33) ]
+                        {
+                            nominal_type (2,32) [  ]
+                            {
+                                qualified_name (2,32) [  ]
+                                {
+                                    simple_name (2,32) [ "T" (2,32) ]
+                                    {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        case_declaration (3,9) [ "{" (3,11), "}" (5,9) ]
+        {
+            simple_name (3,9) [ "A" (3,9) ]
+            {
+            }
+            field_declaration (4,17) [ "pub" (4,13), ":" (4,19), ";" (4,22) ]
+            {
+                simple_name (4,17) [ "a" (4,17) ]
+                {
+                }
+                nominal_type (4,21) [  ]
+                {
+                    qualified_name (4,21) [  ]
+                    {
+                        simple_name (4,21) [ "T" (4,21) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        case_declaration (6,9) [ "{" (6,11), "}" (8,9) ]
+        {
+            simple_name (6,9) [ "B" (6,9) ]
+            {
+            }
+            field_declaration (7,17) [ "pub" (7,13), ":" (7,19), ";" (7,22) ]
+            {
+                simple_name (7,17) [ "b" (7,17) ]
+                {
+                }
+                nominal_type (7,21) [  ]
+                {
+                    qualified_name (7,21) [  ]
+                    {
+                        simple_name (7,21) [ "U" (7,21) ]
+                        {
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

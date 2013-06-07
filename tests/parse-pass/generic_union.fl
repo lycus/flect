@@ -1,0 +1,10 @@
+pub mod foo {
+    pub union Gen[T : X, U : Y[T]] {
+        A {
+            pub a : T;
+        }
+        B {
+            pub b : U;
+        }
+    }
+}
