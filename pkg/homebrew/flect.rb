@@ -1,3 +1,5 @@
+# Maintainer: Chris Molozian <chris@cmoz.me>
+
 require 'formula'
 
 class Flect < Formula
