@@ -1179,7 +1179,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_primary_expr(state) do
         case next_token(state) do
             {:if, _, _} -> parse_if_expr(state)
-            # {:cond, _, _} -> parse_cond_expr(state) # TODO
+            {:cond, _, _} -> parse_cond_expr(state) # TODO
             # {:match, _, _} -> parse_match_expr(state) # TODO
             {:loop, _, _} -> parse_loop_expr(state)
             {:while, _, _} -> parse_while_expr(state)
@@ -1218,6 +1218,40 @@ defmodule Flect.Compiler.Syntax.Parser do
 
         {new_node(:if_expr, tok_if.location(), [{:if_keyword, tok_if} | else_tok],
                   [{:condition, cond_expr}, {:true_block, then_block} | else_block]), state}
+    end
+
+    @spec parse_cond_expr(state()) :: return_n()
+    defp parse_cond_expr(state) do
+        {_, tok_cond, state} = expect_token(state, :cond, "'cond' keyword")
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {branches, state} = parse_cond_branch_list(state)
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        branches = lc branch inlist branches, do: {:branch, branch}
+
+        tokens = [cond_keyword: tok_cond,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        {new_node(:cond_expr, tok_cond.location(), tokens, branches), state}
+    end
+
+    @spec parse_cond_branch_list(state(), [ast_node()]) :: return_m()
+    defp parse_cond_branch_list(state, branches // []) do
+        {branch, state} = parse_cond_branch(state)
+
+        case next_token(state) do
+            {:brace_close, _, _} -> {Enum.reverse([branch | branches]), state}
+            _ -> parse_cond_branch_list(state, [branch | branches])
+        end
+    end
+
+    @spec parse_cond_branch(state()) :: return_n()
+    defp parse_cond_branch(state) do
+        {expr, state} = parse_expr(state)
+        {block, state} = parse_block(state)
+
+        {new_node(:cond_expr_branch, expr.location(), [], [condition: expr, body: block]), state}
     end
 
     @spec parse_loop_expr(state()) :: return_n()
