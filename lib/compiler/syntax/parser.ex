@@ -1187,7 +1187,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:break, _, _} -> parse_break_expr(state)
             {:goto, _, _} -> parse_goto_expr(state)
             {:return, _, _} -> parse_return_expr(state)
-            # {:asm, _, _} -> parse_asm_expr(state) # TODO
+            {:asm, _, _} -> parse_asm_expr(state) # TODO
             {:new, _, _} -> parse_new_expr(state)
             {:assert, _, _} -> parse_assert_expr(state)
             {:meta, _, _} -> parse_meta_expr(state)
@@ -1319,6 +1319,119 @@ defmodule Flect.Compiler.Syntax.Parser do
         {expr, state} = parse_expr(state)
 
         {new_node(:return_expr, tok_return.location(), [return_keyword: tok_return], [expression: expr]), state}
+    end
+
+    @spec parse_asm_expr(state()) :: return_n()
+    defp parse_asm_expr(state) do
+        {_, tok_asm, state} = expect_token(state, :asm, "'asm' keyword")
+
+        {tok_qual, state} = case next_token(state) do
+            {:bracket_open, tok_open, state} ->
+                {_, tok_qual, state} = expect_token(state, :string, "qualifier string")
+                {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
+
+                {[opening_bracket: tok_open, qualifier: tok_qual, closing_bracket: tok_close], state}
+            _ -> {[], state}
+        end
+
+        {_, tok_code, state} = expect_token(state, :string, "assembly code string")
+
+        {operands, state} = case next_token(state) do
+            {:colon, _, _} ->
+                # First one is the outputs.
+                {oper1, state} = parse_asm_operand(state)
+
+                {oper2, state} = case next_token(state) do
+                    {:colon, _, _} ->
+                        # Second one is the inputs.
+                        {oper2, state} = parse_asm_operand(state)
+
+                        {oper3, state} = case next_token(state) do
+                            {:colon, _, _} ->
+                                # Third one is the clobbers.
+                                {oper3, state} = parse_asm_clobber(state)
+                                {[third_operand: oper3], state}
+                            _ -> {[], state}
+                        end
+
+                        {[second_operand: oper2] ++ oper3, state}
+                    _ -> {[], state}
+                end
+
+                {[first_operand: oper1] ++ oper2, state}
+            _ -> {[], state}
+        end
+
+        {new_node(:asm_expr, tok_asm.location(), [{:asm_keyword, tok_asm} | tok_qual] ++ [code: tok_code], operands), state}
+    end
+
+    @spec parse_asm_operand(state()) :: return_n()
+    defp parse_asm_operand(state) do
+        {_, tok_col, state} = expect_token(state, :colon, "colon")
+        {entries, toks, state} = parse_asm_operand_entry_list(state, [])
+
+        entries = lc entry inlist entries, do: {:entry, entry}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:asm_expr_operand, tok_col.location(), [{:colon, tok_col} | toks], entries), state}
+    end
+
+    @spec parse_asm_operand_entry_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_asm_operand_entry_list(state, entries, tokens // []) do
+        {entry, state} = parse_asm_operand_entry(state)
+
+        case next_token(state) do
+            {:comma, tok, state} -> parse_asm_operand_entry_list(state, [entry | entries], [tok | tokens])
+            _ -> {Enum.reverse([entry | entries]), Enum.reverse(tokens), state}
+        end
+    end
+
+    @spec parse_asm_operand_entry(state()) :: return_n()
+    defp parse_asm_operand_entry(state) do
+        {_, tok_open, state} = expect_token(state, :paren_open, "opening_parenthesis")
+        {_, tok_ident, state} = expect_token(state, :identifier, "symbolic name")
+        {_, tok_comma1, state} = expect_token(state, :comma, "comma")
+        {_, tok_str, state} = expect_token(state, :string, "constraint string")
+        {_, tok_comma2, state} = expect_token(state, :comma, "comma")
+        {expr, state} = parse_expr(state)
+        {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+
+        tokens = [opening_parenthesis: tok_open,
+                  symbolic_name: tok_ident,
+                  comma: tok_comma1,
+                  constraint: tok_str,
+                  comma: tok_comma2,
+                  closing_parenthesis: tok_close]
+
+        {new_node(:asm_expr_operand_entry, tok_str.location(), tokens, [expression: expr]), state}
+    end
+
+    @spec parse_asm_clobber(state()) :: return_n()
+    defp parse_asm_clobber(state) do
+        {_, tok_col, state} = expect_token(state, :colon, "colon")
+        {entries, toks, state} = parse_asm_clobber_entry_list(state, [])
+
+        entries = lc entry inlist entries, do: {:entry, entry}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        {new_node(:asm_expr_clobber, tok_col.location(), [{:colon, tok_col} | toks], entries), state}
+    end
+
+    @spec parse_asm_clobber_entry_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_asm_clobber_entry_list(state, entries, tokens // []) do
+        {entry, state} = parse_asm_clobber_entry(state)
+
+        case next_token(state) do
+            {:comma, tok, state} -> parse_asm_clobber_entry_list(state, [entry | entries], [tok | tokens])
+            _ -> {Enum.reverse([entry | entries]), Enum.reverse(tokens), state}
+        end
+    end
+
+    @spec parse_asm_clobber_entry(state()) :: return_n()
+    defp parse_asm_clobber_entry(state) do
+        {_, tok_str, state} = expect_token(state, :string, "clobber string")
+
+        {new_node(:asm_expr_clobber_entry, tok_str.location(), [clobber: tok_str], []), state}
     end
 
     @spec parse_new_expr(state()) :: return_n()
