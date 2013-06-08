@@ -1300,9 +1300,17 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_goto_expr(state()) :: return_n()
     defp parse_goto_expr(state) do
         {_, tok_goto, state} = expect_token(state, :goto, "'goto' keyword")
-        {name, state} = parse_simple_name(state)
 
-        {new_node(:goto_expr, tok_goto.location(), [goto_keyword: tok_goto], [label: name]), state}
+        {target, star, state} = case next_token(state) do
+            {:star, tok_star, state} ->
+                {expr, state} = parse_expr(state)
+                {expr, [star: tok_star], state}
+            _ ->
+                {name, state} = parse_simple_name(state)
+                {name, [], state}
+        end
+
+        {new_node(:goto_expr, tok_goto.location(), [{:goto_keyword, tok_goto} | star], [target: target]), state}
     end
 
     @spec parse_return_expr(state()) :: return_n()
