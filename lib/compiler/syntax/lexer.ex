@@ -227,6 +227,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "true",
                "false",
                "null",
+               "new",
                "assert",
                "in",
                "is",
