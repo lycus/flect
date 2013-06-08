@@ -1179,7 +1179,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_primary_expr(state) do
         case next_token(state) do
             {:if, _, _} -> parse_if_expr(state)
-            {:cond, _, _} -> parse_cond_expr(state) # TODO
+            {:cond, _, _} -> parse_cond_expr(state)
             # {:match, _, _} -> parse_match_expr(state) # TODO
             {:loop, _, _} -> parse_loop_expr(state)
             {:while, _, _} -> parse_while_expr(state)
