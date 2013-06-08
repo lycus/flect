@@ -76,8 +76,11 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_decls(state(),  [{:declaration, ast_node()}]) :: return_m()
     defp parse_decls(state, decls // []) do
         case next_token(state) do
-            {:test, _, _} ->
-                {decl, state} = parse_test_decl(state)
+            {v, _, _} when v in [:use, :test] ->
+                {decl, state} = case v do
+                    :use -> parse_use_decl(state)
+                    :test -> parse_test_decl(state)
+                end
 
                 parse_decls(state, [{:declaration, decl} | decls])
             {v, token, state} when v in [:pub, :priv] ->
@@ -98,6 +101,22 @@ defmodule Flect.Compiler.Syntax.Parser do
                 parse_decls(state, [{:declaration, decl} | decls])
             _ -> {Enum.reverse(decls), state}
         end
+    end
+
+    @spec parse_use_decl(state()) :: return_n()
+    defp parse_use_decl(state) do
+        {_, tok_use, state} = expect_token(state, :use, "use declaration")
+
+        {ext, state} = case next_token(state) do
+            {:ext, tok, state} -> {[ext_keyword: tok], state}
+            _ -> {[], state}
+        end
+
+        {name, state} = parse_qualified_name(state)
+        {_, tok_semi, state} = expect_token(state, :semicolon, "semicolon")
+
+        {new_node(:use_declaration, tok_use.location(),
+                  [{:use_keyword, tok_use} | ext] ++ [semicolon: tok_semi], [name: name]), state}
     end
 
     @spec parse_fn_decl(state(), token() | nil, boolean()) :: return_n()

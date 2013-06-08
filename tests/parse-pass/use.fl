@@ -1,0 +1,4 @@
+pub mod foo {
+    use core::dbg;
+    use ext core::volatile;
+}
