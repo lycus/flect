@@ -94,7 +94,6 @@ defrecord Flect.Compiler.Syntax.Token, type: nil,
     * `:new`
     * `:assert`
     * `:in`
-    * `:is`
     * `:meta`
     * `:test`
     * `:macro`
