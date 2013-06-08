@@ -1077,7 +1077,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
                 parse_post_expr(state, new_node(:call_expr, tok_open.location(),
                                                 [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], args))
-            _ -> {state, expr}
+            _ -> {expr, state}
         end
     end
 
@@ -1175,7 +1175,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         {cond_expr, state} = parse_expr(state)
         {block, state} = parse_block(state)
 
-        {new_node(:while_expr, tok_while.location(), [condition: cond_expr, while_keyword: tok_while], [body: block]), state}
+        {new_node(:while_expr, tok_while.location(), [while_keyword: tok_while], [condition: cond_expr, body: block]), state}
     end
 
     @spec parse_for_expr(state()) :: return_n()
