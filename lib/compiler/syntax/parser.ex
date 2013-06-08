@@ -1214,6 +1214,32 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:unquote, _, _} -> parse_unquote_expr(state)
             {t, _, _} when t in [:safe, :unsafe] -> parse_safety_expr(state)
             {:brace_open, _, _} -> parse_block(state)
+            {t, tok, state} when t in [:string, :character,
+                                       :true, :false,
+                                       :null,
+                                       :float, :integer,
+                                       :f32, :f64,
+                                       :i8, :u8,
+                                       :i16, :u16,
+                                       :i32, :u32,
+                                       :i64, :u64,
+                                       :i, :u] ->
+                ast_type = cond do
+                    t == :string -> :string_expr
+                    t == :character -> :character_expr
+                    t in [:true, :false] -> :boolean_expr
+                    t == :null -> :null_expr
+                    t in [:float,
+                          :f32, :f64] -> :float_expr
+                    t in [:integer,
+                          :i8, :u8,
+                          :i16, :u16,
+                          :i32, :u32,
+                          :i64, :u64,
+                          :i, :u] -> :integer_expr
+                end
+
+                {new_node(ast_type, tok.location(), [literal: tok], []), state}
         end
     end
 
