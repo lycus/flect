@@ -230,7 +230,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
                "new",
                "assert",
                "in",
-               "is",
                "meta",
                "test",
                "macro",
