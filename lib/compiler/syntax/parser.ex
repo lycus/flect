@@ -1180,7 +1180,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         case next_token(state) do
             {:if, _, _} -> parse_if_expr(state)
             {:cond, _, _} -> parse_cond_expr(state)
-            # {:match, _, _} -> parse_match_expr(state) # TODO
+            {:match, _, _} -> parse_match_expr(state)
             {:loop, _, _} -> parse_loop_expr(state)
             {:while, _, _} -> parse_while_expr(state)
             {:for, _, _} -> parse_for_expr(state)
@@ -1252,6 +1252,68 @@ defmodule Flect.Compiler.Syntax.Parser do
         {block, state} = parse_block(state)
 
         {new_node(:cond_expr_branch, expr.location(), [], [condition: expr, body: block]), state}
+    end
+
+    @spec parse_match_expr(state()) :: return_n()
+    defp parse_match_expr(state) do
+        {_, tok_match, state} = expect_token(state, :match, "'match' keyword")
+        {expr, state} = parse_expr(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {branches, state} = parse_match_branch_list(state)
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        tokens = [match_keyword: tok_match,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close]
+
+        branches = lc branch inlist branches, do: {:branch, branch}
+
+        {new_node(:match_expr, tok_match.location(), tokens, [operand: expr] ++ branches), state}
+    end
+
+    @spec parse_match_branch_list(state(), [ast_node()]) :: return_m()
+    defp parse_match_branch_list(state, branches // []) do
+        {branch, state} = parse_match_branch(state)
+
+        case next_token(state) do
+            {:brace_close, _, _} -> {Enum.reverse([branch | branches]), state}
+            _ -> parse_match_branch_list(state, [branch | branches])
+        end
+    end
+
+    @spec parse_match_branch(state()) :: return_n()
+    defp parse_match_branch(state) do
+        {patterns, toks, state} = parse_match_branch_pattern_list(state, [])
+        {block, state} = parse_block(state)
+
+        patterns = lc pattern inlist patterns, do: {:pattern, pattern}
+        toks = lc tok inlist toks, do: {:pipe, tok}
+
+        {new_node(:match_expr_branch, elem(Enum.first(patterns), 1).location(), toks, patterns ++ [body: block]), state}
+    end
+
+    @spec parse_match_branch_pattern_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_match_branch_pattern_list(state, patterns, tokens // []) do
+        {pattern, state} = parse_match_branch_pattern(state)
+
+        case next_token(state) do
+            {:pipe, tok, state} -> parse_match_branch_pattern_list(state, [pattern | patterns], [tok | tokens])
+            _ -> {Enum.reverse([pattern | patterns]), Enum.reverse(tokens), state}
+        end
+    end
+
+    @spec parse_match_branch_pattern(state()) :: return_n()
+    defp parse_match_branch_pattern(state) do
+        # TODO: Parse pattern.
+
+        {guard_tok, guard_node, state} = case next_token(state) do
+            {:if, tok, state} ->
+                {expr, state} = parse_expr(state)
+                {[if_keyword: tok], [guard: expr], state}
+            _ -> {[], [], state}
+        end
+
+        {new_node(:match_expr_pattern, Flect.Compiler.Syntax.Location[], guard_tok, guard_node), state}
     end
 
     @spec parse_loop_expr(state()) :: return_n()
