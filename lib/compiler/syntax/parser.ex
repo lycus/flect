@@ -1195,6 +1195,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:quote, _, _} -> parse_quote_expr(state)
             {:unquote, _, _} -> parse_unquote_expr(state)
             {t, _, _} when t in [:safe, :unsafe] -> parse_safety_expr(state)
+            {:brace_open, _, _} -> parse_block(state)
         end
     end
 
