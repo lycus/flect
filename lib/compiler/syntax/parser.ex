@@ -153,12 +153,15 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_function_parameter_list(state, params, tokens // []) do
         case next_token(state) do
             {:paren_close, _, _} -> {Enum.reverse(params), Enum.reverse(tokens), state}
-            {:comma, tok, state} when params != [] ->
-                {param, state} = parse_function_parameter(state)
-                parse_function_parameter_list(state, [param | params], [tok | tokens])
-            _ when params == [] ->
-                {param, state} = parse_function_parameter(state)
-                parse_function_parameter_list(state, [param | params], tokens)
+            _ ->
+                if params == [] do
+                    {param, state} = parse_function_parameter(state)
+                    parse_function_parameter_list(state, [param | params], tokens)
+                else
+                    {_, tok, state} = expect_token(state, :comma, "comma")
+                    {param, state} = parse_function_parameter(state)
+                    parse_function_parameter_list(state, [param | params], [tok | tokens])
+                end
         end
     end
 
@@ -510,7 +513,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_macro_parameters(state()) :: return_n()
     defp parse_macro_parameters(state) do
         {_, tok_open, state} = expect_token(state, :paren_open, "opening parenthesis")
-        {params, toks, state} = parse_macro_parameters_list(state, [])
+        {params, toks, state} = parse_macro_parameter_list(state, [])
         {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
 
         params = lc param inlist params, do: {:parameter, param}
@@ -520,13 +523,19 @@ defmodule Flect.Compiler.Syntax.Parser do
                   [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], params), state}
     end
 
-    @spec parse_macro_parameters_list(state(), [ast_node()], [token()]) :: return_mt()
-    defp parse_macro_parameters_list(state, params, tokens // []) do
-        {name, state} = parse_simple_name(state)
-
+    @spec parse_macro_parameter_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_macro_parameter_list(state, params, tokens // []) do
         case next_token(state) do
-            {:comma, tok, state} -> parse_macro_parameters_list(state, [name | params], [tok | tokens])
-            _ -> {Enum.reverse([name | params]), Enum.reverse(tokens), state}
+            {:paren_close, _, _} -> {Enum.reverse(params), Enum.reverse(tokens), state}
+            _ ->
+                if params == [] do
+                    {param, state} = parse_simple_name(state)
+                    parse_macro_parameter_list(state, [param | params], tokens)
+                else
+                    {_, tok, state} = expect_token(state, :comma, "comma")
+                    {param, state} = parse_simple_name(state)
+                    parse_macro_parameter_list(state, [param | params], [tok | tokens])
+                end
         end
     end
 
