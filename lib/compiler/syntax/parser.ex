@@ -76,6 +76,10 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_decls(state(),  [{:declaration, ast_node()}]) :: return_m()
     defp parse_decls(state, decls // []) do
         case next_token(state) do
+            {:test, _, _} ->
+                {decl, state} = parse_test_decl(state)
+
+                parse_decls(state, [{:declaration, decl} | decls])
             {v, token, state} when v in [:pub, :priv] ->
                 {decl, state} = case expect_token(state, [:fn, :struct, :union, :enum, :type, :trait,
                                                           :impl, :glob, :tls, :macro], "declaration") do
@@ -89,7 +93,6 @@ defmodule Flect.Compiler.Syntax.Parser do
                     {:glob, _, _} -> parse_glob_decl(state, token)
                     {:tls, _, _} -> parse_tls_decl(state, token)
                     {:macro, _, _} -> parse_macro_decl(state, token)
-                    {:test, _, _} -> parse_test_decl(state, token)
                 end
 
                 parse_decls(state, [{:declaration, decl} | decls])
@@ -539,14 +542,13 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
     end
 
-    @spec parse_test_decl(state(), token()) :: return_n()
-    defp parse_test_decl(state, visibility) do
+    @spec parse_test_decl(state()) :: return_n()
+    defp parse_test_decl(state) do
         {_, tok_test, state} = expect_token(state, :test, "test declaration")
         {_, name_str, state} = expect_token(state, :string, "test name string")
         {block, state} = parse_block(state)
 
-        tokens = [visibility_keyword: visibility,
-                  test_keyword: tok_test,
+        tokens = [test_keyword: tok_test,
                   test_name: name_str]
 
         {new_node(:test_declaration, tok_test.location(), tokens, [body: block]), state}
@@ -1229,7 +1231,9 @@ defmodule Flect.Compiler.Syntax.Parser do
         {expr, state} = parse_expr(state)
 
         {msg, state} = case next_token(state) do
-            {:string, tok, state} -> {[message: tok], state}
+            {:comma, tok, state} ->
+                {_, itok, state} = expect_token(state, :string, "message string")
+                {[comma: tok, message: itok], state}
             _ -> {[], state}
         end
 
