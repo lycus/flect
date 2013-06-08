@@ -16,13 +16,13 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,22), "}" (7,1) ]
             simple_name (3,13) [ "a" (3,13) ]
             {
             }
-            vector_type (3,17) [ "{" (3,17), ".." (3,22), "32" (3,25), "}" (3,27) ]
+            vector_type (3,17) [ "{" (3,17), ".." (3,21), "32" (3,18), "}" (3,27) ]
             {
-                nominal_type (3,18) [  ]
+                nominal_type (3,24) [  ]
                 {
-                    qualified_name (3,18) [  ]
+                    qualified_name (3,24) [  ]
                     {
-                        simple_name (3,18) [ "int" (3,18) ]
+                        simple_name (3,24) [ "int" (3,24) ]
                         {
                         }
                     }
@@ -34,13 +34,13 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,22), "}" (7,1) ]
             simple_name (4,13) [ "b" (4,13) ]
             {
             }
-            vector_type (4,17) [ "{" (4,17), ".." (4,22), "123456789" (4,25), "}" (4,34) ]
+            vector_type (4,17) [ "{" (4,17), ".." (4,28), "123456789" (4,18), "}" (4,34) ]
             {
-                nominal_type (4,18) [  ]
+                nominal_type (4,31) [  ]
                 {
-                    qualified_name (4,18) [  ]
+                    qualified_name (4,31) [  ]
                     {
-                        simple_name (4,18) [ "foo" (4,18) ]
+                        simple_name (4,31) [ "foo" (4,31) ]
                         {
                         }
                     }
@@ -52,24 +52,24 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,22), "}" (7,1) ]
             simple_name (5,13) [ "c" (5,13) ]
             {
             }
-            vector_type (5,17) [ "{" (5,17), ".." (5,29), "4" (5,32), "}" (5,33) ]
+            vector_type (5,17) [ "{" (5,17), ".." (5,20), "4" (5,18), "}" (5,33) ]
             {
-                tuple_type (5,18) [ "(" (5,18), "," (5,22), ")" (5,27) ]
+                tuple_type (5,23) [ "(" (5,23), "," (5,27), ")" (5,32) ]
                 {
-                    nominal_type (5,19) [  ]
-                    {
-                        qualified_name (5,19) [  ]
-                        {
-                            simple_name (5,19) [ "foo" (5,19) ]
-                            {
-                            }
-                        }
-                    }
                     nominal_type (5,24) [  ]
                     {
                         qualified_name (5,24) [  ]
                         {
-                            simple_name (5,24) [ "bar" (5,24) ]
+                            simple_name (5,24) [ "foo" (5,24) ]
+                            {
+                            }
+                        }
+                    }
+                    nominal_type (5,29) [  ]
+                    {
+                        qualified_name (5,29) [  ]
+                        {
+                            simple_name (5,29) [ "bar" (5,29) ]
                             {
                             }
                         }

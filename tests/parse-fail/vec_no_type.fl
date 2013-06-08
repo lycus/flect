@@ -1,0 +1,5 @@
+pub mod vec_no_size {
+    pub struct VecNoSize {
+        pub v : {42 .. };
+    }
+}

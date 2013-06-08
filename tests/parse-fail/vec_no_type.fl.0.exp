@@ -1,0 +1,7 @@
+Error: vec_no_type.fl(3,24): Expected type signature, but got '}' 
+pub mod vec_no_size {
+    pub struct VecNoSize {
+        pub v : {42 .. };
+                       ^  
+    }
+}

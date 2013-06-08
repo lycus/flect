@@ -817,9 +817,9 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_vector_type(state()) :: return_n()
     defp parse_vector_type(state) do
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
-        {type, state} = parse_type(state)
-        {_, tok_period_period, state} = expect_token(state, :period_period, "type/size-separating ellipsis")
         {_, tok_int, state} = expect_token(state, :integer, "vector size integer")
+        {_, tok_period_period, state} = expect_token(state, :period_period, "size/type-separating ellipsis")
+        {type, state} = parse_type(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
         {new_node(:vector_type, tok_open.location(),

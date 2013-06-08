@@ -1,7 +1,7 @@
-Error: vec_no_size.fl(3,25): Expected vector size integer, but got '}' 
+Error: vec_no_size.fl(3,18): Expected vector size integer, but got 'int' 
 pub mod vec_no_size {
     pub struct VecNoSize {
         pub v : {int .. };
-                        ^  
+                 ^         
     }
 }
