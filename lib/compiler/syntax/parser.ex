@@ -1187,7 +1187,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:break, _, _} -> parse_break_expr(state)
             {:goto, _, _} -> parse_goto_expr(state)
             {:return, _, _} -> parse_return_expr(state)
-            {:asm, _, _} -> parse_asm_expr(state) # TODO
+            {:asm, _, _} -> parse_asm_expr(state)
             {:new, _, _} -> parse_new_expr(state)
             {:assert, _, _} -> parse_assert_expr(state)
             {:meta, _, _} -> parse_meta_expr(state)
