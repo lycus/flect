@@ -4,10 +4,10 @@ defmodule Flect.Interactive.Tool do
     """
 
     @spec repl() :: :ok
-    defp repl() do
+    defp repl(i // 0) do
         file = "<repl>"
 
-        case IO.gets("flect> ") do
+        case IO.gets("flect (#{i}) > ") do
             :eof ->
                 Flect.Logger.info("")
                 :ok
@@ -15,16 +15,19 @@ defmodule Flect.Interactive.Tool do
                 Flect.Logger.error("Error reading stdin: #{reason}")
                 :ok
             text ->
+                text = String.strip(text)
+
                 case text do
                     <<"/quit", _ :: binary()>> -> :ok
                     <<"/help", _ :: binary()>> ->
                         Flect.Logger.info("/quit - Exit the REPL.")
                         Flect.Logger.info("/lex <input> - Lexically analyze the given input and show the tokens.")
                         Flect.Logger.info("/pp <input> - Preprocess the given input for the current target and show the remaining tokens.")
-                        Flect.Logger.info("/parse <input> - Parse the given input and show the AST.")
+                        Flect.Logger.info("/parse-mods <input> - Parse the given input modules and show the AST.")
+                        Flect.Logger.info("/parse-exprs <input> - Parse the given input expressions and show the AST.")
 
-                        repl()
-                    <<"/lex", rest :: binary()>> ->
+                        repl(i + 1)
+                    <<"/lex ", rest :: binary()>> ->
                         try do
                             tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
 
@@ -33,8 +36,8 @@ defmodule Flect.Interactive.Tool do
                             ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
-                        repl()
-                    <<"/pp", rest :: binary()>> ->
+                        repl(i + 1)
+                    <<"/pp ", rest :: binary()>> ->
                         try do
                             tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
                             tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
@@ -45,32 +48,49 @@ defmodule Flect.Interactive.Tool do
                             ex in [Flect.Compiler.Syntax.PreprocessorError] -> Flect.Logger.error(ex.error(), ex.location(), ex.notes())
                         end
 
-                        repl()
-                    <<"/parse", rest :: binary()>> ->
+                        repl(i + 1)
+                    <<"/parse-mods ", rest :: binary()>> ->
                         try do
                             tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
                             tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
-                            ast = Flect.Compiler.Syntax.Parser.parse(tokens, file)
+                            ast = Flect.Compiler.Syntax.Parser.parse_modules(tokens, file)
 
                             Enum.each(ast, fn(node) -> Flect.Logger.info(node.format()) end)
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                         end
 
-                        repl()
+                        repl(i + 1)
+                    <<"/parse-exprs ", rest :: binary()>> ->
+                        try do
+                            tokens = Flect.Compiler.Syntax.Lexer.lex(rest, file)
+                            tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+                            ast = Flect.Compiler.Syntax.Parser.parse_expressions(tokens, file)
+
+                            Enum.each(ast, fn(node) -> Flect.Logger.info(node.format()) end)
+                        rescue
+                            ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
+                        end
+
+                        repl(i + 1)
+                    b = <<"/", _ :: binary()>> ->
+                        Flect.Logger.error("Unknown command: #{b}")
+
+                        repl(i + 1)
                     text ->
                         try do
                             tokens = Flect.Compiler.Syntax.Lexer.lex(text, file)
-                            _ = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+                            tokens = Flect.Compiler.Syntax.Preprocessor.preprocess(tokens, Flect.Compiler.Syntax.Preprocessor.target_defines(), file)
+                            _ = Flect.Compiler.Syntax.Parser.parse_expressions(tokens, file)
 
-                            # TODO: Parse stuff.
+                            # TODO: Analyze and evaluate stuff.
                             :ok
                         rescue
                             ex in [Flect.Compiler.Syntax.SyntaxError] -> Flect.Logger.error(ex.error(), ex.location())
                             ex in [Flect.Compiler.Syntax.PreprocessorError] -> Flect.Logger.error(ex.error(), ex.location(), ex.notes())
                         end
 
-                        repl()
+                        repl(i + 1)
                 end
         end
     end

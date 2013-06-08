@@ -44,7 +44,7 @@ defmodule Flect.Server.Tool do
                         end
                     {:parse, file, tokens} ->
                         try do
-                            nodes = Flect.Compiler.Syntax.Parser.parse(tokens, file)
+                            nodes = Flect.Compiler.Syntax.Parser.parse_modules(tokens, file)
                             Flect.Logger.debug("Parsing successful; sending result")
                             from <- {:flect, {:parse, :ok, file, nodes}}
                         rescue

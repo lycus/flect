@@ -263,7 +263,7 @@ defmodule Flect.Compiler.Tool do
 
             if !dist do
                 parsed_files = lc {file, tokens} inlist preprocessed_files do
-                    {file, Flect.Compiler.Syntax.Parser.parse(tokens, file)}
+                    {file, Flect.Compiler.Syntax.Parser.parse_modules(tokens, file)}
                 end
             else
                 refs = lc {file, tokens} inlist preprocessed_files do

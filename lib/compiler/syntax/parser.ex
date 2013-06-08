@@ -15,25 +15,51 @@ defmodule Flect.Compiler.Syntax.Parser do
     Parses the given list of tokens into a list of
     `Flect.Compiler.Syntax.Node`s representing the module declarations
     (and everything inside those) of the source code document. Returns the
-    resulting list or throws a `Flect.Compiler.Syntax.SyntaxError` is the
+    resulting list or throws a `Flect.Compiler.Syntax.SyntaxError` if the
     source code is malformed.
 
     `tokens` must be a list of `Flect.Compiler.Syntax.Token`s. `file` must
     be a binary containing the file name (used to report syntax errors).
     """
-    @spec parse([Flect.Compiler.Syntax.Token.t()], String.t()) :: [Flect.Compiler.Syntax.Node.t()]
-    def parse(tokens, file) do
+    @spec parse_modules([Flect.Compiler.Syntax.Token.t()], String.t()) :: [Flect.Compiler.Syntax.Node.t()]
+    def parse_modules(tokens, file) do
         loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
-        do_parse({tokens, loc})
+        do_parse_modules({tokens, loc})
     end
 
-    @spec do_parse(state(), [ast_node()]) :: [ast_node()]
-    defp do_parse(state, mods // []) do
+    @spec do_parse_modules(state(), [ast_node()]) :: [ast_node()]
+    defp do_parse_modules(state, mods // []) do
         case expect_token(state, [:pub, :priv], "module declaration", true) do
+            :eof -> Enum.reverse(mods)
             {_, token, state} ->
                 {mod, state} = parse_mod(state, token)
-                do_parse(state, [mod | mods])
-            :eof -> Enum.reverse(mods)
+                do_parse_modules(state, [mod | mods])
+        end
+    end
+
+    @doc """
+    Parses the given list of tokens into a list of
+    `Flect.Compiler.Syntax.Node`s representing each semicolon-terminated
+    expression in the input. Returns the resulting list or throws a
+    `Flect.Compiler.Syntax.SyntaxError` if the source code is malformed.
+
+    `tokens` must be a list of `Flect.Compiler.Syntax.Token`s. `file` must
+    be a binary containing the file name (used to report syntax errors).
+    """
+    @spec parse_expressions([Flect.Compiler.Syntax.Token.t()], String.t()) :: [Flect.Compiler.Syntax.Node.t()]
+    def parse_expressions(tokens, file) do
+        loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
+        do_parse_expressions({tokens, loc})
+    end
+
+    @spec do_parse_expressions(state(), [ast_node()]) :: [ast_node()]
+    defp do_parse_expressions(state, exprs // []) do
+        case next_token(state, true) do
+            :eof -> Enum.reverse(exprs)
+            {:semicolon, _, state} -> do_parse_expressions(state, exprs)
+            _ ->
+                {expr, state} = parse_expr(state)
+                do_parse_expressions(state, [expr | exprs])
         end
     end
 
