@@ -9,7 +9,9 @@ https://github.com/lycus/flect/wiki/Style
 A test case for a change should almost always be included unless it is
 problematic to test. In such cases, please explain why in a commit
 message. You are also expected to run the test suite and verify that no
-regressions have been caused by your changes before submitting them.
+regressions have been caused by your changes before submitting them. It
+might be a good idea to set up a Dialyzer PLT so you can run Dialyzer
+on your changes.
 
 Please avoid sending unrelated patches in the same review/patch series.
 
