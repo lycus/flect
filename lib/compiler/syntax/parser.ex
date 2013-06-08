@@ -1002,8 +1002,7 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_unary_expr(state()) :: return_n()
     defp parse_unary_expr(state) do
         case next_token(state) do
-            {type, tok, state} when type in [:at,
-                                             :star,
+            {type, tok, state} when type in [:star,
                                              :plus,
                                              :minus,
                                              :exclamation,
@@ -1011,7 +1010,6 @@ defmodule Flect.Compiler.Syntax.Parser do
                 {expr, state} = parse_unary_expr(state)
 
                 ast_type = case type do
-                    :at -> :box_expr
                     :star -> :dereference_expr
                     :plus -> :plus_expr
                     :minus -> :negate_expr
@@ -1020,13 +1018,23 @@ defmodule Flect.Compiler.Syntax.Parser do
                 end
 
                 {new_node(ast_type, tok.location(), [operator: tok], [operand: expr]), state}
-            {:ampersand, tok, state} ->
+            {:at, tok, state} ->
+                {mut_imm, state} = case next_token(state) do
+                    {:mut, mut, state} -> {[mut_keyword: mut], state}
+                    {:imm, imm, state} -> {[imm_keyword: imm], state}
+                    _ -> {[], state}
+                end
+
                 {expr, state} = parse_unary_expr(state)
 
+                {new_node(:box_expr, tok.location(), [operator: tok] ++ mut_imm, [operand: expr]), state}
+            {:ampersand, tok, state} ->
                 {imm, state} = case next_token(state) do
                     {:imm, tok, state} -> {[imm_keyword: tok], state}
                     _ -> {[], state}
                 end
+
+                {expr, state} = parse_unary_expr(state)
 
                 {new_node(:address_expr, tok.location(), [operator: tok] ++ imm, [operand: expr]), state}
             {:ampersand_ampersand, tok, state} ->
