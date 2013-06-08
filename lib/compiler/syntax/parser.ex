@@ -1188,7 +1188,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:goto, _, _} -> parse_goto_expr(state)
             {:return, _, _} -> parse_return_expr(state)
             # {:asm, _, _} -> parse_asm_expr(state) # TODO
-            # {:new, _, _} -> parse_new_expr(state) # TODO
+            {:new, _, _} -> parse_new_expr(state)
             {:assert, _, _} -> parse_assert_expr(state)
             {:meta, _, _} -> parse_meta_expr(state)
             {:macro, _, _} -> parse_macro_expr(state)
@@ -1277,6 +1277,49 @@ defmodule Flect.Compiler.Syntax.Parser do
         {expr, state} = parse_expr(state)
 
         {new_node(:return_expr, tok_return.location(), [return_keyword: tok_return], [expression: expr]), state}
+    end
+
+    @spec parse_new_expr(state()) :: return_n()
+    defp parse_new_expr(state) do
+        {_, tok_new, state} = expect_token(state, :new, "'new' keyword")
+        {type, state} = parse_nominal_type(state)
+        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
+        {pairs, toks, state} = parse_field_value_pair_list(state, [])
+        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
+
+        pairs = lc pair inlist pairs, do: {:pair, pair}
+        toks = lc tok inlist toks, do: {:comma, tok}
+
+        tokens = [new_keyword: tok_new,
+                  opening_brace: tok_open,
+                  closing_brace: tok_close] ++ toks
+
+        {new_node(:new_expr, tok_new.location(), tokens, [type: type] ++ pairs), state}
+    end
+
+    @spec parse_field_value_pair_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_field_value_pair_list(state, pairs, tokens // []) do
+        case next_token(state) do
+            {:brace_close, _, _} -> {Enum.reverse(pairs), Enum.reverse(tokens), state}
+            _ ->
+                if pairs == [] do
+                    {pair, state} = parse_field_value_pair(state)
+                    parse_field_value_pair_list(state, [pair | pairs], tokens)
+                else
+                    {_, tok, state} = expect_token(state, :comma, "comma")
+                    {pair, state} = parse_field_value_pair(state)
+                    parse_field_value_pair_list(state, [pair | pairs], [tok | tokens])
+                end
+        end
+    end
+
+    @spec parse_field_value_pair(state()) :: return_n()
+    defp parse_field_value_pair(state) do
+        {name, state} = parse_simple_name(state)
+        {_, tok_eq, state} = expect_token(state, :assign, "equals sign")
+        {expr, state} = parse_expr(state)
+
+        {new_node(:field_value_pair, name.location(), [equals: tok_eq], [name: name, value: expr]), state}
     end
 
     @spec parse_assert_expr(state()) :: return_n()
