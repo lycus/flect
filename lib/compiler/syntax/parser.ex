@@ -941,7 +941,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_relational_expr(state()) :: return_n()
     defp parse_relational_expr(state) do
-        tup = {expr1, state} = parse_shift_expr(state)
+        tup = {expr1, state} = parse_pipeline_expr(state)
 
         case next_token(state) do
             {type, tok, state} when type in [:assign_assign,
@@ -963,6 +963,24 @@ defmodule Flect.Compiler.Syntax.Parser do
                     :angle_open_assign -> :relational_greater_equal_expr
                     :angle_close -> :relational_lower_expr
                     :angle_close_assign -> :relational_lower_equal_expr
+                end
+
+                {new_node(ast_type, tok.location(), [operator: tok], [lhs: expr1, rhs: expr2]), state}
+            _ -> tup
+        end
+    end
+
+    @spec parse_pipeline_expr(state()) :: return_n()
+    defp parse_pipeline_expr(state) do
+        tup = {expr1, state} = parse_shift_expr(state)
+
+        case next_token(state) do
+            {type, tok, state} when type in [:angle_open_pipe, :pipe_angle_close] ->
+                {expr2, state} = parse_shift_expr(state)
+
+                ast_type = case type do
+                    :angle_open_pipe -> :left_pipeline_expr
+                    :pipe_angle_close -> :right_pipeline_expr
                 end
 
                 {new_node(ast_type, tok.location(), [operator: tok], [lhs: expr1, rhs: expr2]), state}
