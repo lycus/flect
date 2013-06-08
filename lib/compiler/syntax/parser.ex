@@ -1240,6 +1240,7 @@ defmodule Flect.Compiler.Syntax.Parser do
                 end
 
                 {new_node(ast_type, tok.location(), [literal: tok], []), state}
+            {_, tok, _} -> raise_error(tok.location(), "Expected primary expression")
         end
     end
 
