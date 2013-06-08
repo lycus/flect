@@ -721,12 +721,15 @@ defmodule Flect.Compiler.Syntax.Parser do
     defp parse_function_type_parameter_list(state, params, tokens // []) do
         case next_token(state) do
             {:paren_close, _, _} -> {Enum.reverse(params), Enum.reverse(tokens), state}
-            {:comma, tok, state} when params != [] ->
-                {param, state} = parse_function_type_parameter(state)
-                parse_function_type_parameter_list(state, [param | params], [tok | tokens])
-            _ when params == [] ->
-                {param, state} = parse_function_type_parameter(state)
-                parse_function_type_parameter_list(state, [param | params], tokens)
+            _ ->
+                if params == [] do
+                    {param, state} = parse_function_type_parameter(state)
+                    parse_function_type_parameter_list(state, [param | params], tokens)
+                else
+                    {_, tok, state} = expect_token(state, :comma, "comma")
+                    {param, state} = parse_function_type_parameter(state)
+                    parse_function_type_parameter_list(state, [param | params], [tok | tokens])
+                end
         end
     end
 

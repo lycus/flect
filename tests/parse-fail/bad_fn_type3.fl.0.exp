@@ -1,0 +1,7 @@
+Error: bad_fn_type3.fl(3,27): Expected comma, but got 'asdf' 
+pub mod foo {
+    pub struct Foo {
+        pub foo : fn(asdf asdf) -> !;
+                          ^           
+    }
+}
