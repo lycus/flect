@@ -69,24 +69,37 @@ defmodule Flect.Compiler.Syntax.Parser do
         {new_node(:simple_name, tok.location(), [name: tok]), state}
     end
 
-    @spec parse_qualified_name(state(), {[{atom(), ast_node()}], [token()]}) :: return_n()
-    defp parse_qualified_name(state, {names, seps} // {[], []}) do
+    @spec parse_qualified_name(state(), boolean()) :: return_n()
+    defp parse_qualified_name(state, global // true) do
+        {tcol, loc, state} = case next_token(state) do
+            {:colon_colon, tok, state} when global -> {[separator: tok], tok.location(), state}
+            _ -> {[], nil, state}
+        end
+
+        {names, toks, state} = parse_qualified_name_list(state, [])
+
+        if !loc, do: loc = hd(names).location()
+
+        names = lc name inlist names, do: {:name, name}
+        toks = lc tok inlist toks, do: {:separator, tok}
+
+        {new_node(:qualified_name, loc, tcol ++ toks, names), state}
+    end
+
+    @spec parse_qualified_name_list(state(), [ast_node()], [token()]) :: return_mt()
+    defp parse_qualified_name_list(state, names, tokens // []) do
         {name, state} = parse_simple_name(state)
 
         case next_token(state) do
-            {:colon_colon, tok, state} ->
-                parse_qualified_name(state, {[{:name, name} | names], [tok | seps]})
-            _ ->
-                names = [{:name, name} | names] |> Enum.reverse()
-                seps = seps |> Enum.map(fn(x) -> {:separator, x} end) |> Enum.reverse()
-                {new_node(:qualified_name, elem(hd(names), 1).location(), seps, names), state}
+            {:colon_colon, tok, state} -> parse_qualified_name_list(state, [name | names], [tok | tokens])
+            _ -> {Enum.reverse([name | names]), Enum.reverse(tokens), state}
         end
     end
 
     @spec parse_mod(state(), token()) :: return_n()
     defp parse_mod(state, visibility) do
         {_, tok_mod, state} = expect_token(state, :mod, "'mod' keyword")
-        {name, state} = parse_qualified_name(state)
+        {name, state} = parse_qualified_name(state, false)
         {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
         {decls, state} = parse_decls(state)
         {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
@@ -138,7 +151,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ -> {[], state}
         end
 
-        {name, state} = parse_qualified_name(state)
+        {name, state} = parse_qualified_name(state, false)
         {_, tok_semi, state} = expect_token(state, :semicolon, "semicolon")
 
         {new_node(:use_declaration, tok_use.location(),
@@ -1154,6 +1167,17 @@ defmodule Flect.Compiler.Syntax.Parser do
                 {name, state} = parse_simple_name(state)
 
                 parse_post_expr(state, new_node(:method_expr, tok.location(), [operator: tok], [lhs: expr, rhs: name]))
+            {:exclamation, tok_excl, state} ->
+                {_, tok_open, state} = expect_token(state, :paren_open, "opening_parenthesis")
+                {args, toks, state} = parse_call_argument_list(state, [])
+                {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
+
+                args = lc arg inlist args, do: {:argument, arg}
+                toks = lc tok inlist toks, do: {:comma, tok}
+
+                tokens = [{:exclamation, tok_excl}, {:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close]
+
+                parse_post_expr(state, new_node(:macro_call_expr, tok_open.location(), tokens, args))
             {:paren_open, tok_open, state} ->
                 {args, toks, state} = parse_call_argument_list(state, [])
                 {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
@@ -1161,8 +1185,9 @@ defmodule Flect.Compiler.Syntax.Parser do
                 args = lc arg inlist args, do: {:argument, arg}
                 toks = lc tok inlist toks, do: {:comma, tok}
 
-                parse_post_expr(state, new_node(:call_expr, tok_open.location(),
-                                                [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close], args))
+                tokens = [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close]
+
+                parse_post_expr(state, new_node(:call_expr, tok_open.location(), tokens, args))
             _ -> {expr, state}
         end
     end
@@ -1245,7 +1270,18 @@ defmodule Flect.Compiler.Syntax.Parser do
 
                 {new_node(ast_type, tok.location(), [literal: tok], []), state}
             {:bracket_open, _, _} -> parse_vector_expr(state)
-            {_, tok, _} -> raise_error(tok.location(), "Expected primary expression")
+            {:identifier, _, istate} ->
+                case next_token(istate) do
+                    # If the identifier is followed by a colon, it's a labelled block.
+                    {:colon, _, _} -> parse_labelled_block(state)
+                    # Otherwise, it's just a regular identifier (possibly qualified).
+                    _ -> parse_identifier_expr(state)
+                end
+            # An identifier accessing the global scope.
+            {:colon_colon, _, _} -> parse_identifier_expr(state)
+            {_, tok, _} ->
+                val = if String.printable?(tok.value()), do: tok.value(), else: "<non-printable token>"
+                raise_error(tok.location(), "Expected primary expression, but found: #{val}")
         end
     end
 
@@ -1769,6 +1805,29 @@ defmodule Flect.Compiler.Syntax.Parser do
                     parse_array_expr_list(state, [expr | exprs], [tok | tokens])
                 end
         end
+    end
+
+    @spec parse_labelled_block(state()) :: return_n()
+    defp parse_labelled_block(state) do
+        {label, state} = parse_simple_name(state)
+        {_, tok_col, state} = expect_token(state, :colon, "colon")
+        {block, state} = parse_block(state)
+
+        {new_node(:labelled_block_expr, label.location(), [colon: tok_col], [label: label, block: block]), state}
+    end
+
+    @spec parse_identifier_expr(state()) :: return_n()
+    defp parse_identifier_expr(state) do
+        {name, state} = parse_qualified_name(state)
+
+        {ty_args, state} = case next_token(state) do
+            {:bracket_open, _, _} ->
+                {ty_args, state} = parse_type_arguments(state)
+                {[arguments: ty_args], state}
+            _ -> {[], state}
+        end
+
+        {new_node(:identifier_expr, name.location(), [], [{:name, name} | ty_args]), state}
     end
 
     @spec next_token(state(), boolean()) :: {atom(), token(), state()} | :eof
