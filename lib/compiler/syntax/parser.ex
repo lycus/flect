@@ -840,7 +840,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ -> {[], state}
         end
 
-        loc = elem(Enum.fetch!(tok, 0), 1).location()
+        loc = elem(hd(tok), 1).location()
 
         case next_token(state) do
             {:bracket_open, _, _} ->
@@ -1339,7 +1339,7 @@ defmodule Flect.Compiler.Syntax.Parser do
         patterns = lc pattern inlist patterns, do: {:pattern, pattern}
         toks = lc tok inlist toks, do: {:pipe, tok}
 
-        {new_node(:match_expr_branch, elem(Enum.first(patterns), 1).location(), toks, patterns ++ [body: block]), state}
+        {new_node(:match_expr_branch, elem(hd(patterns), 1).location(), toks, patterns ++ [body: block]), state}
     end
 
     @spec parse_match_branch_pattern_list(state(), [ast_node()], [token()]) :: return_mt()

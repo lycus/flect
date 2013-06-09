@@ -5,7 +5,7 @@ passes = :file.list_dir(path) |>
          Enum.filter(fn(x) -> Path.extname(x) == '.pass' end) |>
          Enum.sort() |>
          Enum.map(fn(x) -> Path.join(path, x) end) |>
-         Enum.map(fn(x) -> [pass: x |> Path.basename() |> Path.rootname()] ++ Enum.fetch!(elem(:file.consult(x), 1), 0) end)
+         Enum.map(fn(x) -> [pass: x |> Path.basename() |> Path.rootname()] ++ hd(elem(:file.consult(x), 1)) end)
 
 files = :file.list_dir(path) |>
         elem(1) |>
