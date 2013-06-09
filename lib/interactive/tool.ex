@@ -111,7 +111,7 @@ defmodule Flect.Interactive.Tool do
         # variable TERM is set to "dumb", or because we're running in cmd.exe),
         # fall back to a plain, dumb terminal.
         tty = try do
-            port = Port.open({:spawn, :"tty_sl -c -e"}, [:eof])
+            port = Port.open({:spawn, 'tty_sl -c -e'}, [:eof])
             Port.close(port)
             true
         catch
@@ -128,7 +128,7 @@ defmodule Flect.Interactive.Tool do
         if tty do
             function = fn() ->
                 spawn(fn() ->
-                    :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
+                    :ok = :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
 
                     repl()
 
