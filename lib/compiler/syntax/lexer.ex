@@ -166,32 +166,6 @@ defmodule Flect.Compiler.Syntax.Lexer do
         end
     end
 
-    @spec next_code_point(String.t(), location()) :: {String.codepoint(), String.t(), location()} | :eof
-    defp next_code_point(text, loc) do
-        case String.next_codepoint(text) do
-            :no_codepoint -> :eof
-            {cp, rest} ->
-                if !String.valid_codepoint?(cp) do
-                    raise_error(loc, "Encountered invalid UTF-8 code point")
-                end
-
-                {line, column} = if cp == "\n", do: {loc.line() + 1, 0}, else: {loc.line(), loc.column() + 1}
-                {cp, rest, loc.line(line).column(column)}
-        end
-    end
-
-    @spec next_code_points(String.t(), location(), pos_integer(), String.t(), non_neg_integer()) :: {String.t(), String.t(), location()} | :eof
-    defp next_code_points(text, loc, num, acc, num_acc // 0) do
-        if num_acc < num do
-            case next_code_point(text, loc) do
-                {cp, rest, loc} -> next_code_points(rest, loc, num, acc <> cp, num_acc + 1)
-                :eof -> :eof
-            end
-        else
-            {acc, text, loc}
-        end
-    end
-
     Enum.each(["mod",
                "use",
                "pub",
@@ -538,6 +512,32 @@ defmodule Flect.Compiler.Syntax.Lexer do
                         _ -> {:integer, text, loc}
                     end
             end
+        end
+    end
+
+    @spec next_code_point(String.t(), location()) :: {String.codepoint(), String.t(), location()} | :eof
+    defp next_code_point(text, loc) do
+        case String.next_codepoint(text) do
+            :no_codepoint -> :eof
+            {cp, rest} ->
+                if !String.valid_codepoint?(cp) do
+                    raise_error(loc, "Encountered invalid UTF-8 code point")
+                end
+
+                {line, column} = if cp == "\n", do: {loc.line() + 1, 0}, else: {loc.line(), loc.column() + 1}
+                {cp, rest, loc.line(line).column(column)}
+        end
+    end
+
+    @spec next_code_points(String.t(), location(), pos_integer(), String.t(), non_neg_integer()) :: {String.t(), String.t(), location()} | :eof
+    defp next_code_points(text, loc, num, acc, num_acc // 0) do
+        if num_acc < num do
+            case next_code_point(text, loc) do
+                {cp, rest, loc} -> next_code_points(rest, loc, num, acc <> cp, num_acc + 1)
+                :eof -> :eof
+            end
+        else
+            {acc, text, loc}
         end
     end
 
