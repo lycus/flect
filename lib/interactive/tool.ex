@@ -110,6 +110,20 @@ defmodule Flect.Interactive.Tool do
         Flect.Logger.info("Type /help for help and /quit to quit.")
         Flect.Logger.info("")
 
-        repl()
+        function = fn() ->
+            spawn(fn() ->
+                :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
+
+                repl()
+
+                Process.whereis(:flect_worker) <- :flect_interactive_exit
+
+                :ok
+            end)
+        end
+
+        :user_drv.start([:"tty_sl -c -e", {:erlang, :apply, [function, []]}])
+
+        receive do: (:flect_interactive_exit -> :ok)
     end
 end
