@@ -16,14 +16,17 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
             simple_name (3,13) [ "a" (3,13) ]
             {
             }
-            managed_array_type (3,17) [ "@" (3,17), "[" (3,18), "]" (3,22) ]
+            managed_pointer_type (3,17) [ "@" (3,17) ]
             {
-                nominal_type (3,19) [  ]
+                array_type (3,18) [ "[" (3,18), "]" (3,22) ]
                 {
-                    qualified_name (3,19) [  ]
+                    nominal_type (3,19) [  ]
                     {
-                        simple_name (3,19) [ "foo" (3,19) ]
+                        qualified_name (3,19) [  ]
                         {
+                            simple_name (3,19) [ "foo" (3,19) ]
+                            {
+                            }
                         }
                     }
                 }
@@ -34,14 +37,17 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
             simple_name (4,13) [ "b" (4,13) ]
             {
             }
-            unsafe_array_type (4,17) [ "*" (4,17), "[" (4,18), "]" (4,22) ]
+            unsafe_pointer_type (4,17) [ "*" (4,17) ]
             {
-                nominal_type (4,19) [  ]
+                array_type (4,18) [ "[" (4,18), "]" (4,22) ]
                 {
-                    qualified_name (4,19) [  ]
+                    nominal_type (4,19) [  ]
                     {
-                        simple_name (4,19) [ "bar" (4,19) ]
+                        qualified_name (4,19) [  ]
                         {
+                            simple_name (4,19) [ "bar" (4,19) ]
+                            {
+                            }
                         }
                     }
                 }
@@ -52,14 +58,17 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
             simple_name (5,13) [ "c" (5,13) ]
             {
             }
-            general_array_type (5,17) [ "&" (5,17), "[" (5,18), "]" (5,22) ]
+            general_pointer_type (5,17) [ "&" (5,17) ]
             {
-                nominal_type (5,19) [  ]
+                array_type (5,18) [ "[" (5,18), "]" (5,22) ]
                 {
-                    qualified_name (5,19) [  ]
+                    nominal_type (5,19) [  ]
                     {
-                        simple_name (5,19) [ "baz" (5,19) ]
+                        qualified_name (5,19) [  ]
                         {
+                            simple_name (5,19) [ "baz" (5,19) ]
+                            {
+                            }
                         }
                     }
                 }
@@ -70,14 +79,17 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
             simple_name (6,13) [ "d" (6,13) ]
             {
             }
-            managed_array_type (6,17) [ "@" (6,17), "mut" (6,18), "[" (6,22), "]" (6,26) ]
+            managed_pointer_type (6,17) [ "@" (6,17), "mut" (6,18) ]
             {
-                nominal_type (6,23) [  ]
+                array_type (6,22) [ "[" (6,22), "]" (6,26) ]
                 {
-                    qualified_name (6,23) [  ]
+                    nominal_type (6,23) [  ]
                     {
-                        simple_name (6,23) [ "foo" (6,23) ]
+                        qualified_name (6,23) [  ]
                         {
+                            simple_name (6,23) [ "foo" (6,23) ]
+                            {
+                            }
                         }
                     }
                 }
@@ -88,25 +100,28 @@ module_declaration (1,5) [ "pub" (1,1), "mod" (1,5), "{" (1,21), "}" (9,1) ]
             simple_name (7,13) [ "e" (7,13) ]
             {
             }
-            general_array_type (7,17) [ "&" (7,17), "imm" (7,18), "[" (7,22), "]" (7,33) ]
+            general_pointer_type (7,17) [ "&" (7,17), "imm" (7,18) ]
             {
-                tuple_type (7,23) [ "(" (7,23), "," (7,27), ")" (7,32) ]
+                array_type (7,22) [ "[" (7,22), "]" (7,33) ]
                 {
-                    nominal_type (7,24) [  ]
+                    tuple_type (7,23) [ "(" (7,23), "," (7,27), ")" (7,32) ]
                     {
-                        qualified_name (7,24) [  ]
+                        nominal_type (7,24) [  ]
                         {
-                            simple_name (7,24) [ "bar" (7,24) ]
+                            qualified_name (7,24) [  ]
                             {
+                                simple_name (7,24) [ "bar" (7,24) ]
+                                {
+                                }
                             }
                         }
-                    }
-                    nominal_type (7,29) [  ]
-                    {
-                        qualified_name (7,29) [  ]
+                        nominal_type (7,29) [  ]
                         {
-                            simple_name (7,29) [ "baz" (7,29) ]
+                            qualified_name (7,29) [  ]
                             {
+                                simple_name (7,29) [ "baz" (7,29) ]
+                                {
+                                }
                             }
                         }
                     }

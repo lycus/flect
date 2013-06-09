@@ -673,12 +673,12 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_type(state()) :: return_n()
     defp parse_type(state) do
-        case expect_token(state, [:identifier, :paren_open, :fn, :brace_open,
+        case expect_token(state, [:identifier, :paren_open, :fn, :bracket_open,
                                   :at, :star, :ampersand], "type signature") do
             {:identifier, _, _} -> parse_nominal_type(state)
             {:paren_open, _, _} -> parse_tuple_type(state)
             {:fn, _, _} -> parse_function_type(state)
-            {:brace_open, _, _} -> parse_vector_type(state)
+            {:bracket_open, _, _} -> parse_vector_type(state)
             _ -> parse_pointer_type(state)
         end
     end
@@ -828,16 +828,29 @@ defmodule Flect.Compiler.Syntax.Parser do
         end
     end
 
-    @spec parse_vector_type(state()) :: return_n()
-    defp parse_vector_type(state) do
-        {_, tok_open, state} = expect_token(state, :brace_open, "opening brace")
-        {_, tok_int, state} = expect_token(state, :integer, "vector size integer")
-        {_, tok_period_period, state} = expect_token(state, :period_period, "size/type-separating ellipsis")
+    @spec parse_vector_type(state(), boolean()) :: return_n()
+    defp parse_vector_type(state, array // false) do
+        {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
         {type, state} = parse_type(state)
-        {_, tok_close, state} = expect_token(state, :brace_close, "closing brace")
 
-        {new_node(:vector_type, tok_open.location(),
-                  [opening_brace: tok_open, ellipsis: tok_period_period, size: tok_int, closing_brace: tok_close], [element: type]), state}
+        {a_type, etok, state} = case next_token(state) do
+            {:period_period, etok, state} ->
+                {_, tok_int, state} = expect_token(state, :integer, "vector size integer")
+                {:vector_type, [ellipsis: etok, size: tok_int], state}
+            {_, tok, _} ->
+                if !array do
+                    val = if String.printable?(tok.value()), do: tok.value(), else: "<non-printable token>"
+                    raise_error(tok.location(), "Expected type/size-separating ellipsis, but found: #{val}")
+                end
+
+                {:array_type, [], state}
+        end
+
+        {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
+
+        tokens = [{:opening_bracket, tok_open} | etok] ++ [closing_bracket: tok_close]
+
+        {new_node(a_type, tok_open.location(), tokens, [element: type]), state}
     end
 
     @spec parse_pointer_type(state()) :: return_n()
@@ -854,26 +867,15 @@ defmodule Flect.Compiler.Syntax.Parser do
             _ -> {[], state}
         end
 
+        {type, state} = case next_token(state) do
+            # Kick of a hack, but it works.
+            {:bracket_open, _, _} -> parse_vector_type(state, true)
+            _ -> parse_type(state)
+        end
+
         loc = elem(hd(tok), 1).location()
 
-        case next_token(state) do
-            {:bracket_open, _, _} ->
-                a_type = case p_type do
-                    :managed_pointer_type -> :managed_array_type
-                    :unsafe_pointer_type -> :unsafe_array_type
-                    :general_pointer_type -> :general_array_type
-                end
-
-                {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
-                {type, state} = parse_type(state)
-                {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
-
-                {new_node(a_type, loc, tok ++ mut_imm ++ [opening_bracket: tok_open, closing_bracket: tok_close], [element: type]), state}
-            _ ->
-                {type, state} = parse_type(state)
-
-                {new_node(p_type, loc, tok ++ mut_imm, [pointee: type]), state}
-        end
+        {new_node(p_type, loc, tok ++ mut_imm, [pointee: type]), state}
     end
 
     @spec parse_expr(state()) :: return_n()
@@ -1756,20 +1758,19 @@ defmodule Flect.Compiler.Syntax.Parser do
     @spec parse_vector_expr(state(), boolean()) :: return_n()
     defp parse_vector_expr(state, array // false) do
         {_, tok_open, state} = expect_token(state, :bracket_open, "opening bracket")
+        {exprs, toks, state} = parse_vector_expr_list(state, [])
 
-        {type, exprs, toks, etoks, state} = case next_token(state) do
-            {:integer, tok_int, state} ->
-                {_, tok_ell, state} = expect_token(state, :period_period, "size/elements-separating ellipsis")
-                {exprs, toks, state} = parse_vector_expr_list(state, [])
-                {:vector_expr, exprs, toks, [size: tok_int, ellipsis: tok_ell], state}
-            {_, ltok, _} ->
+        {type, etok, state} = case next_token(state) do
+            {:period_period, etok, state} ->
+                {_, tok_int, state} = expect_token(state, :integer, "vector size integer")
+                {:vector_expr, [ellipsis: etok, size: tok_int], state}
+            {_, tok, _} ->
                 if !array do
-                    val = if String.printable?(ltok.value()), do: ltok.value(), else: "<non-printable token>"
-                    raise_error(ltok.location(), "Expected vector size integer, but found: #{val}")
+                    val = if String.printable?(tok.value()), do: tok.value(), else: "<non-printable token>"
+                    raise_error(tok.location(), "Expected elements/size-separating ellipsis, but found: #{val}")
                 end
 
-                {exprs, toks, state} = parse_array_expr_list(state, [])
-                {:array_expr, exprs, toks, [], state}
+                {:array_expr, [], state}
         end
 
         {_, tok_close, state} = expect_token(state, :bracket_close, "closing bracket")
@@ -1777,33 +1778,23 @@ defmodule Flect.Compiler.Syntax.Parser do
         exprs = lc expr inlist exprs, do: {:expression, expr}
         toks = lc tok inlist toks, do: {:comma, tok}
 
-        tokens = [{:opening_bracket, tok_open} | etoks] ++ toks ++ [closing_bracket: tok_close]
+        tokens = [{:opening_bracket, tok_open} | toks] ++ etok ++ [closing_bracket: tok_close]
 
         {new_node(type, tok_open.location(), tokens, exprs), state}
     end
 
     @spec parse_vector_expr_list(state(), [ast_node()], [token()]) :: return_mt()
     defp parse_vector_expr_list(state, exprs, tokens // []) do
-        {expr, state} = parse_expr(state)
-
         case next_token(state) do
-            {:comma, tok, state} -> parse_vector_expr_list(state, [expr | exprs], [tok | tokens])
-            _ -> {Enum.reverse([expr | exprs]), Enum.reverse(tokens), state}
-        end
-    end
-
-    @spec parse_array_expr_list(state(), [ast_node()], [token()]) :: return_mt()
-    defp parse_array_expr_list(state, exprs, tokens // []) do
-        case next_token(state) do
-            {t, _, _} when t in [:bracket_close] -> {Enum.reverse(exprs), Enum.reverse(tokens), state}
+            {t, _, _} when t in [:period_period, :bracket_close] -> {Enum.reverse(exprs), Enum.reverse(tokens), state}
             _ ->
                 if exprs == [] do
                     {expr, state} = parse_expr(state)
-                    parse_array_expr_list(state, [expr | exprs], tokens)
+                    parse_vector_expr_list(state, [expr | exprs], tokens)
                 else
                     {_, tok, state} = expect_token(state, :comma, "comma")
                     {expr, state} = parse_expr(state)
-                    parse_array_expr_list(state, [expr | exprs], [tok | tokens])
+                    parse_vector_expr_list(state, [expr | exprs], [tok | tokens])
                 end
         end
     end
