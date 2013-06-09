@@ -59,6 +59,7 @@ defmodule Flect.Compiler.Syntax.Parser do
             {:semicolon, _, state} -> do_parse_expressions(state, exprs)
             _ ->
                 {expr, state} = parse_expr(state)
+                {_, _, state} = expect_token(state, :semicolon, "expression-terminating semicolon")
                 do_parse_expressions(state, [expr | exprs])
         end
     end
