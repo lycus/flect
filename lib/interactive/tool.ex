@@ -106,24 +106,43 @@ defmodule Flect.Interactive.Tool do
             throw 2
         end
 
+        # Try to figure out whether we can use a smart terminal (with history
+        # and working arrow keys) or not. If we can't (because the environment
+        # variable TERM is set to "dumb", or because we're running in cmd.exe),
+        # fall back to a plain, dumb terminal.
+        tty = try do
+            port = Port.open({:spawn, :"tty_sl -c -e"}, [:eof])
+            Port.close(port)
+            true
+        catch
+            _, _ -> false
+        end
+
+        term = System.get_env("TERM") || ""
+
         Flect.Logger.info("Welcome to the Flect interactive REPL.")
+        Flect.Logger.info("Using a #{if tty, do: "smart", else: "dumb"} terminal (TERM = \"#{term}\").")
         Flect.Logger.info("Type /help for help and /quit to quit.")
         Flect.Logger.info("")
 
-        function = fn() ->
-            spawn(fn() ->
-                :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
+        if tty do
+            function = fn() ->
+                spawn(fn() ->
+                    :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
 
-                repl()
+                    repl()
 
-                Process.whereis(:flect_worker) <- :flect_interactive_exit
+                    Process.whereis(:flect_worker) <- :flect_interactive_exit
 
-                :ok
-            end)
+                    :ok
+                end)
+            end
+
+            :user_drv.start([:"tty_sl -c -e", {:erlang, :apply, [function, []]}])
+
+            receive do: (:flect_interactive_exit -> :ok)
+        else
+            repl()
         end
-
-        :user_drv.start([:"tty_sl -c -e", {:erlang, :apply, [function, []]}])
-
-        receive do: (:flect_interactive_exit -> :ok)
     end
 end
