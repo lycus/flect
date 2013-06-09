@@ -187,15 +187,15 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
 
         cross = if Flect.Target.get_cross() == "true", do: ["Flect_Cross"], else: []
 
-        ["Flect_Compiler_" <> cc,
-         "Flect_Linker_" <> ld,
-         "Flect_OS_" <> os,
-         "Flect_CPU_" <> arch,
-         "Flect_ABI_" <> abi,
-         "Flect_FPABI_" <> fpabi,
-         "Flect_Endianness_" <> endian,
-         "Flect_PointerSize_" <> ptr_size,
-         "Flect_WordSize_" <> word_size
+        ["Flect_Compiler_#{cc}",
+         "Flect_Linker_#{ld}",
+         "Flect_OS_#{os}",
+         "Flect_CPU_#{arch}",
+         "Flect_ABI_#{abi}",
+         "Flect_FPABI_#{fpabi}",
+         "Flect_Endianness_#{endian}",
+         "Flect_PointerSize_#{ptr_size}",
+         "Flect_WordSize_#{word_size}"
          | cross]
     end
 

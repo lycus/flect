@@ -39,11 +39,11 @@ defrecord Flect.Compiler.Syntax.Node, type: nil,
     defp do_format(node, indent) do
         loc = fn(loc) -> "(#{loc.line()},#{loc.column()})" end
 
-        str = indent <> "#{atom_to_binary(node.type())} #{loc.(node.location())} "
-        str = str <> "[ " <> Enum.join((lc {_, t} inlist node.tokens(), do: "\"#{t.value()}\" #{loc.(t.location())}"), ", ") <> " ]\n"
-        str = str <> indent <> "{\n"
+        str = "#{indent}#{atom_to_binary(node.type())} #{loc.(node.location())} "
+        str = "#{str}[ " <> Enum.join((lc {_, t} inlist node.tokens(), do: "\"#{t.value()}\" #{loc.(t.location())}"), ", ") <> " ]\n"
+        str = "#{str}#{indent}{\n"
         str = str <> Enum.join(lc {_, child} inlist node.children(), do: do_format(child, indent <> "    ") <> "\n")
-        str = str <> indent <> "}"
+        str = "#{str}#{indent}}"
 
         str
     end

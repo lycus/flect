@@ -368,7 +368,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
         {cp, rest, loc} = case next_code_point(text, loc) do
             {"\\", rest, loc} ->
                 case next_code_point(rest, loc) do
-                    {cp, rest, iloc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, iloc}
+                    {cp, rest, iloc} when cp in ["'", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\#{cp}", rest, iloc}
                     {cp, rest, iloc} when cp == "u" ->
                         case next_code_points(rest, iloc, 8, "") do
                             {code, rest, jloc} ->
@@ -384,7 +384,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
                                 end
 
-                                {"\\" <> cp <> code, rest, jloc}
+                                {"\\#{cp}#{code}", rest, jloc}
                             _ -> raise_error(iloc, "8 hexadecimal digits expected for Unicode escape sequence")
                         end
                     {cp, _, iloc} -> raise_error(iloc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
@@ -406,7 +406,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
             {cp, rest, loc} when cp == "\"" -> {:string, acc <> cp, rest, oloc, loc}
             {"\\", rest, loc} ->
                 {esc, rest, loc} = case next_code_point(rest, loc) do
-                    {cp, rest, iloc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\" <> cp, rest, iloc}
+                    {cp, rest, iloc} when cp in ["\"", "\\", "0", "a", "b", "f", "n", "r", "t", "v"] -> {"\\#{cp}", rest, iloc}
                     {cp, rest, iloc} when cp == "u" ->
                         case next_code_points(rest, loc, 8, "") do
                             {code, rest, jloc} ->
@@ -422,7 +422,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
                                 end
 
-                                {"\\" <> cp <> code, rest, jloc}
+                                {"\\#{cp}#{code}", rest, jloc}
                             _ -> raise_error(iloc, "8 hexadecimal digits expected for Unicode escape sequence")
                         end
                     {cp, _, iloc} -> raise_error(iloc, "Unknown escape sequence code point#{if String.printable?(cp), do: ": " <> cp, else: ""}")
@@ -438,7 +438,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                      boolean()) :: return(:integer | :float | :i | :u | :i8 | :u8 | :i16 | :u16 | :i32 | :u32 | :i64 | :u64 | :f32 | :f64)
     defp lex_number(acc, text, oloc, loc, base, float, spec) do
         case next_code_point(text, loc) do
-            {".", rest, loc} when float -> lex_float(acc <> ".", rest, oloc, loc)
+            {".", rest, loc} when float -> lex_float("#{acc}.", rest, oloc, loc)
             {cp, irest, iloc} ->
                 is_digit = case base do
                     2 -> binary_digit?(cp)
