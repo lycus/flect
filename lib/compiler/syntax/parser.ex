@@ -880,7 +880,19 @@ defmodule Flect.Compiler.Syntax.Parser do
 
     @spec parse_expr(state()) :: return_n()
     defp parse_expr(state) do
-        parse_cast_expr(state)
+        parse_assign_expr(state)
+    end
+
+    @spec parse_assign_expr(state) :: return_n()
+    defp parse_assign_expr(state) do
+        tup = {expr1, state} = parse_cast_expr(state)
+
+        case next_token(state) do
+            {:assign, tok, state} ->
+                {expr2, state} = parse_assign_expr(state)
+                {new_node(:assign_expr, tok.location(), [operator: tok], [lhs: expr1, rhs: expr2]), state}
+            _ -> tup
+        end
     end
 
     @spec parse_cast_expr(state()) :: return_n()
