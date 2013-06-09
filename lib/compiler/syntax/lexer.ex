@@ -355,7 +355,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 _ = try do
                                     <<parsed :: utf8>>
                                 rescue
-                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
+                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: U+#{code}")
                                 end
 
                                 {"\\#{cp}#{code}", rest, jloc}
@@ -393,7 +393,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 _ = try do
                                     <<parsed :: utf8>>
                                 rescue
-                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: #{code}")
+                                    ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: U+#{code}")
                                 end
 
                                 {"\\#{cp}#{code}", rest, jloc}

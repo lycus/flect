@@ -17,9 +17,9 @@ defmodule Flect.Logger do
     """
 
     @spec colorize(String.t(), String.t()) :: String.t()
-    defp colorize(str, color, sep // ":") do
+    defp colorize(str, color, sep // ":", term // " ") do
         emit = IO.ANSI.terminal?() && :application.get_env(:flect, :flect_event_pid) == :undefined && System.get_env("FLECT_COLORS") != "0"
-        IO.ANSI.escape_fragment("%{#{color}, bright}#{str}#{sep}%{reset} ", emit)
+        IO.ANSI.escape_fragment("%{#{color}, bright}#{str}#{sep}%{reset}#{term}", emit)
     end
 
     @spec output(String.t()) :: :ok
@@ -42,7 +42,7 @@ defmodule Flect.Logger do
     @spec output_diags([{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
     defp output_diags(notes) do
         Enum.each(notes, fn({msg, loc}) ->
-            output(colorize("Note", "blue") <> stringize_loc(loc) <> colorize(msg, "white", ""))
+            output(colorize("Note", "blue") <> stringize_loc(loc) <> colorize(msg, "white", "", ""))
             output_diag(loc)
         end)
     end
@@ -75,7 +75,7 @@ defmodule Flect.Logger do
     """
     @spec warn(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
     def warn(str, loc // nil, notes // []) do
-        output(colorize("Warning", "yellow") <> stringize_loc(loc) <> colorize(str, "white", ""))
+        output(colorize("Warning", "yellow") <> stringize_loc(loc) <> colorize(str, "white", "", ""))
         output_diag(loc)
         output_diags(notes)
     end
@@ -89,7 +89,7 @@ defmodule Flect.Logger do
     """
     @spec error(String.t(), Flect.Compiler.Syntax.Location.t() | nil, [{String.t(), Flect.Compiler.Syntax.Location.t() | nil}]) :: :ok
     def error(str, loc // nil, notes // []) do
-        output(colorize("Error", "red") <> stringize_loc(loc) <> colorize(str, "white", ""))
+        output(colorize("Error", "red") <> stringize_loc(loc) <> colorize(str, "white", "", ""))
         output_diag(loc)
         output_diags(notes)
     end
@@ -103,7 +103,7 @@ defmodule Flect.Logger do
     """
     @spec log(String.t()) :: :ok
     def log(str) do
-        output(colorize("Log", "cyan") <> colorize(str, "white", ""))
+        output(colorize("Log", "cyan") <> colorize(str, "white", "", ""))
     end
 
     @doc """
@@ -115,7 +115,7 @@ defmodule Flect.Logger do
     @spec debug(String.t()) :: :ok
     def debug(str) do
         if System.get_env("FLECT_DEBUG") == "1" do
-            output(colorize("Debug", "magenta") <> colorize(str, "white", ""))
+            output(colorize("Debug", "magenta") <> colorize(str, "white", "", ""))
         end
     end
 

@@ -1,3 +1,3 @@
-Error: bad_float2.fl(1,1): Missing fractional part of floating point literal 
+Error: bad_float2.fl(1,1): Missing fractional part of floating point literal
 10.a
 ^    

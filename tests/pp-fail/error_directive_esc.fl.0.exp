@@ -1,4 +1,4 @@
 Error: error_directive_esc.fl(1,1): \error: this is a string
-with an escape sequence 
+with an escape sequence
 \error "this is a string\nwith an escape sequence"
 ^                                                  

@@ -1,4 +1,4 @@
-Error: fn_at_missing_ret.fl(3,22): Expected return type arrow, but got ';' 
+Error: fn_at_missing_ret.fl(3,22): Expected return type arrow, but found: ;
 pub mod fn_missing_ret {
     pub struct FnMissingRet {
         pub f : fn@();

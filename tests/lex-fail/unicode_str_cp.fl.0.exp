@@ -1,3 +1,3 @@
-Error: unicode_str_cp.fl(1,3): Unicode escape sequence contains invalid code point: 99999999 
+Error: unicode_str_cp.fl(1,3): Unicode escape sequence contains invalid code point: U+99999999
 "\u99999999"
   ^          

@@ -1,4 +1,4 @@
-Error: bad_array.fl(3,22): Expected closing bracket, but got ';' 
+Error: bad_array.fl(3,22): Expected closing bracket, but found: ;
 pub mod bad_array {
     pub struct BadArray {
         pub a : @[int;

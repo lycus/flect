@@ -1,4 +1,4 @@
-Error: bad_generic_args.fl(3,24): Expected closing bracket, but got ';' 
+Error: bad_generic_args.fl(3,24): Expected closing bracket, but found: ;
 pub mod bad_generic_args {
     pub struct BadGenericArgs {
         pub a : foo[bar;

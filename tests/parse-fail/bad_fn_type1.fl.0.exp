@@ -1,4 +1,4 @@
-Error: bad_fn_type1.fl(3,23): Expected type signature, but got ')' 
+Error: bad_fn_type1.fl(3,23): Expected type signature, but found: )
 pub mod bad_fn_type1 {
     pub struct BadFnType1 {
         pub f : fn(a, ) -> unit;

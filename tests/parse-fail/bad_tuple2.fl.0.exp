@@ -1,4 +1,4 @@
-Error: bad_tuple2.fl(3,19): Expected comma, but got ')' 
+Error: bad_tuple2.fl(3,19): Expected comma, but found: )
 pub mod bad_tuple2 {
     pub struct BadTuple2 {
         pub t : (a);

@@ -1,3 +1,3 @@
-Error: bad_module_closing_brace.fl(1,13): Unexpected end of token stream 
+Error: bad_module_closing_brace.fl(1,13): Unexpected end of token stream
 pub mod foo {
             ^ 

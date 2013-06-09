@@ -1,4 +1,4 @@
-Error: pointer_missing_pointee.fl(3,18): Expected type signature, but got ';' 
+Error: pointer_missing_pointee.fl(3,18): Expected type signature, but found: ;
 pub mod pointer_missing_pointee {
     pub struct PointerMissingPointee {
         pub a : *;

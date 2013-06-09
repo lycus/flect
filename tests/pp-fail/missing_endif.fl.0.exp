@@ -1,3 +1,3 @@
-Error: missing_endif.fl(1,5): Unexpected end of token stream 
+Error: missing_endif.fl(1,5): Unexpected end of token stream
 \if true
     ^    

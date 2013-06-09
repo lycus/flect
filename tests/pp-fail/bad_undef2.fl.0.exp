@@ -1,4 +1,4 @@
-Error: bad_undef2.fl(3,8): 'Foo' is not defined 
+Error: bad_undef2.fl(3,8): 'Foo' is not defined
 \define Foo
 \undef Foo
 \undef Foo

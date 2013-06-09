@@ -1,4 +1,4 @@
-Error: bad_module_ident2.fl(1,10): Expected identifier, but got '::' 
+Error: bad_module_ident2.fl(1,10): Expected identifier, but found: ::
 priv mod :: {
          ^    
 }

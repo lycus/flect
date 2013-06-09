@@ -1,4 +1,4 @@
-Error: bad_module.fl(1,9): Expected identifier, but got '{' 
+Error: bad_module.fl(1,9): Expected identifier, but found: {
 pub mod {
         ^ 
 }

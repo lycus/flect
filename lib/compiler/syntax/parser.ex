@@ -1727,7 +1727,8 @@ defmodule Flect.Compiler.Syntax.Parser do
                 {:vector_expr, exprs, toks, [size: tok_int, ellipsis: tok_ell], state}
             {_, ltok, _} ->
                 if !array do
-                    raise_error(ltok.location(), "Expected vector size integer")
+                    val = if String.printable?(ltok.value()), do: ltok.value(), else: "<non-printable token>"
+                    raise_error(ltok.location(), "Expected vector size integer, but found: #{val}")
                 end
 
                 {exprs, toks, state} = parse_array_expr_list(state, [])
@@ -1793,7 +1794,10 @@ defmodule Flect.Compiler.Syntax.Parser do
                     is_atom(type) -> t == type
                 end
 
-                if !ok, do: raise_error(l, "Expected #{str}, but got '#{tok.value()}'")
+                if !ok do
+                    val = if String.printable?(tok.value()), do: tok.value(), else: "<non-printable token>"
+                    raise_error(l, "Expected #{str}, but found: #{val}")
+                end
 
                 tup
             # We only get :eof if eof is true.

@@ -1,4 +1,4 @@
-Error: vec_no_size.fl(3,18): Expected vector size integer, but got 'int' 
+Error: vec_no_size.fl(3,18): Expected vector size integer, but found: int
 pub mod vec_no_size {
     pub struct VecNoSize {
         pub v : {int .. };

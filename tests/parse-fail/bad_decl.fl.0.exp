@@ -1,4 +1,4 @@
-Error: bad_decl.fl(2,5): Expected closing brace, but got 'if' 
+Error: bad_decl.fl(2,5): Expected closing brace, but found: if
 pub mod foo {
     if
     ^  
