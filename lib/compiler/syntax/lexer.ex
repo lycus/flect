@@ -226,7 +226,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def keyword?(_), do: false
 
     Enum.each(?0 .. ?1, fn(x) ->
-        def :binary_digit?, [<<x :: utf8>>], [], do: true
+        def :binary_digit?, [<<x :: utf8()>>], [], do: true
     end)
 
     @doc """
@@ -237,7 +237,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def binary_digit?(_), do: false
 
     Enum.each(?0 .. ?7, fn(x) ->
-        def :octal_digit?, [<<x :: utf8>>], [], do: true
+        def :octal_digit?, [<<x :: utf8()>>], [], do: true
     end)
 
     @doc """
@@ -248,7 +248,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
     def octal_digit?(_), do: false
 
     Enum.each(?0 .. ?9, fn(x) ->
-        def :decimal_digit?, [<<x :: utf8>>], [], do: true
+        def :decimal_digit?, [<<x :: utf8()>>], [], do: true
     end)
 
     @doc """
@@ -260,7 +260,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?0 .. ?9, ?a .. ?f, ?A .. ?F], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :hexadecimal_digit?, [<<x :: utf8>>], [], do: true
+            def :hexadecimal_digit?, [<<x :: utf8()>>], [], do: true
         end)
     end)
 
@@ -273,7 +273,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?a .. ?z, ?A .. ?Z, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :identifier_start_char?, [<<x :: utf8>>], [], do: true
+            def :identifier_start_char?, [<<x :: utf8()>>], [], do: true
         end)
     end)
 
@@ -286,7 +286,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
 
     Enum.each([?a .. ?z, ?A .. ?Z, ?0 .. ?9, [?_]], fn(xs) ->
         Enum.each(xs, fn(x) ->
-            def :identifier_char?, [<<x :: utf8>>], [], do: true
+            def :identifier_char?, [<<x :: utf8()>>], [], do: true
         end)
     end)
 
@@ -353,7 +353,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 parsed = binary_to_integer(code, 16)
 
                                 _ = try do
-                                    <<parsed :: utf8>>
+                                    <<parsed :: utf8()>>
                                 rescue
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: U+#{code}")
                                 end
@@ -391,7 +391,7 @@ defmodule Flect.Compiler.Syntax.Lexer do
                                 parsed = binary_to_integer(code, 16)
 
                                 _ = try do
-                                    <<parsed :: utf8>>
+                                    <<parsed :: utf8()>>
                                 rescue
                                     ArgumentError -> raise_error(iloc, "Unicode escape sequence contains invalid code point: U+#{code}")
                                 end
