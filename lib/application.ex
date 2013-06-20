@@ -11,7 +11,7 @@ defmodule Flect.Application do
     `args` must be a list of Erlang-style strings containing the command
     line arguments.
     """
-    @spec main([char_list()]) :: no_return()
+    @spec main([String.t()]) :: no_return()
     def main(args) do
         {opts, rest} = parse(args)
 
