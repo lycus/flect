@@ -6,13 +6,26 @@ defmodule Flect.Application do
     use Application.Behaviour
 
     @doc """
-    Runs Flect from the command line. Returns via `System.halt/1`.
+    Runs Flect from the command line. Returns via `System.halt/1` or by
+    raising a `Flect.InternalError` in case something went very wrong.
 
-    `args` must be a list of Erlang-style strings containing the command
-    line arguments.
+    `args` must be a list of strings containing the command line arguments.
     """
     @spec main([String.t()]) :: no_return()
     def main(args) do
+        try do
+            raw_main(args)
+        rescue
+            ex ->
+                raise(Flect.InternalError, [cause: ex], System.stacktrace())
+        end
+    end
+
+    @doc """
+    Same as `main/1`, but does not catch any exceptions.
+    """
+    @spec raw_main([String.t()]) :: no_return()
+    def raw_main(args) do
         {opts, rest} = parse(args)
 
         have_tool = !Enum.empty?(rest)
