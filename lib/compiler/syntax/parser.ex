@@ -1192,7 +1192,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
                 tokens = [{:exclamation, tok_excl}, {:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close]
 
-                parse_post_expr(state, new_node(:macro_call_expr, tok_open.location(), tokens, args))
+                parse_post_expr(state, new_node(:macro_call_expr, tok_open.location(), tokens, [{:callee, expr} | args]))
             {:paren_open, tok_open, state} ->
                 {args, toks, state} = parse_call_argument_list(state, [])
                 {_, tok_close, state} = expect_token(state, :paren_close, "closing parenthesis")
@@ -1202,7 +1202,7 @@ defmodule Flect.Compiler.Syntax.Parser do
 
                 tokens = [{:opening_parenthesis, tok_open} | toks] ++ [closing_parenthesis: tok_close]
 
-                parse_post_expr(state, new_node(:call_expr, tok_open.location(), tokens, args))
+                parse_post_expr(state, new_node(:call_expr, tok_open.location(), tokens, [{:callee, expr} | args]))
             _ -> {expr, state}
         end
     end
