@@ -218,7 +218,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
         loc = if t = Enum.first(tokens), do: t.location(), else: Flect.Compiler.Syntax.Location[file: file]
         {section, _} = parse_section_stmt({tokens, loc})
 
-        {nodes, _} = evaluate_section(section, lc defn inlist defs, do: {defn, nil})
+        {nodes, _} = evaluate_section(section, (lc defn inlist defs, do: {defn, nil}))
         lc node inlist nodes, do: node.tokens()[:token]
     end
 

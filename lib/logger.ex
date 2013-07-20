@@ -136,7 +136,8 @@ defmodule Flect.Logger do
             {:ok, data} ->
                 lines = data |>
                         String.split("\n") |>
-                        Enum.map(fn(x, i) -> {x, classify.(i)} end) |>
+                        Enum.with_index() |>
+                        Enum.map(fn({x, i}) -> {x, classify.(i)} end) |>
                         Enum.filter(fn({_, t}) -> t != nil end)
 
                 # If any of the lines contain non-printable characters, bail and don't print anything.
@@ -156,7 +157,9 @@ defmodule Flect.Logger do
                     result = prev ++ [line] ++ [marker] ++ next
                     length = length(result)
 
-                    Enum.map(result, fn(x, i) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
+                    result |>
+                    Enum.with_index() |>
+                    Enum.map(fn({x, i}) -> if i == length - 1, do: x, else: x <> "\n" end) |> Enum.join()
                 end
             {:error, _} -> nil
         end
