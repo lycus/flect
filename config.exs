@@ -20,6 +20,9 @@ re = fn(re) -> Regex.match?(re, target) end
     re.(%r/^arm-\w*-linux-gnueabihf$/) -> {"arm", "linux", "arm-aapcs", "arm-hardfp", "little"}
     re.(%r/^armv\dh\w-\w*-linux-gnu$/) -> {"arm", "linux", "arm-aapcs", "arm-hardfp", "little"}
 
+    re.(%r/^mips-\w*-linux-gnu$/) -> {"mips", "linux", "mips-o32", "mips-hardfp", "big"}
+    re.(%r/^mipsel-\w*-linux-gnu$/) -> {"mips", "linux", "mips-o32", "mips-hardfp", "little"}
+
     re.(%r/^powerpc-\w*-linux-gnu$/) -> {"ppc", "linux", "ppc-ppc64", "ppc-hardfp", "big"}
 
     re.(%r/^i\d86-\w*-linux-gnu$/) -> {"x86", "linux", "x86-sysv32", "x86-x87", "little"}
