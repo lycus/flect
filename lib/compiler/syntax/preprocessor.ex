@@ -152,7 +152,7 @@ defmodule Flect.Compiler.Syntax.Preprocessor do
             "ia64-lp64" -> {"Itanium_LP64", "64", "64"}
             "mips-o32" -> {"MIPS_O32", "32", "32"}
             "mips-n32" -> {"MIPS_N32", "32", "64"}
-            "mips-o64" -> {"MIPS_O64", "64", "32"}
+            "mips-o64" -> {"MIPS_O64", "32", "64"}
             "mips-n64" -> {"MIPS_N64", "64", "64"}
             "mips-eabi32" -> {"MIPS_EABI32", "32", "32"}
             "mips-eabi64" -> {"MIPS_EABI64", "64", "64"}
