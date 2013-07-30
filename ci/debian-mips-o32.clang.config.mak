@@ -9,7 +9,7 @@ export FLECT_CROSS      ?= false
 
 export FLECT_CC         ?= clang
 export FLECT_CC_TYPE    ?= gcc
-export FLECT_CC_ARGS    ?=
+export FLECT_CC_ARGS    ?= -target mipsel -march=mips32
 export FLECT_LD         ?= ld
 export FLECT_LD_TYPE    ?= ld
 export FLECT_LD_ARGS    ?=
